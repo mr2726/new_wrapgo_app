@@ -109,9 +109,9 @@ export const Input_ = ({
               zIndex: 1,
             }}>
             {isPasswordVisibleState ? (
-              <Feather name="eye-off" color="#626262" size={20} />
-            ) : (
               <Feather name="eye" color="#626262" size={20} />
+            ) : (
+              <Feather name="eye-off" color="#626262" size={20} />
             )}
           </Pressable>
         )}
