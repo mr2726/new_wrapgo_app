@@ -66,3 +66,39 @@ Notes:
 	icon={<Feather name="phone" size={20} color="#626262" />}
 />
 ```
+
+### Selector_
+
+Path: src/components/ui/selectors.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| options | array | Yes | List of options for dropdown. Expected item shape: { label, value } |
+| value | object | No | Currently selected option object. When empty, selector shows an empty value |
+| onValueChange | function | Yes | Callback fired when user selects an option |
+| style | object \| array | No | Additional styles for the selector pressable container |
+| label | string | No | Label shown above the selector |
+| error | boolean \| string | No | Reserved prop in current implementation (not rendered yet) |
+| errorText | string | No | Reserved prop in current implementation (not rendered yet) |
+
+Notes:
+- Press on selector toggles open/close state.
+- Chevron icon on the right switches between up and down based on open state.
+- On option press, component calls `onValueChange(option)` and closes the list.
+
+#### Example
+
+```jsx
+<Selector_
+	label="Category"
+	value={selectedCategory}
+	options={[
+		{ label: 'Food', value: 'food' },
+		{ label: 'Transport', value: 'transport' },
+		{ label: 'Health', value: 'health' },
+	]}
+	onValueChange={setSelectedCategory}
+/>
+```
