@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import {Button_} from './src/components/ui/buttons';
-import {Input_} from './src/components/ui/inputs';
+import {Button_} from './src/components/ui/buttons'; 
+import {Input_} from './src/components/ui/inputs'; 
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
