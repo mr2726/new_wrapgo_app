@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import {Button_} from './src/components/ui/buttons'; 
 import {Input_} from './src/components/ui/inputs'; 
 import {Selector_} from './src/components/ui/selectors';
+import {SettingsButton} from './src/components/ui/settingsButton';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
@@ -30,6 +31,7 @@ export default function App() {
           isPassword={true}
         />
         <Selector_ options={selectorOptions} value={selectedOption} onValueChange={setSelectedOption} label="Select an option" />
+        <SettingsButton title="Settings" onPress={() => alert('Settings pressed!')} icon="user" />
       </View>
       <StatusBar style="auto" />
     </View>
@@ -44,8 +46,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   formWrap: {
-    width: '90%',
-    maxWidth: 420,
+    width: '100%',
     gap: 12,
   },
 });

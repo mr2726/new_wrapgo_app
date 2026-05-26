@@ -102,3 +102,30 @@ Notes:
 	onValueChange={setSelectedCategory}
 />
 ```
+
+### SettingsButton
+
+Path: src/components/ui/settingsButton.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| title | string | Yes | Button text shown next to the left icon |
+| onPress | function | Yes | Callback fired when button is pressed |
+| icon | string | No | Feather icon name for the left icon. Defaults to "settings" |
+
+Notes:
+- Left side renders icon + title.
+- Right side always renders Feather `arrow-right` icon.
+- Component uses fixed dark style and full width.
+
+#### Example
+
+```jsx
+<SettingsButton
+	title="Profile"
+	icon="user"
+	onPress={() => console.log('Open Profile settings')}
+/>
+```
