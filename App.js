@@ -5,6 +5,7 @@ import {Input_} from './src/components/ui/inputs';
 import {Selector_} from './src/components/ui/selectors';
 import {SettingsButton} from './src/components/ui/settingsButton';
 import {InfoInput_} from './src/components/ui/infoInputs';
+import {StatusBar_} from './src/components/ui/statusBar';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
@@ -34,6 +35,7 @@ export default function App() {
         <Selector_ options={selectorOptions} value={selectedOption} onValueChange={setSelectedOption} label="Select an option" />
         <SettingsButton title="Settings" onPress={() => alert('Settings pressed!')} icon="user" />
         <InfoInput_ label="Info" value="Some information" onPress={() => alert('Info pressed!')}/>
+        <StatusBar_ title="Status" description="This is a status message." icon="alert-triangle" color="#ff0000" />
       </View>
       <StatusBar style="auto" />
     </View>

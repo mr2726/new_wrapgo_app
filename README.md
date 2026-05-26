@@ -159,3 +159,35 @@ Notes:
 	onPress={() => console.log('Open phone details')}
 />
 ```
+
+### StatusBar_
+
+Path: src/components/ui/statusBar.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| title | string | Yes | Main status title shown in the bar |
+| description | string | Yes | Secondary status text shown under the title |
+| style | object \| array | No | Additional styles for the outer container |
+| icon | string | No | Feather icon name shown on the left. Defaults to "info" |
+| color | string | No | Color for the left icon. Defaults to `#939393` |
+| onPress | function | No | Callback fired when the close button is pressed |
+
+Notes:
+- Component renders a compact dark status row with icon, title and description.
+- Close button on the right is rendered only when `onPress` is passed.
+- Intended for inline alerts, warnings and short informational messages.
+
+#### Example
+
+```jsx
+<StatusBar_
+	title="Connection issue"
+	description="Check your network and try again."
+	icon="alert-triangle"
+	color="#FFB020"
+	onPress={() => console.log('Dismiss status')}
+/>
+```
