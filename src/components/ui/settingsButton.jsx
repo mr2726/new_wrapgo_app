@@ -7,9 +7,9 @@ export const SettingsButton = ({title, onPress, icon}) => {
     <Pressable
         style={{
             backgroundColor: '#151515',
-            padding: 15,
+            paddingHorizontal: 15,
             borderRadius: 55,
-            height: 55,
+            height: 46,
             width: '100%',
             flexDirection: 'row',
             alignItems: 'center',
