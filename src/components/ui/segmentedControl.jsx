@@ -6,7 +6,7 @@ export const SegmentedControl_ = ({options, value, onValueChange, style}) => {
         <View style={{width: '100%', display: 'flex', flexDirection: 'column', gap: 4, ...style}}>
             <View style={{
                     width: '100%', 
-                    backgroundColor: '#151515', 
+                    backgroundColor: 'rgba(118, 118, 128, 0.12)', 
                     borderRadius: 32, 
                     height: 32,
                     display: 'flex', 
