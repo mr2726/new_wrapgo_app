@@ -8,6 +8,7 @@ import {InfoInput_} from './src/components/ui/infoInputs';
 import {StatusBar_} from './src/components/ui/statusBar';
 import {InfoButton_} from './src/components/ui/infoButton';
 import {ToggleButton_} from './src/components/ui/toggleButton';
+import {SegmentedControl_} from './src/components/ui/segmentedControl';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
@@ -40,6 +41,7 @@ export default function App() {
         <StatusBar_ title="Status" description="This is a status message." icon="alert-triangle" color="#ff0000" />
         <InfoButton_ onPress={() => alert('Info button pressed!')} />
         <ToggleButton_ onPress={(value) => console.log(value)} dispable={false} />
+        <SegmentedControl_ options={selectorOptions} value={selectedOption} onValueChange={setSelectedOption} label="Segmented Control" />
       </View>
       <StatusBar style="auto" />
     </View>

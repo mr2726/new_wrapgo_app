@@ -212,6 +212,39 @@ Notes:
 />
 ```
 
+### SegmentControl_
+
+Path: src/components/ui/segmentedControl.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| options | array | Yes | List of segments. Expected item shape: { label, value } |
+| value | string | Yes | Current selected segment value |
+| onValueChange | function | Yes | Callback fired on segment press. Receives selected `option.value` |
+| style | object \| array | No | Additional styles for the outer container |
+
+Notes:
+- Component is controlled: active segment depends on incoming `value`.
+- Active segment background: `#39ff14`; inactive segment background: transparent.
+- Text color switches by state: active `#000`, inactive `#f5f5f5`.
+- In code, exported component name is `SegmentedControl_`.
+
+#### Example
+
+```jsx
+<SegmentedControl_
+	options={[
+		{ label: 'Day', value: 'day' },
+		{ label: 'Week', value: 'week' },
+		{ label: 'Month', value: 'month' },
+	]}
+	value={period}
+	onValueChange={setPeriod}
+/>
+```
+
 ### StatusBar_
 
 Path: src/components/ui/statusBar.jsx
