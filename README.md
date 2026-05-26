@@ -160,6 +160,32 @@ Notes:
 />
 ```
 
+### InfoButton_
+
+Path: src/components/ui/infoButton.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| icon | string | No | Feather icon name shown in the center. Defaults to "info" |
+| onPress | function | No | Callback fired when the button is pressed |
+
+Notes:
+- Component renders a compact round icon button.
+- Uses `LinearGradient` from `expo-linear-gradient`.
+- Background uses a subtle diagonal highlight: from transparent to `rgba(255, 255, 255, 0.05)`.
+- Intended for contextual info, help and quick action triggers.
+
+#### Example
+
+```jsx
+<InfoButton_
+	icon="help-circle"
+	onPress={() => console.log('Open help')}
+/>
+```
+
 ### StatusBar_
 
 Path: src/components/ui/statusBar.jsx
