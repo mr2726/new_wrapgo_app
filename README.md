@@ -129,3 +129,33 @@ Notes:
 	onPress={() => console.log('Open Profile settings')}
 />
 ```
+
+### InfoInput_
+
+Path: src/components/ui/infoInputs.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| label | string | Yes | Text shown above the info row |
+| value | string | Yes | Value displayed inside the row |
+| style | object \| array | No | Additional styles for the outer Pressable |
+| icon | string | No | Feather icon name shown on the right. Defaults to "arrow-right" |
+| onPress | function | No | Callback fired when the row is pressed |
+
+Notes:
+- Entire component is pressable.
+- Label is rendered above a dark rounded row.
+- Right icon is rendered with Feather and changes based on `icon`.
+
+#### Example
+
+```jsx
+<InfoInput_
+	label="Phone"
+	value="+1 234 567 890"
+	icon="chevron-right"
+	onPress={() => console.log('Open phone details')}
+/>
+```
