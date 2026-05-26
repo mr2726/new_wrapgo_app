@@ -7,6 +7,7 @@ import {SettingsButton} from './src/components/ui/settingsButton';
 import {InfoInput_} from './src/components/ui/infoInputs';
 import {StatusBar_} from './src/components/ui/statusBar';
 import {InfoButton_} from './src/components/ui/infoButton';
+import {ToggleButton_} from './src/components/ui/toggleButton';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
@@ -38,6 +39,7 @@ export default function App() {
         <InfoInput_ label="Info" value="Some information" onPress={() => alert('Info pressed!')}/>
         <StatusBar_ title="Status" description="This is a status message." icon="alert-triangle" color="#ff0000" />
         <InfoButton_ onPress={() => alert('Info button pressed!')} />
+        <ToggleButton_ onPress={(value) => console.log(value)} dispable={false} />
       </View>
       <StatusBar style="auto" />
     </View>

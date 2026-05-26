@@ -186,6 +186,32 @@ Notes:
 />
 ```
 
+### ToggleButton_
+
+Path: src/components/ui/toggleButton.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| onPress | function | No | Callback fired on press. Receives next state: `true` or `false` |
+| dispable | boolean | No | Disables toggle interaction and lowers opacity |
+| style | object \| array | No | Additional styles for the outer toggle container |
+
+Notes:
+- Component keeps internal `isOn` state and switches it on every press.
+- Toggle thumb moves left/right based on state.
+- Active thumb color: `#39ff14`, inactive thumb color: `#626262`.
+
+#### Example
+
+```jsx
+<ToggleButton_
+	dispable={false}
+	onPress={nextValue => console.log('Toggle value:', nextValue)}
+/>
+```
+
 ### StatusBar_
 
 Path: src/components/ui/statusBar.jsx
