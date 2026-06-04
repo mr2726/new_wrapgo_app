@@ -276,3 +276,36 @@ Notes:
 	onPress={() => console.log('Dismiss status')}
 />
 ```
+
+### Menu
+
+Path: src/components/ui/menu.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| items | array | Yes | Bottom menu items. Expected shape: { title, img } |
+| onSelect | function | No | Callback fired on item press. Receives selected item object |
+
+Notes:
+- Component renders a fixed bottom capsule menu.
+- Menu uses custom SVG icons from src/components/ui/imgs.
+- Supported img keys: Home, Settings (or Contract), Info (or Wallet), User (or Profile).
+- Active item is highlighted with a green circle.
+- Green circle moves left/right with animation when active item changes.
+- Icon colors: active `#000000`, inactive `#626262`.
+
+#### Example
+
+```jsx
+<Menu
+	items={[
+		{ title: 'Home', img: 'Home' },
+		{ title: 'Contract', img: 'Settings' },
+		{ title: 'Wallet', img: 'Info' },
+		{ title: 'Profile', img: 'User' },
+	]}
+	onSelect={(item) => console.log('Selected menu item:', item)}
+/>
+```

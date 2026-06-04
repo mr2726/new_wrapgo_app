@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import {Button_} from './src/components/ui/buttons'; 
 import {Input_} from './src/components/ui/inputs'; 
 import {Selector_} from './src/components/ui/selectors';
@@ -9,22 +9,24 @@ import {StatusBar_} from './src/components/ui/statusBar';
 import {InfoButton_} from './src/components/ui/infoButton';
 import {ToggleButton_} from './src/components/ui/toggleButton';
 import {SegmentedControl_} from './src/components/ui/segmentedControl';
+import {Menu} from './src/components/ui/menu';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
 
 export default function App() {
   const [text, setText] = React.useState('');
-  const [selectedOption, setSelectedOption] = React.useState(null);
+  const [selectedOption, setSelectedOption] = React.useState("option1");
   const selectorOptions = [
     { label: "Option 1", value: "option1" },
     { label: "Option 2", value: "option2" },
     { label: "Option 3", value: "option3" },
   ];
+  const [page, setPage] = React.useState("home");
   return (
-    <View style={styles.container}>
-      <View style={styles.formWrap}>
-        <Button_ title="Button" onPress={() => alert('Button pressed!')} dispable={false} />
+    <View style={styles.screen}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Button_ title="Button" onPress={() => alert('Button pressed!')} dispable={false} />
         <Input_
           placeholder=""
           value={text}
@@ -42,21 +44,32 @@ export default function App() {
         <InfoButton_ onPress={() => alert('Info button pressed!')} />
         <ToggleButton_ onPress={(value) => console.log(value)} dispable={false} />
         <SegmentedControl_ options={selectorOptions} value={selectedOption} onValueChange={setSelectedOption} label="Segmented Control" />
-      </View>
-      <StatusBar style="auto" />
+      </ScrollView>
+      <Menu
+        items={[
+          {title: 'Home', img: 'Home'},
+          {title: 'Contract', img: 'Settings'},
+          {title: 'Wallet', img: 'Info'},
+          {title: 'Profile', img: 'User'},
+        ]}
+        onSelect={(item) => setPage(String(item.img).toLowerCase())}
+      />
+      <StatusBar style="light" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: '#040404',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  formWrap: {
+  container: {
+    flex: 1,
     width: '100%',
-    gap: 12,
+  },
+  content: {
+    paddingVertical: 32,
+    paddingBottom: 120,
   },
 });
