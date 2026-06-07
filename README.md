@@ -497,3 +497,73 @@ Notes:
 ```jsx
 <Signup setLocalPage={setLocalPage} />
 ```
+
+## Backend
+
+### Supabase Client
+
+Path: src/components/service/supabase.js
+
+Purpose:
+- Creates and exports a shared Supabase client instance.
+- Reads Supabase credentials from environment variables.
+
+Environment keys used:
+- EXPO_PUBLIC_SUPABASE_URL
+- EXPO_PUBLIC_SUPABASE_ANON_KEY
+
+Export:
+- `supabase`: configured result of `createClient(supabaseUrl, supabaseKey)`.
+
+### Service Layer
+
+Path: src/components/service/service.js
+
+#### signUpWithEmail
+
+Signature:
+- `signUpWithEmail(email, password)`
+
+Description:
+- Registers a new user using Supabase Auth email/password flow.
+- Internally calls `supabase.auth.signUp({ email, password })`.
+
+Params:
+- `email` (string): user email.
+- `password` (string): user password.
+
+Returns:
+- Supabase user object from `data.user`.
+
+Throws:
+- Supabase auth error when signup fails.
+
+#### saveDriverData
+
+Signature:
+- `saveDriverData(userId, fullName, email)`
+
+Description:
+- Inserts initial driver profile row into `drivers` table after successful signup.
+
+Params:
+- `userId` (string): auth user id.
+- `fullName` (string): full name for driver profile.
+- `email` (string): driver email.
+
+Returns:
+- Inserted row payload returned by Supabase (`data`).
+
+Throws:
+- Supabase insert error when write fails.
+
+### .env Configuration
+
+Path: .env
+
+Use only these keys:
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=
+EXPO_PUBLIC_SUPABASE_ANON_KEY=
+```

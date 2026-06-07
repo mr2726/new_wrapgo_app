@@ -7,6 +7,10 @@ import {TopControl} from '../../components/ui/topControl';
 import {Input_} from '../../components/ui/inputs';
 import {Button_} from '../../components/ui/buttons';
 // ------------------------------------------------------------------------
+// BACKEND
+import {signUpWithEmail, saveDriverData} from '../../components/service/service';
+
+
 
 export default function Signup({setLocalPage}) {
     const [isAgreed, setIsAgreed] = React.useState(false);
@@ -82,7 +86,18 @@ export default function Signup({setLocalPage}) {
             return;
         }
 
-        // TODO: connect API sign up action
+        // Connect API sign up action
+        signUpWithEmail(inputValues.email, inputValues.password)
+            .then((user) => {
+                return saveDriverData(user.id, inputValues.fullName, inputValues.email);
+            })
+            .then((data) => {
+                console.log('Driver data saved:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        
     };
 
     return (
