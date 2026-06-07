@@ -400,17 +400,19 @@ Path: src/Pages/Onboarding/OnboardingContent.js
 
 #### Props
 
-This page does not accept props.
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setPage | function | Yes | Navigation callback used to switch page flow (for example to `signupandsignin`) |
 
 Notes:
 - Manages onboarding state with internal `slidePage` (`0`, `1`, `2`).
 - Renders `TopSlide` and switches onboarding pages by current index.
-- `Next` button cycles pages; on last page button title changes to `Done`.
+- `Next` button cycles pages; on last page button title changes to `Done` and calls `setPage("signupandsignin")`.
 
 #### Example
 
 ```jsx
-<OnboardingContent />
+<OnboardingContent setPage={setPage} />
 ```
 
 ### Page1
