@@ -299,6 +299,28 @@ Notes:
 <TopSlide slidePage={1} />
 ```
 
+### TopControl
+
+Path: src/components/ui/topControl.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setLocalPage | function | Yes | Callback fired when back button is pressed. Called with `"signin"` |
+
+Notes:
+- Component renders a compact top header with a round back button and page title.
+- Back button icon uses `src/components/ui/imgs/ArrowLeft.png`.
+- Back button background uses `LinearGradient` from `expo-linear-gradient` (`#0F0F0F` to `#202020`).
+- Title text is fixed to `Create Account`.
+
+#### Example
+
+```jsx
+<TopControl setLocalPage={setLocalPage} />
+```
+
 ### LOGO
 
 Path: src/components/ui/LOGO.jsx
