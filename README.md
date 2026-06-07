@@ -469,3 +469,29 @@ Notes:
 ```jsx
 <Page3 />
 ```
+
+### Signup
+
+Path: src/Pages/SignupAndSignin/Signup.js
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setLocalPage | function | Yes | Navigation callback passed to `TopControl` for local page switching |
+
+Notes:
+- Renders registration form with 4 controlled fields: Full Name, Email, Password, Confirm Password.
+- All fields are required.
+- Email is validated by format (must be a valid email address).
+- Password minimum length is 8 characters.
+- Confirm Password must match Password.
+- Terms of Service checkbox must be checked before submit.
+- `Sign Up` button is disabled until form is valid (`dispable={!isFormValid}`).
+- Validation errors are shown under corresponding fields and under checkbox when needed.
+
+#### Example
+
+```jsx
+<Signup setLocalPage={setLocalPage} />
+```
