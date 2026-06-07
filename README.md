@@ -289,7 +289,8 @@ Path: src/components/ui/topSlide.jsx
 
 Notes:
 - Component renders a compact 3-step top progress indicator.
-- Exactly one segment is highlighted in green (`#39ff14`) based on `slidePage`.
+- Active green indicator (`#39ff14`) smoothly slides between steps when `slidePage` changes.
+- Animation uses `Animated.timing` with cubic easing for a soft transition.
 - Designed for flows with 3 pages/steps.
 
 #### Example
@@ -329,4 +330,63 @@ Notes:
 	]}
 	onSelect={(item) => console.log('Selected menu item:', item)}
 />
+```
+
+## Pages
+
+### Content
+
+Path: src/Pages/Content.js
+
+#### Props
+
+This page does not accept props.
+
+Notes:
+- Root page container for app page flow.
+- Renders `OnboardingContent` as current page content.
+- Uses dark background (`#040404`) and vertical margins.
+
+#### Example
+
+```jsx
+<Content />
+```
+
+### OnboardingContent
+
+Path: src/Pages/Onboarding/OnboardingContent.js
+
+#### Props
+
+This page does not accept props.
+
+Notes:
+- Manages onboarding state with internal `slidePage` (`0`, `1`, `2`).
+- Renders `TopSlide` and switches onboarding pages by current index.
+- `Next` button cycles pages; on last page button title changes to `Done`.
+
+#### Example
+
+```jsx
+<OnboardingContent />
+```
+
+### Page1
+
+Path: src/Pages/Onboarding/Page1.js
+
+#### Props
+
+This page does not accept props.
+
+Notes:
+- First onboarding step with marketing headline and short description.
+- Uses image asset `src/components/ui/imgs/W.png`.
+- Text block is placed near the bottom while the image is positioned toward the top-right.
+
+#### Example
+
+```jsx
+<Page1 />
 ```

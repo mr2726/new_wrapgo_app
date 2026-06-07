@@ -1,35 +1,47 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 // COMPONENTS
-import {Menu} from './src/components/ui/menu';
-import {TopSlide} from './src/components/ui/topSlide';
-import {Button_} from './src/components/ui/buttons'; 
-import {Input_} from './src/components/ui/inputs'; 
-import {Selector_} from './src/components/ui/selectors';
-import {SettingsButton} from './src/components/ui/settingsButton';
-import {InfoInput_} from './src/components/ui/infoInputs';
-import {StatusBar_} from './src/components/ui/statusBar';
-import {InfoButton_} from './src/components/ui/infoButton';
-import {ToggleButton_} from './src/components/ui/toggleButton';
-import {SegmentedControl_} from './src/components/ui/segmentedControl';
+// import {Menu} from './src/components/ui/menu';
+// import {TopSlide} from './src/components/ui/topSlide';
+// import {Button_} from './src/components/ui/buttons'; 
+// import {Input_} from './src/components/ui/inputs'; 
+// import {Selector_} from './src/components/ui/selectors';
+// import {SettingsButton} from './src/components/ui/settingsButton';
+// import {InfoInput_} from './src/components/ui/infoInputs';
+// import {StatusBar_} from './src/components/ui/statusBar';
+// import {InfoButton_} from './src/components/ui/infoButton';
+// import {ToggleButton_} from './src/components/ui/toggleButton';
+// import {SegmentedControl_} from './src/components/ui/segmentedControl';
 // ------------------------------------------------------------------------
+
+import Content from './src/Pages/Content';
+
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
 
 export default function App() {
-  const [text, setText] = React.useState('');
-  const [selectedOption, setSelectedOption] = React.useState("option1");
-  const selectorOptions = [
-    { label: "Option 1", value: "option1" },
-    { label: "Option 2", value: "option2" },
-    { label: "Option 3", value: "option3" },
-  ];
-  const [page, setPage] = React.useState("home");
-  const [onboardingPage, setOnboardingPage] = React.useState(1);
+  // const [text, setText] = React.useState('');
+  // const [selectedOption, setSelectedOption] = React.useState("option1");
+  // const selectorOptions = [
+  //   { label: "Option 1", value: "option1" },
+  //   { label: "Option 2", value: "option2" },
+  //   { label: "Option 3", value: "option3" },
+  // ];
+  // const [page, setPage] = React.useState("home");
+  // const [onboardingPage, setOnboardingPage] = React.useState(1);
   return (
     <View style={styles.screen}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <Content />
+
+
+
+
+
+
+
+
+      {/* <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <TopSlide slidePage={onboardingPage} />
         <Button_ title="Button" onPress={() => alert('Button pressed!')} dispable={false} />
           <Input_
@@ -58,7 +70,7 @@ export default function App() {
             {title: 'Profile', img: 'User'},
           ]}
           onSelect={(item) => setPage(String(item.img).toLowerCase())}
-        />
+        /> */}
       <StatusBar style="light" />
     </View>
   );
