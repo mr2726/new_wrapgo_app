@@ -428,3 +428,22 @@ Notes:
 ```jsx
 <Page2 />
 ```
+
+### Page3
+
+Path: src/Pages/Onboarding/Page3.js
+
+#### Props
+
+This page does not accept props.
+
+Notes:
+- Third onboarding step focused on weekly performance tracking.
+- Renders `LOGO` in the top area of the screen.
+- Uses chart image asset `src/components/ui/imgs/onb_lastchart.png`.
+
+#### Example
+
+```jsx
+<Page3 />
+```

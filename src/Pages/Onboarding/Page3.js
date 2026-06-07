@@ -1,10 +1,20 @@
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
 import React from 'react';
+// Components
+import {LOGO} from '../../components/ui/LOGO';
+
 
 export default function Page3() {
     return (
         <View style={styles.screen}>
-            <Text style={styles.text}>Page 3</Text>
+            <View style={styles.logo}>
+                <LOGO />
+            </View>
+            <View style={styles.TextContainer}>
+                <Image style={{marginBottom: 20, width: '100%'}} source={require('../../components/ui/imgs/onb_lastchart.png')} resizeMode="contain" />
+                <Text style={styles.title}>Track Your Weekly{'\n'}Performance</Text>
+                <Text style={styles.description}>Monitor performance, manage contracts, and optimize your earnings.</Text>
+            </View>
         </View>
     );
 }
@@ -12,12 +22,26 @@ export default function Page3() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        marginBottom: 50,
     },
-    text: {
+    title: {
         fontSize: 24,
-        fontWeight: 'bold',
-        color: '#fff',
+        fontWeight: '500',
+        color: '#F5F5F5',
+    },
+    logo: {
+        marginLeft: 16,
+        marginTop: 50,
+    },
+    TextContainer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 0,
+        right: 0,
+    },
+    description: {
+        fontSize: 16,
+        color: '#939393',
+        textAlign: 'left',
     },
 });
