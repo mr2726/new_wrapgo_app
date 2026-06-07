@@ -277,6 +277,27 @@ Notes:
 />
 ```
 
+### TopSlide
+
+Path: src/components/ui/topSlide.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| slidePage | number | Yes | Active page index for the top indicator. Supported values: `0`, `1`, `2` |
+
+Notes:
+- Component renders a compact 3-step top progress indicator.
+- Exactly one segment is highlighted in green (`#39ff14`) based on `slidePage`.
+- Designed for flows with 3 pages/steps.
+
+#### Example
+
+```jsx
+<TopSlide slidePage={1} />
+```
+
 ### Menu
 
 Path: src/components/ui/menu.jsx
