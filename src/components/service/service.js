@@ -12,6 +12,18 @@ export async function signUpWithEmail(email, password) {
     return data.user;
 }
 
+// Signin function
+export async function signInWithEmail(email, password) {
+    const {data, error} = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+    if (error) {
+        throw error;
+    }
+    return data.user;
+}
+
 // Save data of user in drivers table after signup
 export async function saveDriverData(userId, fullName, email) {
     const {data, error} = await supabase

@@ -498,6 +498,29 @@ Notes:
 <Signup setLocalPage={setLocalPage} />
 ```
 
+### Signin
+
+Path: src/Pages/SignupAndSignin/Signin.js
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setLocalPage | function | Yes | Navigation callback used to switch back to `signup` from the sign in screen |
+
+Notes:
+- Renders sign in screen with welcome block and `LOGO`.
+- Contains email and password inputs.
+- Includes a `Forgot Password?` action placeholder that currently shows an alert.
+- `Sign Up` text at the bottom switches the local page to `signup`.
+- Button action is still a placeholder and can be connected to backend sign in logic later.
+
+#### Example
+
+```jsx
+<Signin setLocalPage={setLocalPage} />
+```
+
 ## Backend
 
 ### Supabase Client
@@ -537,6 +560,25 @@ Returns:
 
 Throws:
 - Supabase auth error when signup fails.
+
+#### signInWithEmail
+
+Signature:
+- `signInWithEmail(email, password)`
+
+Description:
+- Signs in an existing user using Supabase Auth password login.
+- Internally calls `supabase.auth.signInWithPassword({ email, password })`.
+
+Params:
+- `email` (string): user email.
+- `password` (string): user password.
+
+Returns:
+- Supabase user object from `data.user`.
+
+Throws:
+- Supabase auth error when sign in fails.
 
 #### saveDriverData
 
