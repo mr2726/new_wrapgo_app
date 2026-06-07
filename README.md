@@ -299,6 +299,25 @@ Notes:
 <TopSlide slidePage={1} />
 ```
 
+### LOGO
+
+Path: src/components/ui/LOGO.jsx
+
+#### Props
+
+This component does not accept props.
+
+Notes:
+- Renders brand text split into two parts: Wrap and Go.
+- Color style: Wrap uses light text (`#F5F5F5`), Go uses accent green (`#39FF14`).
+- Intended for inline usage in headings and onboarding screens.
+
+#### Example
+
+```jsx
+<LOGO />
+```
+
 ### Menu
 
 Path: src/components/ui/menu.jsx
@@ -389,4 +408,23 @@ Notes:
 
 ```jsx
 <Page1 />
+```
+
+### Page2
+
+Path: src/Pages/Onboarding/Page2.js
+
+#### Props
+
+This page does not accept props.
+
+Notes:
+- Second onboarding step with earnings-focused message.
+- Renders `LOGO` in top area and inline inside the headline.
+- Uses chart image asset `src/components/ui/imgs/onb_chart.png`.
+
+#### Example
+
+```jsx
+<Page2 />
 ```

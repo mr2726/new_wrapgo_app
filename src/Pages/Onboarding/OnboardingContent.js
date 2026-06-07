@@ -10,7 +10,7 @@ import Page2 from './Page2';
 import Page3 from './Page3';
 // ------------------------------------------------------------------------
 const OnboardingContent = () => {
-    const [slidePage, setSlidePage] = React.useState(0);
+    const [slidePage, setSlidePage] = React.useState(1);
     return (
         <View style={styles.screen}>
             <TopSlide slidePage={slidePage} />
