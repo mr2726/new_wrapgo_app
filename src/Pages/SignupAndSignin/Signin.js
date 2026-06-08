@@ -10,19 +10,47 @@ import {Button_} from '../../components/ui/buttons';
 
 // BACKEND
 import {signInWithEmail} from '../../components/service/service';
+import {
+    INITIAL_SIGNIN_VALUES,
+    SIGNIN_FIELDS,
+    validateSignInForm,
+} from './signinFormUtils';
 // ------------------------------------------------------------------------
 
 export default function Signin({setLocalPage, setPage}) {
-    const [email, setEmail] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    const [inputValues, setInputValues] = React.useState(INITIAL_SIGNIN_VALUES);
+    const [submitAttempted, setSubmitAttempted] = React.useState(false);
+    const [formErrors, setFormErrors] = React.useState({});
+    const [authError, setAuthError] = React.useState('');
+
+    const handleInputChange = (field, value) => {
+        const nextValues = { ...inputValues, [field]: value };
+        setInputValues(nextValues);
+        if (submitAttempted) {
+            setFormErrors(validateSignInForm(nextValues.email, nextValues.password));
+        }
+        if (authError) {
+            setAuthError('');
+        }
+    };
 
     const handleSignIn = async () => {
+        setSubmitAttempted(true);
+        setAuthError('');
+
+        const errors = validateSignInForm(inputValues.email, inputValues.password);
+        setFormErrors(errors);
+
+        if (Object.keys(errors).length > 0) {
+            return;
+        }
+
         try {
-            await signInWithEmail(email, password);
+            await signInWithEmail(inputValues.email.trim(), inputValues.password);
             setPage('success');
         } catch (error) {
             console.error('Sign in error:', error);
-            alert(error?.message || 'Failed to sign in');
+            setAuthError(error?.message || 'Failed to sign in');
         }
     };
 
@@ -32,8 +60,20 @@ export default function Signin({setLocalPage, setPage}) {
                 <Text style={{color: '#fff', fontSize: 24, fontWeight: 'bold'}}>Welcome to </Text>
                 <LOGO />
             </View>
-            <Input_ label="Email" value={email} onChangeText={setEmail} secureTextEntry={false} error={''}  icon={<Feather name="mail" size={20} color="#626262" />} />
-            <Input_ label="Password" value={password} onChangeText={setPassword} secureTextEntry={true} error={''} icon={<Feather name="lock" size={20} color="#626262" />} isPassword={true} />
+            {SIGNIN_FIELDS.map((field) => (
+                <Input_
+                    key={field.key}
+                    label={field.label}
+                    icon={<Feather name={field.icon} size={20} color="#626262" />}
+                    isPassword={field.isPassword}
+                    value={inputValues[field.key]}
+                    onChangeText={(value) => handleInputChange(field.key, value)}
+                    error={submitAttempted && formErrors[field.key]}
+                />
+            ))}
+            {Boolean(authError) && (
+                <Text style={styles.authError}>{authError}</Text>
+            )}
             <Pressable onPress={() => {alert('Comming soon')}} style={{alignSelf: 'flex-end', marginTop: 2}}>
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
             </Pressable>
@@ -64,5 +104,12 @@ const styles = StyleSheet.create({
         color: '#727272',
         alignSelf: 'flex-end',
         marginTop: 0,
-    }
+    },
+    authError: {
+        width: '100%',
+        color: '#E53935',
+        marginTop: 4,
+        textAlign: 'right',
+        fontSize: 13,
+    },
 });

@@ -12,7 +12,6 @@ import {signUpWithEmail, saveDriverData} from '../../components/service/service'
 import {
     INITIAL_SIGNUP_VALUES,
     validateSignupForm,
-    isSignupFormValid,
 } from './signupFormUtils';
 
 const signupFields = [
@@ -52,12 +51,12 @@ export default function Signup({setLocalPage, setPage}) {
     const [inputValues, setInputValues] = React.useState(INITIAL_SIGNUP_VALUES);
 
     const validateCurrentForm = () => validateSignupForm(inputValues, isAgreed);
-    const isFormValid = isSignupFormValid(inputValues, isAgreed);
 
     const handleInputChange = (field, value) => {
-        setInputValues((prev) => ({ ...prev, [field]: value }));
+        const nextValues = { ...inputValues, [field]: value };
+        setInputValues(nextValues);
         if (submitAttempted) {
-            setFormErrors(validateCurrentForm());
+            setFormErrors(validateSignupForm(nextValues, isAgreed));
         }
     };
 
@@ -100,9 +99,10 @@ export default function Signup({setLocalPage, setPage}) {
             <Pressable
                 style={styles.termsRow}
                 onPress={() => {
-                    setIsAgreed((prev) => !prev);
+                    const nextIsAgreed = !isAgreed;
+                    setIsAgreed(nextIsAgreed);
                     if (submitAttempted) {
-                        setFormErrors(validateCurrentForm());
+                        setFormErrors(validateSignupForm(inputValues, nextIsAgreed));
                     }
                 }}
             >
@@ -114,7 +114,7 @@ export default function Signup({setLocalPage, setPage}) {
             {submitAttempted && formErrors.isAgreed && (
                 <Text style={styles.checkboxError}>{formErrors.isAgreed}</Text>
             )}
-            <Button_ title="Sign Up" onPress={handleSubmit} dispable={!isFormValid} />
+            <Button_ title="Sign Up" onPress={handleSubmit} dispable={false} />
         </View>
     );
 }

@@ -488,13 +488,15 @@ Path: src/Pages/SignupAndSignin/Signup.js
 
 Notes:
 - Renders registration form with 4 controlled fields: Full Name, Email, Password, Confirm Password.
+- Input fields are rendered from a config array via `map`, reducing repeated JSX.
 - All fields are required.
 - Email is validated by format (must be a valid email address).
 - Password minimum length is 8 characters.
 - Confirm Password must match Password.
 - Terms of Service checkbox must be checked before submit.
-- `Sign Up` button is disabled until form is valid (`dispable={!isFormValid}`).
+- Submit action always runs validation and shows field errors when invalid.
 - Validation errors are shown under corresponding fields and under checkbox when needed.
+- Validation rules and initial form state are extracted to `src/Pages/SignupAndSignin/signupFormUtils.js`.
 
 #### Example
 
@@ -515,12 +517,14 @@ Path: src/Pages/SignupAndSignin/Signin.js
 
 Notes:
 - Renders sign in screen with welcome block and `LOGO`.
-- Contains email and password inputs.
+- Contains email and password inputs rendered from field config (`map`).
 - Includes a `Forgot Password?` action placeholder that currently shows an alert.
 - `Sign Up` text at the bottom switches the local page to `signup`.
 - `Sign In` button calls `signInWithEmail(email, password)`.
 - On successful sign in, page state is switched to `success`.
-- On sign in error, component logs error and shows alert with message.
+- Shows inline validation errors for email/password after submit attempt.
+- On auth failure, shows backend error message under inputs.
+- Sign-in form config, initial state, and validation are extracted to `src/Pages/SignupAndSignin/signinFormUtils.js`.
 
 #### Example
 

@@ -20,7 +20,7 @@ export const Button_ = ({title, onPress, style, dispable}) => {
         style,
         dispable && {backgroundColor: '#37d41b'},
         ]}>
-        <Text style={{color: '#fff', fontSize: 16}}>{title}</Text>
+        <Text style={{color: '#101010', fontSize: 16}}>{title}</Text>
     </Pressable>
   );
 }
