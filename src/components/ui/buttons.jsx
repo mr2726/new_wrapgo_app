@@ -18,9 +18,9 @@ export const Button_ = ({title, onPress, style, dispable}) => {
             opacity: dispable ? 0.15 : 1,
         },
         style,
-        dispable && {backgroundColor: '#ccc'},
+        dispable && {backgroundColor: '#37d41b'},
         ]}>
-        <Text style={{color: '#333', fontSize: 16}}>{title}</Text>
+        <Text style={{color: '#fff', fontSize: 16}}>{title}</Text>
     </Pressable>
   );
 }

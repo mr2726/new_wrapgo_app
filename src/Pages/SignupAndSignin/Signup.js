@@ -15,6 +15,33 @@ import {
     isSignupFormValid,
 } from './signupFormUtils';
 
+const signupFields = [
+    {
+        key: 'fullName',
+        label: 'Full Name',
+        icon: 'user',
+        isPassword: false,
+    },
+    {
+        key: 'email',
+        label: 'Email',
+        icon: 'mail',
+        isPassword: false,
+    },
+    {
+        key: 'password',
+        label: 'Password',
+        icon: 'lock',
+        isPassword: true,
+    },
+    {
+        key: 'confirmPassword',
+        label: 'Confirm Password',
+        icon: 'lock',
+        isPassword: true,
+    },
+];
+
 
 
 export default function Signup({setLocalPage, setPage}) {
@@ -59,36 +86,17 @@ export default function Signup({setLocalPage, setPage}) {
             <View style={{position: "relative", height: 50, marginBottom: 20}}>
                 <TopControl setLocalPage={setLocalPage} />
             </View>
-            <Input_
-                label="Full Name"
-                icon={<Feather name="user" size={20} color="#626262" />}
-                value={inputValues.fullName}
-                onChangeText={(value) => handleInputChange('fullName', value)}
-                error={submitAttempted && formErrors.fullName}
-            />
-            <Input_
-                label="Email"
-                icon={<Feather name="mail" size={20} color="#626262" />}
-                value={inputValues.email}
-                onChangeText={(value) => handleInputChange('email', value)}
-                error={submitAttempted && formErrors.email}
-            />
-            <Input_
-                label="Password"
-                icon={<Feather name="lock" size={20} color="#626262" />}
-                isPassword={true}
-                value={inputValues.password}
-                onChangeText={(value) => handleInputChange('password', value)}
-                error={submitAttempted && formErrors.password}
-            />
-            <Input_
-                label="Confirm Password"
-                icon={<Feather name="lock" size={20} color="#626262" />}
-                isPassword={true}
-                value={inputValues.confirmPassword}
-                onChangeText={(value) => handleInputChange('confirmPassword', value)}
-                error={submitAttempted && formErrors.confirmPassword}
-            />
+            {signupFields.map((field) => (
+                <Input_
+                    key={field.key}
+                    label={field.label}
+                    icon={<Feather name={field.icon} size={20} color="#626262" />}
+                    isPassword={field.isPassword}
+                    value={inputValues[field.key]}
+                    onChangeText={(value) => handleInputChange(field.key, value)}
+                    error={submitAttempted && formErrors[field.key]}
+                />
+            ))}
             <Pressable
                 style={styles.termsRow}
                 onPress={() => {
