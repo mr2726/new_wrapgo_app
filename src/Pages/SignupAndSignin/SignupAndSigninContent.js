@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, StyleSheet} from 'react-native';
+import {colors} from '../../styles/theme';
 
 // Pages Content Page
 import Signup from './Signup';
@@ -19,7 +20,7 @@ export default function SignupAndSigninContent({setPage}) {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: '#040404',
+        backgroundColor: colors.background,
         marginVertical: 25,
     },
 });

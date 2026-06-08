@@ -1,6 +1,7 @@
 import { Text, View, Pressable } from "react-native";
 import React from "react";
 import { Feather } from "@expo/vector-icons";
+import {colors, radius, typography} from '../../styles/theme';
 
 export const Selector_ = ({
     options,
@@ -17,16 +18,16 @@ export const Selector_ = ({
             <Text
                 style={{
                 marginBottom: 5,
-                color:'#939393',
-                fontSize: 16,
+                color: colors.textSecondary,
+                fontSize: typography.sizeLg,
                 }}>
                 {label}
             </Text>
             <Pressable            
                 style={{
-                    backgroundColor: '#151515',
+                    backgroundColor: colors.surface,
                     padding: 12,
-                    borderRadius: 55,
+                    borderRadius: radius.pill,
                     height: 55,
                     width: '100%',
                     flexDirection: 'row',
@@ -37,12 +38,12 @@ export const Selector_ = ({
                 onPress={() => {
                     setIsOpen(!isOpen);
                 }}        >
-                <Text style={{color: '#fff', marginBottom: 4}}>{value ? value.label : ''}</Text>
-                <Feather name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} color="#939393" />
+                <Text style={{color: colors.textPrimary, marginBottom: 4}}>{value ? value.label : ''}</Text>
+                <Feather name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.textSecondary} />
             </Pressable>
 
             {isOpen && (
-                <View style={{backgroundColor: '#151515', marginTop: 4, borderRadius: 8, position: 'absolute', width: '100%', zIndex: 1, top: 90}}>
+                <View style={{backgroundColor: colors.surface, marginTop: 4, borderRadius: radius.md, position: 'absolute', width: '100%', zIndex: 1, top: 90}}>
                     {options.map((option) => (
                         <Pressable
                             key={option.value}
@@ -52,7 +53,7 @@ export const Selector_ = ({
                                 setIsOpen(false);
                             }}
                         >
-                            <Text style={{color: '#fff'}}>{option.label}</Text>
+                            <Text style={{color: colors.textPrimary}}>{option.label}</Text>
                         </Pressable>
                     ))}
                 </View>

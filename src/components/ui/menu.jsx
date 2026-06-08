@@ -1,6 +1,7 @@
 import {View, StyleSheet, Pressable, Animated} from 'react-native';
 import {Image} from 'expo-image';
 import React from 'react';
+import {colors, spacing} from '../../styles/theme';
 
 const MENU_WIDTH = 320;
 const MENU_PADDING_HORIZONTAL = 8;
@@ -64,7 +65,7 @@ export function Menu({items, onSelect}) {
         const isActive = index === activeIndex;
         return (
           <Pressable key={index} style={styles.menuItem} onPress={() => handlePress(item, index)}>
-            <Image source={iconSource} style={styles.icon} contentFit="contain" tintColor={isActive ? '#000000' : '#626262'} />
+            <Image source={iconSource} style={styles.icon} contentFit="contain" tintColor={isActive ? colors.black : colors.textMuted} />
           </Pressable>
         );
       })}
@@ -76,9 +77,9 @@ const styles = StyleSheet.create({
   menu: {
     width: 320,
     height: 64,
-    backgroundColor: '#151515',
+    backgroundColor: colors.surface,
     borderRadius: 32,
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     width: MENU_ITEM_SIZE,
     height: MENU_ITEM_SIZE,
     borderRadius: MENU_ITEM_SIZE / 2,
-    backgroundColor: '#24FF3D',
+    backgroundColor: colors.accentActive,
   },
   menuItem: {
     width: 52,

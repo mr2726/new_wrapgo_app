@@ -1,14 +1,15 @@
 import {View, Text, Pressable} from 'react-native';
 import React from 'react';
 import { Feather } from "@expo/vector-icons";
+import {colors, radius, spacing, typography} from '../../styles/theme';
 
 export const SettingsButton = ({title, onPress, icon}) => {
   return (
     <Pressable
         style={{
-            backgroundColor: '#151515',
-            paddingHorizontal: 15,
-            borderRadius: 55,
+          backgroundColor: colors.surface,
+          paddingHorizontal: spacing.lg - 1,
+          borderRadius: radius.pill,
             height: 46,
             width: '100%',
             flexDirection: 'row',
@@ -18,11 +19,11 @@ export const SettingsButton = ({title, onPress, icon}) => {
         onPress={onPress}
     >
       
-        <View style={{flexDirection: 'row', alignItems: 'center', gap: 8}}>
-            <Feather name={icon || "settings"} size={20} color="#939393" />
-            <Text style={{color: '#F5F5F5', fontSize: 16}}>{title}</Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', gap: spacing.sm}}>
+          <Feather name={icon || "settings"} size={20} color={colors.textSecondary} />
+          <Text style={{color: colors.textPrimary, fontSize: typography.sizeLg}}>{title}</Text>
         </View>
-        <Feather name="arrow-right" size={20} color="#939393" />
+        <Feather name="arrow-right" size={20} color={colors.textSecondary} />
     </Pressable>
   );
 };

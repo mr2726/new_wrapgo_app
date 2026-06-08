@@ -15,6 +15,7 @@ import {
     SIGNIN_FIELDS,
     validateSignInForm,
 } from './signinFormUtils';
+import {colors, spacing, typography} from '../../styles/theme';
 // ------------------------------------------------------------------------
 
 export default function Signin({setLocalPage, setPage}) {
@@ -57,14 +58,14 @@ export default function Signin({setLocalPage, setPage}) {
     return (
         <View style={styles.screen}>
             <View style={styles.welcomeBlock}>
-                <Text style={{color: '#fff', fontSize: 24, fontWeight: 'bold'}}>Welcome to </Text>
+                <Text style={{color: colors.textPrimary, fontSize: typography.size2xl, fontWeight: typography.weightBold}}>Welcome to </Text>
                 <LOGO />
             </View>
             {SIGNIN_FIELDS.map((field) => (
                 <Input_
                     key={field.key}
                     label={field.label}
-                    icon={<Feather name={field.icon} size={20} color="#626262" />}
+                    icon={<Feather name={field.icon} size={20} color={colors.textMuted} />}
                     isPassword={field.isPassword}
                     value={inputValues[field.key]}
                     onChangeText={(value) => handleInputChange(field.key, value)}
@@ -79,8 +80,8 @@ export default function Signin({setLocalPage, setPage}) {
             </Pressable>
             <Button_ style={{marginTop: 20}} title="Sign In" onPress={handleSignIn} dispable={false} />
             <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-                <Text style={{color: '#727272', fontSize: 12}}>Don't have an account?</Text>
-                <Pressable onPress={() => setLocalPage('signup')}><Text style={{color: '#39ff14', marginLeft: 5, fontSize: 12}}>Sign Up</Text></Pressable>
+                <Text style={{color: colors.textMuted, fontSize: typography.sizeSm}}>Don't have an account?</Text>
+                <Pressable onPress={() => setLocalPage('signup')}><Text style={{color: colors.accent, marginLeft: 5, fontSize: typography.sizeSm}}>Sign Up</Text></Pressable>
             </View>
         </View>
     );
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 16,
+        paddingHorizontal: spacing.lg,
     },
     welcomeBlock: {
         flexDirection: 'row',
@@ -100,16 +101,16 @@ const styles = StyleSheet.create({
         top: 30,
     },
     forgotPassword: {
-        fontSize: 12,
-        color: '#727272',
+        fontSize: typography.sizeSm,
+        color: colors.textMuted,
         alignSelf: 'flex-end',
         marginTop: 0,
     },
     authError: {
         width: '100%',
-        color: '#E53935',
+        color: colors.error,
         marginTop: 4,
         textAlign: 'right',
-        fontSize: 13,
+        fontSize: typography.sizeSm + 1,
     },
 });

@@ -13,6 +13,7 @@ import {
     INITIAL_SIGNUP_VALUES,
     validateSignupForm,
 } from './signupFormUtils';
+import {colors, radius, spacing, typography} from '../../styles/theme';
 
 const signupFields = [
     {
@@ -89,7 +90,7 @@ export default function Signup({setLocalPage, setPage}) {
                 <Input_
                     key={field.key}
                     label={field.label}
-                    icon={<Feather name={field.icon} size={20} color="#626262" />}
+                    icon={<Feather name={field.icon} size={20} color={colors.textMuted} />}
                     isPassword={field.isPassword}
                     value={inputValues[field.key]}
                     onChangeText={(value) => handleInputChange(field.key, value)}
@@ -107,9 +108,9 @@ export default function Signup({setLocalPage, setPage}) {
                 }}
             >
                 <View style={[styles.checkbox, isAgreed && styles.checkboxActive]}>
-                    {isAgreed && <Feather name="check" size={14} color="#040404" />}
+                    {isAgreed && <Feather name="check" size={14} color={colors.background} />}
                 </View>
-                <Text style={styles.termsText}>I have read and agree to the <Text style={{color: '#39ff14'}}>Terms of Service</Text></Text>
+                <Text style={styles.termsText}>I have read and agree to the <Text style={{color: colors.accent}}>Terms of Service</Text></Text>
             </Pressable>
             {submitAttempted && formErrors.isAgreed && (
                 <Text style={styles.checkboxError}>{formErrors.isAgreed}</Text>
@@ -123,44 +124,44 @@ const styles = StyleSheet.create({
     screen: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#040404',
-        paddingHorizontal: 16,
+        backgroundColor: colors.background,
+        paddingHorizontal: spacing.lg,
     },
     text: {
-        color: '#fff',
-        fontSize: 24,
-        fontWeight: 'bold',
+        color: colors.textPrimary,
+        fontSize: typography.size2xl,
+        fontWeight: typography.weightBold,
     },
     termsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 20,
-        gap: 10,
+        marginTop: spacing.xl,
+        marginBottom: spacing.xl,
+        gap: spacing.sm + 2,
     },
     checkbox: {
         width: 20,
         height: 20,
-        borderRadius: 6,
+        borderRadius: radius.sm,
         borderWidth: 1,
-        borderColor: '#626262',
+        borderColor: colors.textMuted,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'transparent',
     },
     checkboxActive: {
-        backgroundColor: '#39ff14',
-        borderColor: '#39ff14',
+        backgroundColor: colors.accent,
+        borderColor: colors.accent,
     },
     termsText: {
-        color: '#fff',
+        color: colors.textPrimary,
         flex: 1,
     },
     checkboxError: {
-        color: '#E53935',
+        color: colors.error,
         marginTop: -12,
         marginBottom: 12,
         textAlign: 'right',
-        fontSize: 13,
+        fontSize: typography.sizeSm + 1,
     },
 });

@@ -1,5 +1,6 @@
 import {View, StyleSheet, Animated, Easing} from 'react-native';
 import React from 'react';
+import {colors, radius, spacing} from '../../styles/theme';
 
 export function TopSlide({slidePage}) {
     const translateX = React.useRef(new Animated.Value(slidePage * 50)).current;
@@ -34,15 +35,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignSelf: 'center',
-        backgroundColor: '#151515',
-        borderRadius: 10,
-        marginBottom: 20,
+        backgroundColor: colors.surface,
+        borderRadius: radius.md + 2,
+        marginBottom: spacing.xl,
         overflow: 'hidden',
     },
     topSliderTrack: {
         width: 50,
         height: 5,
-        backgroundColor: '#151515',
+        backgroundColor: colors.surface,
         borderRadius: 2.5,
     },
     topSliderItemActive: {
@@ -52,6 +53,6 @@ const styles = StyleSheet.create({
         width: 50,
         height: 5,
         borderRadius: 2.5,
-        backgroundColor: '#39ff14',
+        backgroundColor: colors.accent,
     }
 });

@@ -1,5 +1,6 @@
 import {View, Text, Image, StyleSheet} from 'react-native';
 import React from 'react';
+import {colors, spacing, typography} from '../../styles/theme';
 
 export default function Page1() {
     return (
@@ -21,9 +22,9 @@ const styles = StyleSheet.create({
         marginBottom: 50,
     },
     title: {
-        fontSize: 24,
-        fontWeight: '500',
-        color: '#F5F5F5',
+        fontSize: typography.size2xl,
+        fontWeight: typography.weightMedium,
+        color: colors.textPrimary,
     },
     image: {
         position: 'absolute',
@@ -32,13 +33,13 @@ const styles = StyleSheet.create({
     },
     TextContainer: {
         position: 'absolute',
-        bottom: 20,
+        bottom: spacing.xl,
         left: 0,
         right: 0,
     },
     description: {
-        fontSize: 16,
-        color: '#939393',
+        fontSize: typography.sizeLg,
+        color: colors.textSecondary,
         textAlign: 'left',
         // marginTop: 8,
     },

@@ -1,5 +1,6 @@
 import {View, StyleSheet} from 'react-native';
 import React from 'react';
+import {colors} from '../styles/theme';
 
 // Pages Content Page
 import OnboardingContent from './Onboarding/OnboardingContent';
@@ -23,7 +24,7 @@ export default function Content() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: '#040404',
+        backgroundColor: colors.background,
         marginVertical: 25,
     },
 });

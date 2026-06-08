@@ -1,5 +1,36 @@
 # New Wrap Go App
 
+## Design System
+
+### Theme Tokens
+
+Path: src/styles/theme.js
+
+This project now uses a centralized design tokens file for UI styling.
+
+Exports:
+- `colors`: global color palette (background, surface, text, accent, error, etc.)
+- `spacing`: shared spacing scale (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`)
+- `radius`: shared corner radius scale (`sm`, `md`, `lg`, `pill`, `full`)
+- `typography`: shared font sizes and weights
+
+Usage pattern:
+
+```jsx
+import {colors, spacing, radius, typography} from '../../styles/theme';
+```
+
+Applied in:
+- core UI components (`buttons`, `inputs`, `menu`, `selectors`, `settingsButton`, `statusBar`, `topControl`, `topSlide`, `toggleButton`, etc.)
+- onboarding pages
+- signup/signin pages
+- success screen
+
+Benefits:
+- consistent visual style across screens
+- faster global updates for colors, spacing, and typography
+- reduced hardcoded style values in components
+
 ## Components
 
 ### Button_

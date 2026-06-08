@@ -1,13 +1,14 @@
 import {Text, View, Image, Pressable, StyleSheet} from 'react-native';
 import React from 'react';
 import {LinearGradient} from 'expo-linear-gradient';
+import {colors, spacing, typography} from '../../styles/theme';
 
 export function TopControl({setLocalPage}) {
     return (
         <View style={styles.screen}>
             <Pressable style={styles.pressable} onPress={() => setLocalPage("signin")}>
                 <LinearGradient
-                    colors={['#0F0F0F', '#202020']}
+                    colors={[colors.background, colors.surfaceMuted]}
                     start={{x: 0.5, y: 0}}
                     end={{x: 0.5, y: 1}}
                     style={styles.gradient}
@@ -29,10 +30,10 @@ const styles = StyleSheet.create({
         left: 10,
     },
     text: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginLeft: 20,
+        color: colors.textPrimary,
+        fontSize: typography.sizeXl,
+        fontWeight: typography.weightBold,
+        marginLeft: spacing.xl,
     },
     pressable: {
         borderRadius: 100,

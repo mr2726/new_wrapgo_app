@@ -2,6 +2,7 @@ import {Pressable} from 'react-native';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 import {LinearGradient} from 'expo-linear-gradient';
+import {colors} from '../../styles/theme';
 
 export const InfoButton_ = ({icon, onPress}) => {
     return (
@@ -28,7 +29,7 @@ export const InfoButton_ = ({icon, onPress}) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                <Feather name={icon || "info"} size={16} color="#939393" />
+                <Feather name={icon || "info"} size={16} color={colors.textSecondary} />
             </LinearGradient>
         </Pressable>
     );

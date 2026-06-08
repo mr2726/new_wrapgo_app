@@ -3,6 +3,7 @@ import React from 'react';
 // COMPONENTS
 import {TopSlide} from '../../components/ui/topSlide';
 import {Button_} from '../../components/ui/buttons';
+import {colors, spacing} from '../../styles/theme';
 // ------------------------------------------------------------------------
 // Pages
 import Page1 from './Page1';
@@ -33,8 +34,8 @@ export default OnboardingContent;
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: '#040404',
-        paddingTop: 16,
-        marginBottom: 16,
+        backgroundColor: colors.background,
+        paddingTop: spacing.lg,
+        marginBottom: spacing.lg,
     },
 });

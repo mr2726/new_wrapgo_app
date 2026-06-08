@@ -1,8 +1,8 @@
 import {TextInput, View, Text, Pressable} from 'react-native';
 import React from 'react';
 import {useState} from 'react';
-import { LuEyeClosed, LuEye } from "react-icons/lu";
 import { Feather } from '@expo/vector-icons';
+import {colors, radius, spacing, typography} from '../../styles/theme';
 
 export const Input_ = ({
   placeholder,
@@ -26,11 +26,11 @@ export const Input_ = ({
 
   const inputStateStyle = hasError
     ? {
-        borderColor: '#E53935',
+        borderColor: colors.error,
       }
     : isActive
       ? {
-          borderColor: '#39ff14',
+          borderColor: colors.accent,
         }
       : null;
 
@@ -44,8 +44,8 @@ export const Input_ = ({
         <Text
           style={{
             marginBottom: 5,
-            color: hasError ? '#E53935' : !isActive ? '#939393' : '#fff',
-            fontSize: 16,
+            color: hasError ? colors.error : !isActive ? colors.textSecondary : colors.textPrimary,
+            fontSize: typography.sizeLg,
           }}>
           {labelText}
         </Text>
@@ -81,15 +81,15 @@ export const Input_ = ({
           style={[
             {
               borderWidth: 1,
-              borderColor: '#151515',
-              paddingHorizontal: 15,
+              borderColor: colors.border,
+              paddingHorizontal: spacing.lg - 1,
               paddingLeft: renderedIcon ? 45 : 15,
               paddingRight: isPassword ? 45 : 15,
-              borderRadius: 55,
+              borderRadius: radius.pill,
               width: '100%',
               height: 55,
-              backgroundColor: '#151515',
-              color: '#fff',
+              backgroundColor: colors.surface,
+              color: colors.textPrimary,
             },
             inputStateStyle,
             style,
@@ -109,9 +109,9 @@ export const Input_ = ({
               zIndex: 1,
             }}>
             {isPasswordVisibleState ? (
-              <Feather name="eye" color="#626262" size={20} />
+              <Feather name="eye" color={colors.textMuted} size={20} />
             ) : (
-              <Feather name="eye-off" color="#626262" size={20} />
+              <Feather name="eye-off" color={colors.textMuted} size={20} />
             )}
           </Pressable>
         )}
@@ -121,10 +121,10 @@ export const Input_ = ({
         <Text
           style={{
             width: '100%',
-            color: '#E53935',
+            color: colors.error,
             marginTop: 6,
             textAlign: 'right',
-            fontSize: 13,
+            fontSize: typography.sizeSm + 1,
           }}>
           {resolvedErrorText}
         </Text>

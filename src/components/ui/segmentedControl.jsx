@@ -1,5 +1,6 @@
 import {View, Text, Pressable} from 'react-native';
 import React from 'react';
+import {colors, radius, typography} from '../../styles/theme';
 
 export const SegmentedControl_ = ({options, value, onValueChange, style}) => {
     return (
@@ -20,10 +21,10 @@ export const SegmentedControl_ = ({options, value, onValueChange, style}) => {
                         display: 'flex', 
                         alignItems: 'center', 
                         justifyContent: 'center', 
-                        backgroundColor: value === option.value ? '#39ff14' : 'transparent', 
-                        borderRadius: 32
+                        backgroundColor: value === option.value ? colors.accent : 'transparent', 
+                        borderRadius: radius.full
                     }}>
-                        <Text style={{color: value === option.value ? '#000' : '#f5f5f5', fontSize: 12}}>{option.label}</Text>
+                        <Text style={{color: value === option.value ? colors.black : colors.textPrimary, fontSize: typography.sizeSm}}>{option.label}</Text>
                     </Pressable>
                 ))}
             </View>
