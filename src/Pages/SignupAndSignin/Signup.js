@@ -12,7 +12,7 @@ import {signUpWithEmail, saveDriverData} from '../../components/service/service'
 
 
 
-export default function Signup({setLocalPage}) {
+export default function Signup({setLocalPage, setPage}) {
     const [isAgreed, setIsAgreed] = React.useState(false);
     const [submitAttempted, setSubmitAttempted] = React.useState(false);
     const [formErrors, setFormErrors] = React.useState({});

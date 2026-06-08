@@ -11,7 +11,7 @@ import {Button_} from '../../components/ui/buttons';
 // BACKEND
 // ------------------------------------------------------------------------
 
-export default function Signin({setLocalPage}) {
+export default function Signin({setLocalPage, setPage}) {
     return (
         <View style={styles.screen}>
             <View style={styles.welcomeBlock}>

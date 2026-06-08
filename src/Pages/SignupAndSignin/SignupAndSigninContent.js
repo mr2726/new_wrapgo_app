@@ -7,11 +7,11 @@ import Signin from './Signin';
 // ----------------------------
 
 export default function SignupAndSigninContent({setPage}) {
-    const [localPage, setLocalPage] = React.useState("signup");
+    const [localPage, setLocalPage] = React.useState("signin");
     return (
         <View style={styles.screen}>
-            {localPage === "signup" && <Signup setLocalPage={setLocalPage} />}
-            {localPage === "signin" && <Signin setLocalPage={setLocalPage} />}
+            {localPage === "signup" && <Signup setLocalPage={setLocalPage} setPage={setPage} />}
+            {localPage === "signin" && <Signin setLocalPage={setLocalPage} setPage={setPage} />}
         </View>
     );
 }
