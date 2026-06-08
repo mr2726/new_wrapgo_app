@@ -15,7 +15,7 @@ Follow Conventional Commits v1.0.0 for every commit title:
 - Use `BREAKING CHANGE: ...` footer when needed.
 
 ## Workflow
-1. Run `git status --short` and inspect changed files.
+1. Run `git status` and inspect changed files.
 2. Determine most accurate commit type and optional scope from real changes.
 3. Create concise commit title in Conventional Commits format.
 4. Run `git add -A`.

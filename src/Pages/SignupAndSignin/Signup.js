@@ -77,7 +77,7 @@ export default function Signup({setLocalPage, setPage}) {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setSubmitAttempted(true);
         const errors = validateForm();
         setFormErrors(errors);
@@ -87,7 +87,7 @@ export default function Signup({setLocalPage, setPage}) {
         }
 
         // Connect API sign up action
-        signUpWithEmail(inputValues.email, inputValues.password)
+        await signUpWithEmail(inputValues.email, inputValues.password)
             .then((user) => {
                 return saveDriverData(user.id, inputValues.fullName, inputValues.email);
             })
@@ -97,6 +97,7 @@ export default function Signup({setLocalPage, setPage}) {
             .catch((error) => {
                 console.error('Error:', error);
             });
+        setPage('success');
         
     };
 

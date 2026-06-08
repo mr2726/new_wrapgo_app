@@ -39,7 +39,7 @@ Common types:
 
 ## Procedure
 1. Check repository state:
-   - `git status --short`
+   - `git status`
    - `git branch --show-current`
    - `git remote -v`
 2. Infer best commit type from actual file changes.

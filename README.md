@@ -385,7 +385,10 @@ This page does not accept props.
 
 Notes:
 - Root page container for app page flow.
-- Renders `OnboardingContent` as current page content.
+- Uses page state with 3 routes: `onboarding`, `signupandsignin`, `success`.
+- Renders `OnboardingContent` for onboarding flow.
+- Renders `SignupAndSigninContent` for auth flow.
+- Renders `Success` screen after successful auth actions.
 - Uses dark background (`#040404`) and vertical margins.
 
 #### Example
@@ -481,6 +484,7 @@ Path: src/Pages/SignupAndSignin/Signup.js
 | Prop | Type | Required | Description |
 | --- | --- | --- | --- |
 | setLocalPage | function | Yes | Navigation callback passed to `TopControl` for local page switching |
+| setPage | function | Yes | Parent page callback used to move from auth flow to `success` |
 
 Notes:
 - Renders registration form with 4 controlled fields: Full Name, Email, Password, Confirm Password.
@@ -507,18 +511,46 @@ Path: src/Pages/SignupAndSignin/Signin.js
 | Prop | Type | Required | Description |
 | --- | --- | --- | --- |
 | setLocalPage | function | Yes | Navigation callback used to switch back to `signup` from the sign in screen |
+| setPage | function | Yes | Parent page callback used to open `success` after successful sign in |
 
 Notes:
 - Renders sign in screen with welcome block and `LOGO`.
 - Contains email and password inputs.
 - Includes a `Forgot Password?` action placeholder that currently shows an alert.
 - `Sign Up` text at the bottom switches the local page to `signup`.
-- Button action is still a placeholder and can be connected to backend sign in logic later.
+- `Sign In` button calls `signInWithEmail(email, password)`.
+- On successful sign in, page state is switched to `success`.
+- On sign in error, component logs error and shows alert with message.
 
 #### Example
 
 ```jsx
 <Signin setLocalPage={setLocalPage} />
+```
+
+### Success
+
+Path: src/components/screens/Success.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| title | string | Yes | Main success headline text |
+| description | string | Yes | Secondary success description text |
+
+Notes:
+- Renders centered success state screen on dark background.
+- Shows round green icon container with Feather `check` icon.
+- Used by `Content` when page state is `success`.
+
+#### Example
+
+```jsx
+<Success
+	title="Success"
+	description="Your account has been created successfully!"
+/>
 ```
 
 ## Backend
@@ -598,6 +630,26 @@ Returns:
 
 Throws:
 - Supabase insert error when write fails.
+
+## Copilot Automation
+
+### Git AutoPush Agent
+
+Path: .github/agents/git-autopush.agent.md
+
+Purpose:
+- Provides a dedicated Copilot agent for safe `git add`, Conventional Commit creation, and `git push`.
+- Uses Conventional Commits 1.0.0 commit title format.
+- Avoids destructive git operations by default (no force push, no history rewrite unless explicitly requested).
+
+### Conventional Commit Push Skill
+
+Path: .github/skills/conventional-commit-push/SKILL.md
+
+Purpose:
+- Defines workflow rules for commit and push operations with Conventional Commits.
+- Documents commit type guidance (`feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `ci`, `perf`).
+- Includes safety checks for clean and predictable GitHub pushes.
 
 ### .env Configuration
 

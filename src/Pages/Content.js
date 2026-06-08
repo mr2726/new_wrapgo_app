@@ -10,7 +10,7 @@ import Success from '../components/screens/Success';
 // ------------------------------------------------------------------------
 
 export default function Content() {
-    const [page, setPage] = React.useState("signupandsignin");
+    const [page, setPage] = React.useState("onboarding");
     return (
         <View style={styles.screen}>
             {page === "onboarding" && <OnboardingContent setPage={setPage} />}

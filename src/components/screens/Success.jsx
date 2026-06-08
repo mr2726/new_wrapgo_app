@@ -13,6 +13,9 @@ export default function Success({title, description}) {
     );
 }
 
+
+
+
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
