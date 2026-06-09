@@ -20,7 +20,7 @@ export const Button_ = ({title, onPress, style, dispable}) => {
         style,
         dispable && {backgroundColor: colors.accentDisabled},
         ]}>
-        <Text style={{color: colors.textOnAccent, fontSize: typography.sizeLg}}>{title}</Text>
+        <Text style={{color: colors.textOnAccent, fontSize: typography.sizeLg, fontFamily: typography.familyMedium}}>{title}</Text>
     </Pressable>
   );
 }

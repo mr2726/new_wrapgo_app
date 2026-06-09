@@ -1,7 +1,7 @@
 ---
 name: conventional-commit-push
-description: 'Create git commit messages using Conventional Commits v1.0.0 and push safely to GitHub. Use for add/commit/push, commit formatting, and branch push workflows.'
-argument-hint: 'Describe what changed and target branch, for example: added auth validation, branch main'
+description: 'Create git commit messages using Conventional Commits v1.0.0 and push safely to GitHub. Use for add/commit/push, commit formatting, task branch push workflows, and protecting main.'
+argument-hint: 'Describe what changed and target branch, for example: added auth validation, branch feature/auth'
 user-invocable: true
 ---
 
@@ -11,6 +11,7 @@ user-invocable: true
 - Need to commit and push current changes.
 - Need commit message in Conventional Commits format.
 - Need predictable and safe push workflow for GitHub.
+- Need to keep work off `main` and use task branches.
 
 ## Commit Format
 Use this exact structure:
@@ -42,16 +43,25 @@ Common types:
    - `git status`
    - `git branch --show-current`
    - `git remote -v`
-2. Infer best commit type from actual file changes.
-3. Build message in Conventional Commits format.
-4. Stage changes:
+2. If current branch is `main`, create a task branch before committing.
+3. If `main` is clean and this is a new task, update `main` from `origin/main`, then branch from it.
+4. Infer best branch name when not provided:
+   - `feature/<task>`
+   - `bugfix/<task>`
+   - `hotfix/<task>`
+   - `refactor/<task>`
+   - `experiment/<task>`
+5. Infer best commit type from actual file changes.
+6. Build message in Conventional Commits format.
+7. Stage changes:
    - `git add -A`
-5. Commit:
+8. Commit:
    - `git commit -m "<type>(<scope>): <description>"`
-6. Push:
-   - `git push origin <current-branch>`
+9. Push:
+   - `git push origin <task-branch>`
 
 ## Safety Rules
+- Never commit directly to `main` unless explicitly requested.
 - Never run `git push --force` or `git push --force-with-lease` unless explicitly requested.
 - Do not rewrite git history by default.
 - If no changes are staged after `git add -A`, stop and report "nothing to commit".

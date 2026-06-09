@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { useFonts } from 'expo-font';
 // COMPONENTS
 // import {Menu} from './src/components/ui/menu';
 // import {TopSlide} from './src/components/ui/topSlide';
@@ -21,6 +22,22 @@ import {Feather} from '@expo/vector-icons';
 
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    LufgaThin: require('./src/styles/lufga/LufgaThin.ttf'),
+    LufgaExtraLight: require('./src/styles/lufga/LufgaExtraLight.ttf'),
+    LufgaLight: require('./src/styles/lufga/LufgaLight.ttf'),
+    LufgaRegular: require('./src/styles/lufga/LufgaRegular.ttf'),
+    LufgaMedium: require('./src/styles/lufga/LufgaMedium.ttf'),
+    LufgaSemiBold: require('./src/styles/lufga/LufgaSemiBold.ttf'),
+    LufgaBold: require('./src/styles/lufga/LufgaBold.ttf'),
+    LufgaExtraBold: require('./src/styles/lufga/LufgaExtraBold.ttf'),
+    LufgaBlack: require('./src/styles/lufga/LufgaBlack.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   // const [text, setText] = React.useState('');
   // const [selectedOption, setSelectedOption] = React.useState("option1");
   // const selectorOptions = [

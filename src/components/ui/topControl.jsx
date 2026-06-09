@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     text: {
         color: colors.textPrimary,
         fontSize: typography.sizeXl,
-        fontWeight: typography.weightBold,
+        fontFamily: typography.familyBold,
         marginLeft: spacing.xl,
     },
     pressable: {

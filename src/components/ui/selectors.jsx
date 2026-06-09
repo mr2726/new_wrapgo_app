@@ -20,6 +20,7 @@ export const Selector_ = ({
                 marginBottom: 5,
                 color: colors.textSecondary,
                 fontSize: typography.sizeLg,
+                fontFamily: typography.familyRegular,
                 }}>
                 {label}
             </Text>
@@ -38,7 +39,7 @@ export const Selector_ = ({
                 onPress={() => {
                     setIsOpen(!isOpen);
                 }}        >
-                <Text style={{color: colors.textPrimary, marginBottom: 4}}>{value ? value.label : ''}</Text>
+                <Text style={{color: colors.textPrimary, marginBottom: 4, fontFamily: typography.familyRegular}}>{value ? value.label : ''}</Text>
                 <Feather name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} color={colors.textSecondary} />
             </Pressable>
 
@@ -53,7 +54,7 @@ export const Selector_ = ({
                                 setIsOpen(false);
                             }}
                         >
-                            <Text style={{color: colors.textPrimary}}>{option.label}</Text>
+                            <Text style={{color: colors.textPrimary, fontFamily: typography.familyRegular}}>{option.label}</Text>
                         </Pressable>
                     ))}
                 </View>

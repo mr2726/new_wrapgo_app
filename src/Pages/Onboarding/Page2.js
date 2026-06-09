@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: typography.size2xl,
-        fontWeight: typography.weightMedium,
+        fontFamily: typography.familyMedium,
         color: colors.textPrimary,
     },
     logo: {
@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
     description: {
         fontSize: typography.sizeLg,
         color: colors.textSecondary,
+        fontFamily: typography.familyRegular,
         textAlign: 'left',
     },
 });

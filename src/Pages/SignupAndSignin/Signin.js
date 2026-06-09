@@ -58,7 +58,7 @@ export default function Signin({setLocalPage, setPage}) {
     return (
         <View style={styles.screen}>
             <View style={styles.welcomeBlock}>
-                <Text style={{color: colors.textPrimary, fontSize: typography.size2xl, fontWeight: typography.weightBold}}>Welcome to </Text>
+                <Text style={{color: colors.textPrimary, fontSize: typography.size2xl, fontFamily: typography.familyBold}}>Welcome to </Text>
                 <LOGO />
             </View>
             {SIGNIN_FIELDS.map((field) => (
@@ -80,8 +80,8 @@ export default function Signin({setLocalPage, setPage}) {
             </Pressable>
             <Button_ style={{marginTop: 20}} title="Sign In" onPress={handleSignIn} dispable={false} />
             <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-                <Text style={{color: colors.textMuted, fontSize: typography.sizeSm}}>Don't have an account?</Text>
-                <Pressable onPress={() => setLocalPage('signup')}><Text style={{color: colors.accent, marginLeft: 5, fontSize: typography.sizeSm}}>Sign Up</Text></Pressable>
+                <Text style={{color: colors.textMuted, fontSize: typography.sizeSm, fontFamily: typography.familyRegular}}>Don't have an account?</Text>
+                <Pressable onPress={() => setLocalPage('signup')}><Text style={{color: colors.accent, marginLeft: 5, fontSize: typography.sizeSm, fontFamily: typography.familyRegular}}>Sign Up</Text></Pressable>
             </View>
         </View>
     );
@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
         color: colors.textMuted,
         alignSelf: 'flex-end',
         marginTop: 0,
+        fontFamily: typography.familyRegular,
     },
     authError: {
         width: '100%',
@@ -112,5 +113,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
         textAlign: 'right',
         fontSize: typography.sizeSm + 1,
+        fontFamily: typography.familyRegular,
     },
 });

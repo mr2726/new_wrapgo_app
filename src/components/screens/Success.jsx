@@ -8,8 +8,8 @@ export default function Success({title, description}) {
             <View style={{width: 80, height: 80, borderRadius: 40, backgroundColor: colors.accent, justifyContent: 'center', alignItems: 'center', marginBottom: spacing.xl}}>
                 <Feather name="check" size={45} color="black" />
             </View>
-            <Text style={{color: colors.textPrimary, fontSize: typography.size2xl, fontWeight: typography.weightBold}}>{title}</Text>
-            <Text style={{color: colors.textMuted, fontSize: typography.sizeMd, marginTop: spacing.sm + 2, width: 200, textAlign: 'center'}}>{description}</Text>
+            <Text style={{color: colors.textPrimary, fontSize: typography.size2xl, fontFamily: typography.familyBold}}>{title}</Text>
+            <Text style={{color: colors.textMuted, fontSize: typography.sizeMd, marginTop: spacing.sm + 2, width: 200, textAlign: 'center', fontFamily: typography.familyRegular}}>{description}</Text>
         </View>
     );
 }

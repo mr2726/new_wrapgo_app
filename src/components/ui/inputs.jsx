@@ -46,6 +46,7 @@ export const Input_ = ({
             marginBottom: 5,
             color: hasError ? colors.error : !isActive ? colors.textSecondary : colors.textPrimary,
             fontSize: typography.sizeLg,
+            fontFamily: typography.familyRegular,
           }}>
           {labelText}
         </Text>
@@ -90,6 +91,7 @@ export const Input_ = ({
               height: 55,
               backgroundColor: colors.surface,
               color: colors.textPrimary,
+              fontFamily: typography.familyRegular,
             },
             inputStateStyle,
             style,
@@ -125,6 +127,7 @@ export const Input_ = ({
             marginTop: 6,
             textAlign: 'right',
             fontSize: typography.sizeSm + 1,
+            fontFamily: typography.familyRegular,
           }}>
           {resolvedErrorText}
         </Text>

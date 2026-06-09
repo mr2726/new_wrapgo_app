@@ -5,6 +5,7 @@
 ### Design System
 - [Design System](#design-system)
 - [Theme Tokens](#theme-tokens)
+- [Fonts](#fonts)
 
 ### Components
 - [Components](#components)
@@ -59,7 +60,7 @@ Exports:
 - `colors`: global color palette (background, surface, text, accent, error, etc.)
 - `spacing`: shared spacing scale (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`)
 - `radius`: shared corner radius scale (`sm`, `md`, `lg`, `pill`, `full`)
-- `typography`: shared font sizes and weights
+- `typography`: shared font sizes, weights, and font family tokens
 
 Usage pattern:
 
@@ -77,6 +78,44 @@ Benefits:
 - consistent visual style across screens
 - faster global updates for colors, spacing, and typography
 - reduced hardcoded style values in components
+
+### Fonts
+
+Paths:
+- `src/styles/lufga/`
+- `App.js`
+- `src/styles/theme.js`
+
+This project uses the local `Lufga` font family across the application.
+
+Font loading:
+- Fonts are loaded at runtime in `App.js` using `useFonts` from `expo-font`.
+- The app waits until fonts are loaded before rendering the main UI.
+
+Available families in `typography`:
+- `familyThin`
+- `familyLight`
+- `familyRegular`
+- `familyMedium`
+- `familySemiBold`
+- `familyBold`
+- `familyBlack`
+
+Usage pattern:
+
+```jsx
+import {typography} from '../../styles/theme';
+
+<Text style={{ fontFamily: typography.familyRegular }}>
+	Example text
+</Text>
+```
+
+Applied in:
+- shared UI components with text rendering
+- onboarding text blocks
+- signup/signin screens
+- success screen
 
 ## Components
 

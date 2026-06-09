@@ -21,7 +21,7 @@ export const SettingsButton = ({title, onPress, icon}) => {
       
         <View style={{flexDirection: 'row', alignItems: 'center', gap: spacing.sm}}>
           <Feather name={icon || "settings"} size={20} color={colors.textSecondary} />
-          <Text style={{color: colors.textPrimary, fontSize: typography.sizeLg}}>{title}</Text>
+            <Text style={{color: colors.textPrimary, fontSize: typography.sizeLg, fontFamily: typography.familyMedium}}>{title}</Text>
         </View>
         <Feather name="arrow-right" size={20} color={colors.textSecondary} />
     </Pressable>

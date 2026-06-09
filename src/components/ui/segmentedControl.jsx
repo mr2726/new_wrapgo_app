@@ -24,7 +24,7 @@ export const SegmentedControl_ = ({options, value, onValueChange, style}) => {
                         backgroundColor: value === option.value ? colors.accent : 'transparent', 
                         borderRadius: radius.full
                     }}>
-                        <Text style={{color: value === option.value ? colors.black : colors.textPrimary, fontSize: typography.sizeSm}}>{option.label}</Text>
+                        <Text style={{color: value === option.value ? colors.black : colors.textPrimary, fontSize: typography.sizeSm, fontFamily: typography.familyMedium}}>{option.label}</Text>
                     </Pressable>
                 ))}
             </View>

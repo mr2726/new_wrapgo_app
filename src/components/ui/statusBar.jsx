@@ -10,8 +10,8 @@ export const StatusBar_ = ({style, title, description, icon, color, onPress}) =>
             <View style={{display: 'flex', flexDirection: 'row', gap: spacing.md}}>
                 <Feather name={icon || "info"} size={13} color={color || colors.textSecondary} />
                 <View>
-                    <Text style={{color: colors.textPrimary, fontSize: typography.sizeSm}}>{title}</Text>
-                    <Text style={{color: colors.textSecondary, fontSize: typography.sizeXs}}>{description}</Text>
+                    <Text style={{color: colors.textPrimary, fontSize: typography.sizeSm, fontFamily: typography.familyMedium}}>{title}</Text>
+                    <Text style={{color: colors.textSecondary, fontSize: typography.sizeXs, fontFamily: typography.familyRegular}}>{description}</Text>
                 </View>
             </View>
             {onPress ? (

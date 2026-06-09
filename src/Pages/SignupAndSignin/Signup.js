@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     text: {
         color: colors.textPrimary,
         fontSize: typography.size2xl,
-        fontWeight: typography.weightBold,
+        fontFamily: typography.familyBold,
     },
     termsRow: {
         flexDirection: 'row',
@@ -156,6 +156,7 @@ const styles = StyleSheet.create({
     termsText: {
         color: colors.textPrimary,
         flex: 1,
+        fontFamily: typography.familyRegular,
     },
     checkboxError: {
         color: colors.error,
@@ -163,5 +164,6 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         textAlign: 'right',
         fontSize: typography.sizeSm + 1,
+        fontFamily: typography.familyRegular,
     },
 });
