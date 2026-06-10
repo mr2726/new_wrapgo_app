@@ -157,6 +157,7 @@ const styles = StyleSheet.create({
         color: colors.textPrimary,
         flex: 1,
         fontFamily: typography.familyRegular,
+        fontSize: typography.sizeSm
     },
     checkboxError: {
         color: colors.error,

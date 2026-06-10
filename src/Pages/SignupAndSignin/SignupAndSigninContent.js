@@ -5,14 +5,16 @@ import {colors} from '../../styles/theme';
 // Pages Content Page
 import Signup from './Signup';
 import Signin from './Signin';
+import OTPScreen from './OTP/OTPScreen';
 // ----------------------------
 
 export default function SignupAndSigninContent({setPage}) {
-    const [localPage, setLocalPage] = React.useState("signin");
+    const [localPage, setLocalPage] = React.useState("otp");
     return (
         <View style={styles.screen}>
             {localPage === "signup" && <Signup setLocalPage={setLocalPage} setPage={setPage} />}
             {localPage === "signin" && <Signin setLocalPage={setLocalPage} setPage={setPage} />}
+            {localPage === "otp" && <OTPScreen setLocalPage={setLocalPage} setPage={setPage} />}
         </View>
     );
 }

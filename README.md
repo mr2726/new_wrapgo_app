@@ -11,6 +11,7 @@
 - [Components](#components)
 - [Button_](#button_)
 - [Input_](#input_)
+- [OTPinput](#otpinput)
 - [Selector_](#selector_)
 - [SettingsButton](#settingsbutton)
 - [InfoInput_](#infoinput_)
@@ -182,6 +183,39 @@ Notes:
 	errorText="Invalid password"
 	icon={<Feather name="phone" size={20} color="#626262" />}
 />
+```
+
+### OTPinput
+
+Path: src/components/ui/OTPinput.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| value | object | Yes | OTP state object with keys `input1` to `input6` |
+| onChangeText | function | Yes | State updater that receives full OTP object on each change |
+| error | boolean \| string | No | When truthy, empty fields are highlighted as invalid |
+
+Notes:
+- Component renders six one-character inputs via `map`.
+- Filled inputs use accent border color (`colors.accent`).
+- If `error` is truthy, empty inputs use error border color (`colors.error`).
+- On `Backspace` in an empty field, previous field is cleared.
+
+#### Example
+
+```jsx
+const [otp, setOtp] = React.useState({
+	input1: '',
+	input2: '',
+	input3: '',
+	input4: '',
+	input5: '',
+	input6: '',
+});
+
+<OTPinput value={otp} onChangeText={setOtp} error={otpError} />
 ```
 
 ### Selector_
