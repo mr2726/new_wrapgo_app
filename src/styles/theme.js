@@ -7,6 +7,7 @@ export const colors = {
   textSecondary: '#939393',
   textMuted: '#727272',
   textOnAccent: '#101010',
+  icons: "#626262",
   accent: '#39FF14',
   accentPressed: '#1F8C0B',
   accentActive: '#24FF3D',

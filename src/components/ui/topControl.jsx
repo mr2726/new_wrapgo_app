@@ -3,7 +3,7 @@ import React from 'react';
 import {LinearGradient} from 'expo-linear-gradient';
 import {colors, spacing, typography} from '../../styles/theme';
 
-export function TopControl({setLocalPage}) {
+export function TopControl({setLocalPage, title}) {
     return (
         <View style={styles.screen}>
             <Pressable style={styles.pressable} onPress={() => setLocalPage("signin")}>
@@ -16,7 +16,7 @@ export function TopControl({setLocalPage}) {
                     <Image source={require('./imgs/ArrowLeft.png')}/>
                 </LinearGradient>
             </Pressable>
-            <Text style={styles.text}>Create Account</Text>
+            <Text style={styles.text}>{title}</Text>
         </View>
     );
 }
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         position: 'absolute',
         top: 10,
-        left: 10,
+        left: 0,
     },
     text: {
         color: colors.textPrimary,

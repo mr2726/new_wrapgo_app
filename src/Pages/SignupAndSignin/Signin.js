@@ -75,7 +75,7 @@ export default function Signin({setLocalPage, setPage}) {
             {Boolean(authError) && (
                 <Text style={styles.authError}>{authError}</Text>
             )}
-            <Pressable onPress={() => {alert('Comming soon')}} style={{alignSelf: 'flex-end', marginTop: 2}}>
+            <Pressable onPress={() => {setLocalPage('otp')}} style={{alignSelf: 'flex-end', marginTop: 2}}>
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
             </Pressable>
             <Button_ style={{marginTop: 20}} title="Sign In" onPress={handleSignIn} dispable={false} />

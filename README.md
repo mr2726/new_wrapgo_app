@@ -33,6 +33,7 @@
 - [Page3](#page3)
 - [Signup](#signup)
 - [Signin](#signin)
+- [OTPScreen](#otpscreen)
 - [Success](#success)
 
 ### Backend
@@ -62,6 +63,9 @@ Exports:
 - `spacing`: shared spacing scale (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`)
 - `radius`: shared corner radius scale (`sm`, `md`, `lg`, `pill`, `full`)
 - `typography`: shared font sizes, weights, and font family tokens
+
+Recent update:
+- `colors.icons` token was added for consistent icon color usage (`#626262`).
 
 Usage pattern:
 
@@ -169,6 +173,7 @@ Notes:
 - `icon` is rendered inside the input on the left.
 - `isPassword` adds an eye toggle inside the input on the right and switches `secureTextEntry`.
 - when `error` is true and `errorText` is empty, the default message is "Input error".
+- `style` prop can be passed to customize container spacing/layout per screen.
 
 #### Example
 
@@ -178,6 +183,7 @@ Notes:
 	value={phone}
 	onChangeText={setPhone}
 	label="Password"
+	style={{marginBottom: 20}}
 	isPassword={true}
 	error={true}
 	errorText="Invalid password"
@@ -202,6 +208,7 @@ Notes:
 - Filled inputs use accent border color (`colors.accent`).
 - If `error` is truthy, empty inputs use error border color (`colors.error`).
 - On `Backspace` in an empty field, previous field is cleared.
+- Auto-focus starts from first field and moves to the next field after entering one symbol.
 
 #### Example
 
@@ -459,17 +466,17 @@ Path: src/components/ui/topControl.jsx
 | Prop | Type | Required | Description |
 | --- | --- | --- | --- |
 | setLocalPage | function | Yes | Callback fired when back button is pressed. Called with `"signin"` |
+| title | string | Yes | Header text shown on the right of back button |
 
 Notes:
-- Component renders a compact top header with a round back button and page title.
+- Component renders a compact top header with a round back button and customizable page title.
 - Back button icon uses `src/components/ui/imgs/ArrowLeft.png`.
 - Back button background uses `LinearGradient` from `expo-linear-gradient` (`#0F0F0F` to `#202020`).
-- Title text is fixed to `Create Account`.
 
 #### Example
 
 ```jsx
-<TopControl setLocalPage={setLocalPage} />
+<TopControl setLocalPage={setLocalPage} title="Create Account" />
 ```
 
 ### LOGO
@@ -669,7 +676,7 @@ Path: src/Pages/SignupAndSignin/Signin.js
 Notes:
 - Renders sign in screen with welcome block and `LOGO`.
 - Contains email and password inputs rendered from field config (`map`).
-- Includes a `Forgot Password?` action placeholder that currently shows an alert.
+- `Forgot Password?` switches local route to `otp`.
 - `Sign Up` text at the bottom switches the local page to `signup`.
 - `Sign In` button calls `signInWithEmail(email, password)`.
 - On successful sign in, page state is switched to `success`.
@@ -681,6 +688,30 @@ Notes:
 
 ```jsx
 <Signin setLocalPage={setLocalPage} />
+```
+
+### OTPScreen
+
+Path: src/Pages/SignupAndSignin/OTP/OTPScreen.js
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setLocalPage | function | Yes | Passed to `TopControl` for returning to `signin` |
+| setPage | function | Yes | Used to navigate to `success` after reset flow |
+
+Notes:
+- Screen has 3-step button state flow: `getOTP` -> `verify` -> `reset`.
+- On `getOTP`, email is required; validation errors are shown through `Input_`.
+- On `verify`, OTP is validated to 6 digits and shown with `OTPinput`.
+- On `reset`, first press navigates directly to `success`.
+- Email input uses `style` prop to adjust spacing based on current step.
+
+#### Example
+
+```jsx
+<OTPScreen setLocalPage={setLocalPage} setPage={setPage} />
 ```
 
 ### Success

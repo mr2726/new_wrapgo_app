@@ -4,6 +4,16 @@ import {colors, radius, spacing, typography} from '../../styles/theme';
 
 export function OTPinput({value, onChangeText, error}) {
     const inputKeys = ['input1', 'input2', 'input3', 'input4', 'input5', 'input6'];
+    const inputRefs = React.useRef([]);
+
+    const handleInputChange = (text, key, index) => {
+        const normalizedValue = text.slice(-1);
+        onChangeText({...value, [key]: normalizedValue});
+
+        if (normalizedValue && index < inputKeys.length - 1) {
+            inputRefs.current[index + 1]?.focus();
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -17,28 +27,17 @@ export function OTPinput({value, onChangeText, error}) {
                     <TextInput
                         key={key}
                         ref={(ref) => {
-                            if (!ref) {
-                                return;
-                            }
-
-                            if (index === 0 || value[prevKey]) {
-                                ref.focus();
-                            }
+                            inputRefs.current[index] = ref;
                         }}
-                        onFocus={() => {
-                            if (index > 0 && !value[prevKey]) {
-                                const keyToFocus = prevKey || key;
-                                onChangeText({...value, [keyToFocus]: ''});
-                            }
-                        }}
+                        autoFocus={index === 0}
                         onKeyPress={({nativeEvent}) => {
-                            if (nativeEvent.key === 'Backspace' && !value[key]) {
-                                const keyToClear = prevKey || key;
-                                onChangeText({...value, [keyToClear]: ''});
+                            if (nativeEvent.key === 'Backspace' && !value[key] && index > 0) {
+                                onChangeText({...value, [prevKey]: ''});
+                                inputRefs.current[index - 1]?.focus();
                             }
                         }}
                         value={value[key]}
-                        onChangeText={(text) => onChangeText({...value, [key]: text})}
+                        onChangeText={(text) => handleInputChange(text, key, index)}
                         keyboardType="numeric"
                         maxLength={1}
                         style={[

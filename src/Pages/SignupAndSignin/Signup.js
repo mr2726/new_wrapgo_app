@@ -84,7 +84,7 @@ export default function Signup({setLocalPage, setPage}) {
     return (
         <View style={styles.screen}>
             <View style={{position: "relative", height: 50, marginBottom: 20}}>
-                <TopControl setLocalPage={setLocalPage} />
+                <TopControl setLocalPage={setLocalPage} title="Create Account" />
             </View>
             {signupFields.map((field) => (
                 <Input_
