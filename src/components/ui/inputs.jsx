@@ -16,6 +16,7 @@ export const Input_ = ({
   errorText,
   icon,
   isPassword,
+  disable = true,
   }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisibleState, setIsPasswordVisibleState] = useState(false);
@@ -37,7 +38,7 @@ export const Input_ = ({
   const labelText = label;
   const renderedIcon =
     typeof icon === 'function' ? icon({isActive, error}) : icon;
-
+  const [disableInput, setDisableInput] = useState(disable);
   return (
     <View style={{width: '100%', marginVertical: 4}}>
       {labelText && (
@@ -97,6 +98,7 @@ export const Input_ = ({
             style,
           ]}
           secureTextEntry={Boolean(isPassword) && !isPasswordVisibleState}
+          editable={disableInput}
         />
 
         {isPassword && (
@@ -117,6 +119,22 @@ export const Input_ = ({
             )}
           </Pressable>
         )}
+        {
+          !disableInput && (
+            <Pressable onPress={() => setDisableInput(true)}
+              style={{
+                position: 'absolute',
+                right: 15,
+                top: 0,
+                height: 55,
+                justifyContent: 'center',
+                zIndex: 1,
+              }}
+            >
+              <Feather name="edit" color={colors.textMuted} size={20} />
+            </Pressable>
+          )
+        }
       </View>
 
       {hasError && (

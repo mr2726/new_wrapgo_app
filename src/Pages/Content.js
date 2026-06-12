@@ -5,18 +5,20 @@ import {colors} from '../styles/theme';
 // Pages Content Page
 import OnboardingContent from './Onboarding/OnboardingContent';
 import SignupAndSigninContent from './SignupAndSignin/SignupAndSigninContent';
+import VereficationContent from './Verefiacation/VereficationContent';
 
 // Temp Page Success
 import Success from '../components/screens/Success';
 // ------------------------------------------------------------------------
 
 export default function Content() {
-    const [page, setPage] = React.useState("onboarding");
+    const [page, setPage] = React.useState("verification"); // onboarding | signupandsignin | success | verification
     return (
         <View style={styles.screen}>
             {page === "onboarding" && <OnboardingContent setPage={setPage} />}
             {page === "signupandsignin" && <SignupAndSigninContent setPage={setPage} />}
             {page === "success" && <Success title="Success" description="Your account has been created successfully!" />}
+            {page === "verification" && <VereficationContent setPage={setPage} />}
         </View>
     );
 }

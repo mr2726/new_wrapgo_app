@@ -36,6 +36,13 @@
 - [Signup](#signup)
 - [Signin](#signin)
 - [OTPScreen](#otpscreen)
+- [VereficationContent](#vereficationcontent)
+- [DriverInfo](#driverinfo)
+- [VehicleType](#vehicletype)
+- [VehicleInfo](#vehicleinfo)
+- [VehiclePhoto](#vehiclephoto)
+- [VehicleDocuments](#vehicledocuments)
+- [Selfie](#selfie)
 - [Success](#success)
 
 ### Backend
@@ -173,12 +180,15 @@ Path: src/components/ui/inputs.jsx
 | onBlur | function | No | Callback fired when input loses focus |
 | icon | ReactNode \| function | No | Icon inside input. Can be an element or a function receiving {isActive, error} |
 | isPassword | boolean | No | Enables password mode and shows the eye toggle icon inside the input |
+| disable | boolean | No | Initial editable state for input. Default is `true` |
 
 Notes:
 - `icon` is rendered inside the input on the left.
 - `isPassword` adds an eye toggle inside the input on the right and switches `secureTextEntry`.
 - when `error` is true and `errorText` is empty, the default message is "Input error".
 - `style` prop can be passed to customize container spacing/layout per screen.
+- `editable` is controlled by internal `disableInput` state.
+- When input starts as non-editable (`disable={false}`), an edit icon appears to enable editing.
 
 #### Example
 
@@ -605,10 +615,12 @@ This page does not accept props.
 
 Notes:
 - Root page container for app page flow.
-- Uses page state with 3 routes: `onboarding`, `signupandsignin`, `success`.
+- Uses page state with 4 routes: `onboarding`, `signupandsignin`, `success`, `verification`.
 - Renders `OnboardingContent` for onboarding flow.
 - Renders `SignupAndSigninContent` for auth flow.
+- Renders `VereficationContent` for driver verification flow.
 - Renders `Success` screen after successful auth actions.
+- Current initial route is `verification`.
 - Uses dark background (`#040404`) and vertical margins.
 
 #### Example
@@ -777,6 +789,84 @@ Notes:
 ```jsx
 <OTPScreen setLocalPage={setLocalPage} setPage={setPage} />
 ```
+
+### VereficationContent
+
+Path: src/Pages/Verefiacation/VereficationContent.js
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setPage | function | Yes | Parent page callback used for top-level page navigation |
+
+Notes:
+- Entry screen for driver verification flow.
+- Uses `TopControl` with title `Driver Verification`.
+- Uses `ProgressBar` with `step={7}` and current active step index.
+- Currently renders `DriverInfo` as first screen (`currentScreen === 0`).
+- Continue button is present at bottom and currently calls `setPage('verification')`.
+
+#### Example
+
+```jsx
+<VereficationContent setPage={setPage} />
+```
+
+### DriverInfo
+
+Path: src/Pages/Verefiacation/DriverInfo.js
+
+#### Props
+
+This page does not accept props.
+
+Notes:
+- Uses `KeyboardAwareScrollView` to avoid keyboard overlap on form fields.
+- Contains controlled form state: `fullName`, `email`, `phoneNumber`, `birthDate`.
+- Uses shared `Input_` for text fields and `DateInput` for birth date.
+- Full name field is rendered with `disable={false}` to start in non-editable mode with edit toggle.
+
+#### Example
+
+```jsx
+<DriverInfo />
+```
+
+### VehicleType
+
+Path: src/Pages/Verefiacation/VehicleType.js
+
+Notes:
+- Placeholder file created for upcoming verification step.
+
+### VehicleInfo
+
+Path: src/Pages/Verefiacation/VehicleInfo.js
+
+Notes:
+- Placeholder file created for upcoming verification step.
+
+### VehiclePhoto
+
+Path: src/Pages/Verefiacation/VehiclePhoto.js
+
+Notes:
+- Placeholder file created for upcoming verification step.
+
+### VehicleDocuments
+
+Path: src/Pages/Verefiacation/VehicleDocuments.js
+
+Notes:
+- Placeholder file created for upcoming verification step.
+
+### Selfie
+
+Path: src/Pages/Verefiacation/Selfie.js
+
+Notes:
+- Placeholder file created for upcoming verification step.
 
 ### Success
 
@@ -961,3 +1051,9 @@ Use only these keys:
 EXPO_PUBLIC_SUPABASE_URL=
 EXPO_PUBLIC_SUPABASE_ANON_KEY=
 ```
+
+### Dependency Updates
+
+Recent additions in dependencies:
+- `@react-native-community/datetimepicker` for native date selection in `DateInput`.
+- `react-native-keyboard-aware-scroll-view` for keyboard-safe form scrolling in verification pages.
