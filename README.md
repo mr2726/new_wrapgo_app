@@ -11,6 +11,7 @@
 - [Components](#components)
 - [Button_](#button_)
 - [Input_](#input_)
+- [DateInput](#dateinput)
 - [OTPinput](#otpinput)
 - [Selector_](#selector_)
 - [SettingsButton](#settingsbutton)
@@ -191,6 +192,40 @@ Notes:
 	error={true}
 	errorText="Invalid password"
 	icon={<Feather name="phone" size={20} color="#626262" />}
+/>
+```
+
+### DateInput
+
+Path: src/components/ui/DateInput.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| label | string | No | Label shown above the field |
+| value | string | No | Selected date in `YYYY-MM-DD` format |
+| onChange | function | No | Callback fired when date is selected. Receives formatted `YYYY-MM-DD` string |
+| error | boolean \| string | No | Error state or error text shown under the field |
+| style | object \| array | No | Additional styles for the outer container |
+| placeholder | string | No | Placeholder text when no date is selected |
+
+Notes:
+- Uses `@react-native-community/datetimepicker` for native date selection.
+- Opens picker modal when pressed (Android: closes after selection, iOS: uses Cancel/Done actions).
+- Restricts date selection to today or earlier via `maximumDate={new Date()}`.
+- Displays selected value as formatted `YYYY-MM-DD`.
+
+#### Example
+
+```jsx
+const [birthDate, setBirthDate] = React.useState('');
+
+<DateInput
+	label="Date of Birth"
+	value={birthDate}
+	onChange={setBirthDate}
+	placeholder="YYYY-MM-DD"
 />
 ```
 
