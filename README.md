@@ -12,6 +12,7 @@
 - [Button_](#button_)
 - [Input_](#input_)
 - [DateInput](#dateinput)
+- [ProgressBar](#progressbar)
 - [OTPinput](#otpinput)
 - [Selector_](#selector_)
 - [SettingsButton](#settingsbutton)
@@ -227,6 +228,29 @@ const [birthDate, setBirthDate] = React.useState('');
 	onChange={setBirthDate}
 	placeholder="YYYY-MM-DD"
 />
+```
+
+### ProgressBar
+
+Path: src/components/ui/ProgressBar.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| step | number | Yes | Total number of progress segments rendered in the bar |
+| activeStep | number | No | Active segment index (0-based). Active segment is highlighted with accent color |
+
+Notes:
+- Renders segments dynamically using `step` value.
+- Segment count is sanitized with `Math.max(0, Number(step) || 0)`.
+- Each segment uses equal width via `flex: 1`.
+- Non-active segments use `colors.surface`; active segment uses `colors.accent`.
+
+#### Example
+
+```jsx
+<ProgressBar step={4} activeStep={1} />
 ```
 
 ### OTPinput
