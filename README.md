@@ -43,6 +43,9 @@
 - [signUpWithEmail](#signupwithemail)
 - [signInWithEmail](#signinwithemail)
 - [saveDriverData](#savedriverdata)
+- [sendOTP](#sendotp)
+- [verifyOTP](#verifyotp)
+- [changePassword](#changepassword)
 
 ### Automation
 - [Copilot Automation](#copilot-automation)
@@ -705,7 +708,9 @@ Notes:
 - Screen has 3-step button state flow: `getOTP` -> `verify` -> `reset`.
 - On `getOTP`, email is required; validation errors are shown through `Input_`.
 - On `verify`, OTP is validated to 6 digits and shown with `OTPinput`.
-- On `reset`, first press navigates directly to `success`.
+- On `reset`, user enters `New Password` and `Confirm New Password`.
+- Password validation on `reset`: passwords must match and have minimum length 8.
+- On successful reset submit, screen calls `changePassword(newPassword)` and navigates to `success`.
 - Email input uses `style` prop to adjust spacing based on current step.
 
 #### Example
@@ -816,6 +821,56 @@ Returns:
 
 Throws:
 - Supabase insert error when write fails.
+
+#### sendOTP
+
+Signature:
+- `sendOTP(email)`
+
+Description:
+- Sends an auth OTP/magic-link challenge for existing users by email.
+- Internally calls `supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } })`.
+
+Params:
+- `email` (string): email to send OTP/challenge.
+
+Returns:
+- No payload on success.
+
+Throws:
+- Supabase auth error when sending OTP/challenge fails.
+
+#### verifyOTP
+
+Signature:
+- `verifyOTP(email, token)`
+
+Description:
+- Verifies OTP code for email auth flow.
+- Internally calls `supabase.auth.verifyOtp({ email, token, type: "email" })`.
+
+Params:
+- `email` (string): email used during OTP request.
+- `token` (string): 6-digit OTP code entered by user.
+
+Returns:
+- `true` when verification succeeds.
+- `false` when Supabase verification returns an error.
+
+#### changePassword
+
+Signature:
+- `changePassword(newPassword)`
+
+Description:
+- Updates current authenticated user password.
+- Internally calls `supabase.auth.updateUser({ password: newPassword })`.
+
+Params:
+- `newPassword` (string): new password value.
+
+Returns:
+- No payload.
 
 ## Copilot Automation
 

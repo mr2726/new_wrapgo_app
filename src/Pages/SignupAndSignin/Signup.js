@@ -116,6 +116,8 @@ export default function Signup({setLocalPage, setPage}) {
                 <Text style={styles.checkboxError}>{formErrors.isAgreed}</Text>
             )}
             <Button_ title="Sign Up" onPress={handleSubmit} dispable={false} />
+
+            <Text style={styles.signinText}>Already have an account? <Text style={{color: colors.accent}} onPress={() => setLocalPage('signin')}>Sign In</Text></Text>
         </View>
     );
 }
@@ -158,6 +160,12 @@ const styles = StyleSheet.create({
         flex: 1,
         fontFamily: typography.familyRegular,
         fontSize: typography.sizeSm
+    },
+    signinText: {
+        color: colors.textSecondary,
+        fontSize: typography.sizeSm,
+        textAlign: 'center',
+        marginTop: spacing.lg,
     },
     checkboxError: {
         color: colors.error,

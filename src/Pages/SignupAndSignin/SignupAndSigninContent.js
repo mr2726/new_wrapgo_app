@@ -9,7 +9,7 @@ import OTPScreen from './OTP/OTPScreen';
 // ----------------------------
 
 export default function SignupAndSigninContent({setPage}) {
-    const [localPage, setLocalPage] = React.useState("otp");
+    const [localPage, setLocalPage] = React.useState("signup"); // signup | signin | otp
     return (
         <View style={styles.screen}>
             {localPage === "signup" && <Signup setLocalPage={setLocalPage} setPage={setPage} />}

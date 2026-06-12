@@ -49,3 +49,41 @@ export async function saveDriverData(userId, fullName, email) {
     }
     return data;
 }
+
+// Change Password functions
+// - Send OTP to email
+export const sendOTP = async (email) => {
+    const {error} = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+            shouldCreateUser: false,
+        }
+    })
+    if (error) {
+        throw error;
+    }
+}
+
+// - Verify OTP
+export const verifyOTP = async (email, token) => {
+    const {data, error} = await supabase.auth.verifyOtp({
+        email,
+        token,
+        type: "email"
+    })
+    if (error) {
+        console.log(error.message);
+        return false
+    }
+    return true;
+}
+
+// - Reset Password
+export const changePassword = async (newPassword) => {
+    const {error} = await supabase.auth.updateUser({
+        password: newPassword,
+    })
+    if (error) {
+        console.log(error.message);
+    }
+}
