@@ -1,5 +1,16 @@
 # New Wrap Go App
 
+## Recent Updates
+
+The app has been expanded with a fuller Expo 54 experience for onboarding, driver verification, Supabase-backed auth, and reusable UI modules.
+
+Highlights:
+- The app shell in App.js now loads the local Lufga font family and initializes login state from AsyncStorage before rendering the main content.
+- Authentication and onboarding flows in the signup/signin screens were refreshed for sign-in, sign-up, and OTP-based password recovery.
+- Verification screens were updated for driver details, vehicle type, vehicle photos, vehicle documents, and selfie capture.
+- New shared UI modules such as BottomSheet, Map, Week, and upload extend the onboarding and profile experience.
+- Backend integration in the service layer now covers Supabase auth, driver persistence, document upload, and password reset flows.
+
 ## Navigation
 
 ### Design System
@@ -13,6 +24,10 @@
 - [Input_](#input_)
 - [DateInput](#dateinput)
 - [ProgressBar](#progressbar)
+- [BottomSheet](#bottomsheet)
+- [Map](#map)
+- [Week](#week)
+- [Upload](#upload)
 - [OTPinput](#otpinput)
 - [Selector_](#selector_)
 - [SettingsButton](#settingsbutton)
@@ -44,6 +59,8 @@
 - [VehicleDocuments](#vehicledocuments)
 - [Selfie](#selfie)
 - [Success](#success)
+- [HowItWorks](#howitworks)
+- [Loading](#loading)
 
 ### Backend
 - [Backend](#backend)
@@ -262,6 +279,30 @@ Notes:
 ```jsx
 <ProgressBar step={4} activeStep={1} />
 ```
+
+### BottomSheet
+
+Path: src/components/ui/BottomSheet.jsx
+
+This component renders a fullscreen modal-style bottom sheet with animated slide-up behavior and drag-to-close support. It is useful for onboarding guidance and other temporary panels.
+
+### Map
+
+Path: src/components/ui/Map.jsx
+
+This component wraps the Mapbox map view for location-based UI and can be dropped into screens that need a map preview.
+
+### Week
+
+Path: src/components/ui/Week.jsx
+
+This small helper renders a compact weekly indicator with the current day highlighted.
+
+### Upload
+
+Path: src/components/ui/upload.jsx
+
+This helper provides a styled document-upload surface with an upload icon and text prompt for document capture flows.
 
 ### OTPinput
 

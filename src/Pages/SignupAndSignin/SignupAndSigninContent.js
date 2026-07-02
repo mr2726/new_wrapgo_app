@@ -8,11 +8,11 @@ import Signin from './Signin';
 import OTPScreen from './OTP/OTPScreen';
 // ----------------------------
 
-export default function SignupAndSigninContent({setPage}) {
+export default function SignupAndSigninContent({setPage, signUpInfo}) {
     const [localPage, setLocalPage] = React.useState("signup"); // signup | signin | otp
     return (
         <View style={styles.screen}>
-            {localPage === "signup" && <Signup setLocalPage={setLocalPage} setPage={setPage} />}
+            {localPage === "signup" && <Signup setLocalPage={setLocalPage} setPage={setPage} signUpInfo={signUpInfo} />}
             {localPage === "signin" && <Signin setLocalPage={setLocalPage} setPage={setPage} />}
             {localPage === "otp" && <OTPScreen setLocalPage={setLocalPage} setPage={setPage} />}
         </View>

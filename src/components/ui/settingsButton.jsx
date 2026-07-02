@@ -3,19 +3,19 @@ import React from 'react';
 import { Feather } from "@expo/vector-icons";
 import {colors, radius, spacing, typography} from '../../styles/theme';
 
-export const SettingsButton = ({title, onPress, icon}) => {
+export const SettingsButton = ({title, onPress, icon, style}) => {
   return (
     <Pressable
-        style={{
+        style={[{
           backgroundColor: colors.surface,
           paddingHorizontal: spacing.lg - 1,
           borderRadius: radius.pill,
-            height: 46,
-            width: '100%',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-        }}
+          height: 46,
+          width: '100%',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }, style]}
         onPress={onPress}
     >
       

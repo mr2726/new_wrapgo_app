@@ -44,7 +44,7 @@ const signupFields = [
 
 
 
-export default function Signup({setLocalPage, setPage}) {
+export default function Signup({setLocalPage, setPage, signUpInfo}) {
     const [isAgreed, setIsAgreed] = React.useState(false);
     const [submitAttempted, setSubmitAttempted] = React.useState(false);
     const [formErrors, setFormErrors] = React.useState({});
@@ -56,6 +56,7 @@ export default function Signup({setLocalPage, setPage}) {
     const handleInputChange = (field, value) => {
         const nextValues = { ...inputValues, [field]: value };
         setInputValues(nextValues);
+        signUpInfo(nextValues);
         if (submitAttempted) {
             setFormErrors(validateSignupForm(nextValues, isAgreed));
         }
@@ -73,8 +74,8 @@ export default function Signup({setLocalPage, setPage}) {
         try {
             const user = await signUpWithEmail(inputValues.email, inputValues.password);
             const data = await saveDriverData(user.id, inputValues.fullName, inputValues.email);
-            console.log('Driver data saved:', data);
-            setPage('success');
+            signUpInfo(inputValues);
+            setPage('verification');
         } catch (error) {
             console.error('Error:', error);
         }

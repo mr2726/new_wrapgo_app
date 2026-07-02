@@ -96,7 +96,7 @@ export function DateInput({label, value, onChange, error, style, placeholder}) {
                     </Text>
                 </View>
             </Pressable>
-            {error && <Text style={{color: colors.error, marginTop: 5}}>{error}</Text>}
+            {error && <Text style={{color: colors.error, marginTop: 10, textAlign: 'right'}}>{error}</Text>}
 
             <Modal
                 visible={isPickerVisible}
@@ -116,6 +116,7 @@ export function DateInput({label, value, onChange, error, style, placeholder}) {
                         onChange={handleDateChange}
                         maximumDate={new Date()}
                         style={{alignSelf: 'stretch'}}
+                        themeVariant="dark"
                     />
                     {Platform.OS === 'ios' && (
                         <View style={{flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.md}}>

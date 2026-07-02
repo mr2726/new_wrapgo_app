@@ -17,13 +17,23 @@ const ICON_ASSETS = {
   profile: require('./imgs/Profile.svg'),
 };
 
-export function Menu({items, onSelect}) {
+export function Menu({items, onSelect, current}) {
   const getIconSource = (icon) => {
     const normalized = String(icon).toLowerCase();
     return ICON_ASSETS[normalized] || ICON_ASSETS.home;
   };
 
   const [activeIndex, setActiveIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (current !== "settings") {
+      const index = items.findIndex(item => item.target === current);
+
+      if (index !== -1) {
+        setActiveIndex(index);
+      }
+    }
+  }, [current, items]);
   const animatedOffset = React.useRef(new Animated.Value(0)).current;
 
   const step = React.useMemo(() => {
@@ -45,7 +55,9 @@ export function Menu({items, onSelect}) {
   }, [activeIndex, step, animatedOffset]);
 
   const handlePress = (item, index) => {
-    setActiveIndex(index);
+    const handlePress = (item) => {
+      onSelect?.(item);
+    };
     onSelect?.(item);
   };
 

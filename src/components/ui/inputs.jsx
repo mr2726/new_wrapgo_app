@@ -1,8 +1,32 @@
 import {TextInput, View, Text, Pressable} from 'react-native';
-import React from 'react';
-import {useState} from 'react';
+import React, {useState} from 'react';
 import { Feather } from '@expo/vector-icons';
 import {colors, radius, spacing, typography} from '../../styles/theme';
+
+const PHONE_PREFIX = '+374';
+
+const formatPhoneNumber = (text = '') => {
+  const digits = String(text).replace(/\D/g, '');
+  let localDigits = digits.startsWith('374') ? digits.slice(3) : digits;
+
+  if (localDigits.startsWith('0')) {
+    localDigits = localDigits.slice(1);
+  }
+
+  localDigits = localDigits.slice(0, 8);
+
+  if (!localDigits.length) {
+    return PHONE_PREFIX;
+  }
+
+  const parts = [
+    localDigits.slice(0, 2),
+    localDigits.slice(2, 5),
+    localDigits.slice(5, 8),
+  ].filter(Boolean);
+
+  return [PHONE_PREFIX, ...parts].join(' ').trim();
+};
 
 export const Input_ = ({
   placeholder,
@@ -17,6 +41,7 @@ export const Input_ = ({
   icon,
   isPassword,
   disable = true,
+  type = 'text',
   }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisibleState, setIsPasswordVisibleState] = useState(false);
@@ -39,6 +64,16 @@ export const Input_ = ({
   const renderedIcon =
     typeof icon === 'function' ? icon({isActive, error}) : icon;
   const [disableInput, setDisableInput] = useState(disable);
+
+  const handleChangeText = (nextText) => {
+    if (type === 'phone-pad') {
+      onChangeText?.(formatPhoneNumber(nextText));
+      return;
+    }
+
+    onChangeText?.(nextText);
+  };
+
   return (
     <View style={{width: '100%', marginVertical: 4}}>
       {labelText && (
@@ -71,9 +106,13 @@ export const Input_ = ({
         <TextInput
           placeholder={placeholder}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={handleChangeText}
+          keyboardType={isPassword ? 'default' : type}
           onFocus={event => {
             setIsFocused(true);
+            if (type === 'phone-pad' && !String(value || '').trim()) {
+              onChangeText?.(PHONE_PREFIX);
+            }
             onFocus?.(event);
           }}
           onBlur={event => {
@@ -99,6 +138,7 @@ export const Input_ = ({
           ]}
           secureTextEntry={Boolean(isPassword) && !isPasswordVisibleState}
           editable={disableInput}
+          maxLength={type === 'phone-pad' ? 15 : undefined}
         />
 
         {isPassword && (
@@ -142,7 +182,7 @@ export const Input_ = ({
           style={{
             width: '100%',
             color: colors.error,
-            marginTop: 6,
+            marginTop: 0,
             textAlign: 'right',
             fontSize: typography.sizeSm + 1,
             fontFamily: typography.familyRegular,

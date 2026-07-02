@@ -9,14 +9,7 @@ import {Input_} from '../../components/ui/inputs';
 import {DateInput} from '../../components/ui/DateInput';
 // ------------------------------------------------------------------------
 
-export default function DriverInfo() {
-    const [driverInfo, setDriverInfo] = React.useState({
-        fullName: 'Full Name of Driver',
-        email: '',
-        phoneNumber: '',
-        birthDate: '',
-    });
-
+export default function DriverInfo({collectedData, setCollectedData, validationErrors = {}}) {
     return (
         <KeyboardAwareScrollView
             enableOnAndroid
@@ -24,33 +17,51 @@ export default function DriverInfo() {
             keyboardShouldPersistTaps="handled"
         >
             <View style={styles.screen}>
-                <Input_ 
-                    label="Full Name" 
-                    value={driverInfo.fullName}
-                    onChangeText={(text) => setDriverInfo({...driverInfo, fullName: text})}
+                <Input_
+                    label="Full Name"
+                    value={collectedData.fullName}
+                    onChangeText={(text) => {
+                        setCollectedData({...collectedData, fullName: text});
+                    }}
                     style={{marginBottom: spacing.lg}}
                     disable={false}
+                    error={validationErrors.fullName}
+                    errorText={validationErrors.fullName}
                 />
                 <Input_
                     label="Email Address"
-                    value={driverInfo.email}
-                    onChange={(text) => setDriverInfo({...driverInfo, email: text})}
+                    value={collectedData.email}
+                    onChangeText={(text) => {
+                        setCollectedData({...collectedData, email: text});
+                    }}
                     icon={<Feather name="mail" size={20} color={colors.icons} />}
                     style={{marginBottom: spacing.lg}}
+                    disable={false}
+                    error={validationErrors.email}
+                    errorText={validationErrors.email}
+                    type="email-address"
                 />
                 <Input_
                     label="Phone Number"
-                    value={driverInfo.phoneNumber}
-                    onChange={(text) => setDriverInfo({...driverInfo, phoneNumber: text})}
+                    value={collectedData.phoneNumber}
+                    onChangeText={(text) => {
+                        setCollectedData({...collectedData, phoneNumber: text});
+                    }}
                     icon={<Feather name="phone" size={20} color={colors.icons} />}
                     style={{marginBottom: spacing.lg}}
+                    error={validationErrors.phoneNumber}
+                    errorText={validationErrors.phoneNumber}
+                    type="phone-pad"
                 />
 
                 <DateInput
                     label="Date of Birth"
-                    value={driverInfo.birthDate}
-                    onChange={(date) => setDriverInfo({...driverInfo, birthDate: date})}
+                    value={collectedData.birthDate}
+                    onChange={(date) => {
+                        setCollectedData({...collectedData, birthDate: date});
+                    }}
                     style={{marginBottom: spacing.lg}}
+                    error={validationErrors.birthDate}
                 />
             </View>
         </KeyboardAwareScrollView>

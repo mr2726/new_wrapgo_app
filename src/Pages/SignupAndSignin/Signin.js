@@ -1,6 +1,7 @@
 import {View, Text, Pressable, StyleSheet} from 'react-native';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // COMPONENTS
 import {LOGO}  from '../../components/ui/LOGO';
@@ -48,7 +49,8 @@ export default function Signin({setLocalPage, setPage}) {
 
         try {
             await signInWithEmail(inputValues.email.trim(), inputValues.password);
-            setPage('success');
+            await AsyncStorage.setItem('isLogined', 'true');
+            setPage('content');
         } catch (error) {
             console.error('Sign in error:', error);
             setAuthError(error?.message || 'Failed to sign in');
