@@ -5,12 +5,12 @@ import { SettingsButton } from "../../../components/ui/settingsButton";
 import { TopControl } from "../../../components/ui/topControl";
 // ----------------------------------------------------------------
 
-export default function Settings ({setPage}) {
+export default function Settings ({setPage, setSettingsPage}) {
     const settingsContent = [
         {
             title: "Personal information",
             icon : "user",
-            onPress: () => alert("settings"),
+            onPress: () => setSettingsPage("personalInfo"),
         },
         {
             title: "Vehicle information",
