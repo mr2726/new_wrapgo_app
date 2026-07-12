@@ -15,26 +15,26 @@ export default function Settings ({setPage, setSettingsPage}) {
         {
             title: "Vehicle information",
             icon : "car",
-            onPress: () => alert("Vehicle"),
+            onPress: () => setSettingsPage("vehicleInfo"),
         },
-        {
-            title: "Preferred Companies",
-            icon : "info",
-            onPress: () => alert("Preferred"),
-        },
-        {
-            title: "Add Carrier",
-            icon : "user-plus",
-            onPress: () => alert("Add Carrier"),
-        },
+        // {
+        //     title: "Preferred Companies",
+        //     icon : "info",
+        //     onPress: () => alert("Preferred"),
+        // },
+        // {
+        //     title: "Add Carrier",
+        //     icon : "user-plus",
+        //     onPress: () => alert("Add Carrier"),
+        // },
         {
             title: "Terms of Service",
-            icon : "Terms",
+            icon : "file-text",
             onPress: () => alert("Terms of Service"),
         },
         {
             title: "Privacy Policy",
-            icon : "Privacy",
+            icon : "shield",
             onPress: () => alert("Privacy Policy"),
         },
         {

@@ -29,7 +29,7 @@ const formatPhoneDisplay = (value) => {
     return `(${localDigits.slice(0, 3)}) ${localDigits.slice(3, 6)}-${localDigits.slice(6, 9)}`;
 };
 
-export default function PersonalInfo(){
+export default function PersonalInfo({setPage, setSettingsPage}) {
     const defaultUserData = {
         fullName: "",
         email: "",
@@ -94,7 +94,7 @@ export default function PersonalInfo(){
     return (
         <View>
             <View style={{marginBottom: 50}}>
-                <TopControl title="Personal Information" setLocalPage={() => {}} switchTo="settings"/>
+                <TopControl title="Personal Information" setLocalPage={() => {setSettingsPage("settings")}} switchTo="settings"/>
             </View>
             <View>
                 <Input_ label="Full Name" disable={false} value={userData.fullName} onChangeText={(value) => handleFieldChange('fullName', value)} />

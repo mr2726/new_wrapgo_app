@@ -19,6 +19,8 @@ Latest patch updates:
 - Personal Information now supports profile persistence: loads from `AsyncStorage`, updates Supabase via `updatePersonalInfo`, then writes back locally.
 - DateInput now supports read-only mode through `disabled` prop and normalizes displayed values to `YYYY/MM/DD`.
 - Added `BUGS.md` as current iOS/UI known-issues list.
+- Settings now includes a Vehicle Information route backed by Supabase vehicle lookup.
+- Added `NonEditableInfo` reusable UI block for read-only profile and vehicle fields.
 
 ## Development Build
 
@@ -54,6 +56,7 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [Selector_](#selector_)
 - [SettingsButton](#settingsbutton)
 - [InfoInput_](#infoinput_)
+- [NonEditableInfo](#noneditableinfo)
 - [InfoButton_](#infobutton_)
 - [ToggleButton_](#togglebutton_)
 - [SegmentControl_](#segmentcontrol_)
@@ -66,6 +69,10 @@ Run `npm run android` again after changing native dependencies or app config so 
 ### Pages
 - [Pages](#pages)
 - [Content](#content)
+- [Settings](#settings)
+- [SettingsContent](#settingscontent)
+- [PersonalInfo](#personalinfo)
+- [VehicleInformation](#vehicleinformation)
 - [OnboardingContent](#onboardingcontent)
 - [Page1](#page1)
 - [Page2](#page2)
@@ -91,6 +98,7 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [signUpWithEmail](#signupwithemail)
 - [signInWithEmail](#signinwithemail)
 - [saveDriverData](#savedriverdata)
+- [getVehicleDataByOTP](#getvehicledatabyotp)
 - [sendOTP](#sendotp)
 - [verifyOTP](#verifyotp)
 - [changePassword](#changepassword)
@@ -455,6 +463,31 @@ Notes:
 />
 ```
 
+### NonEditableInfo
+
+Path: src/components/ui/NonEdditableInfo.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| label | string | Yes | Label shown above the read-only value |
+| value | string \| number | Yes | Displayed non-editable value |
+
+Notes:
+- Renders simple read-only information rows for settings and vehicle details.
+- Uses theme typography tokens and rounded bordered surface styling.
+- Intended for data that should be visible but not directly editable.
+
+#### Example
+
+```jsx
+<NonEditableInfo
+	label="Vehicle Make"
+	value={vehicleData.mark}
+/>
+```
+
 ### InfoButton_
 
 Path: src/components/ui/infoButton.jsx
@@ -692,6 +725,95 @@ Notes:
 
 ```jsx
 <Content />
+```
+
+### Settings
+
+Path: src/Pages/Content/SettingsScreens/Settings.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setPage | function | Yes | Parent page callback passed to `TopControl` for returning to profile |
+| setSettingsPage | function | Yes | Local settings router used to open nested settings screens |
+
+Notes:
+- Renders settings actions through a `settingsContent` config array.
+- Includes navigation entries for Personal Information and Vehicle Information.
+- Uses `ScrollView` to avoid clipping on smaller screens.
+
+#### Example
+
+```jsx
+<Settings setPage={setPage} setSettingsPage={setSettingsPage} />
+```
+
+### SettingsContent
+
+Path: src/Pages/Content/SettingsScreens/SettingsContent.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setPage | function | Yes | Top-level page callback forwarded into nested settings screens |
+
+Notes:
+- Manages local settings route state with `settingsPage`.
+- Switches between `Settings`, `PersonalInfo`, and `VehicleInformation` screens.
+- Wraps the local settings flow in `ScrollView`.
+
+#### Example
+
+```jsx
+<SettingsContent setPage={setPage} />
+```
+
+### PersonalInfo
+
+Path: src/Pages/Content/SettingsScreens/PersonalInfo.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setPage | function | No | Currently accepted but not used inside the component |
+| setSettingsPage | function | Yes | Used by `TopControl` to return to the main Settings list |
+
+Notes:
+- Loads driver profile from `AsyncStorage` key `userData`.
+- Normalizes incoming profile fields from both local and Supabase-style field names.
+- Tracks initial state and only shows `Save` when values changed.
+- Uses `updatePersonalInfo` to persist editable fields to the `drivers` table.
+- Keeps `Member Since` read-only by rendering it through disabled `DateInput`.
+
+#### Example
+
+```jsx
+<PersonalInfo setSettingsPage={setSettingsPage} />
+```
+
+### VehicleInformation
+
+Path: src/Pages/Content/SettingsScreens/VehicleInformation.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setPage | function | No | Currently accepted but not used inside the component |
+| setSettingsPage | function | Yes | Used by `TopControl` to return to the main Settings list |
+
+Notes:
+- Fetches vehicle data on mount via `getVehicleDataByOTP("666666")`.
+- Displays vehicle make, model, year, and plate as read-only values.
+- Uses `NonEditableInfo` for consistent presentation of immutable vehicle details.
+
+#### Example
+
+```jsx
+<VehicleInformation setSettingsPage={setSettingsPage} />
 ```
 
 ### OnboardingContent
@@ -1035,6 +1157,23 @@ Returns:
 
 Throws:
 - Supabase insert error when write fails.
+
+#### getVehicleDataByOTP
+
+Signature:
+- `getVehicleDataByOTP(otp)`
+
+Description:
+- Looks up a single vehicle record in the `vehicles` table by invite code / OTP.
+
+Params:
+- `otp` (string): invite code used to query the vehicle.
+
+Returns:
+- Matching vehicle row from Supabase.
+
+Throws:
+- Supabase select error when the vehicle cannot be fetched.
 
 #### sendOTP
 
