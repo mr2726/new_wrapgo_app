@@ -11,6 +11,28 @@ Highlights:
 - New shared UI modules such as BottomSheet, Map, Week, and upload extend the onboarding and profile experience.
 - Backend integration in the service layer now covers Supabase auth, driver persistence, document upload, and password reset flows.
 
+Latest patch updates:
+- `npm start` now runs Expo with `--dev-client` so local runtime matches native-module setup.
+- Home screen now stores fetched driver profile to `AsyncStorage` as `userData` for cross-screen reuse.
+- Settings and SettingsContent now use `ScrollView` for safer small-screen layout behavior.
+- Personal Information screen was rebuilt as controlled form state with editable inputs, change detection, and conditional Save button.
+- Personal Information now supports profile persistence: loads from `AsyncStorage`, updates Supabase via `updatePersonalInfo`, then writes back locally.
+- DateInput now supports read-only mode through `disabled` prop and normalizes displayed values to `YYYY/MM/DD`.
+- Added `BUGS.md` as current iOS/UI known-issues list.
+
+## Development Build
+
+This app uses native modules such as `@rnmapbox/maps`, so Expo Go is not the intended runtime.
+
+Use the Android development build workflow:
+
+```sh
+npm run android
+npm start
+```
+
+Run `npm run android` again after changing native dependencies or app config so the dev client stays in sync.
+
 ## Navigation
 
 ### Design System
@@ -237,12 +259,14 @@ Path: src/components/ui/DateInput.jsx
 | error | boolean \| string | No | Error state or error text shown under the field |
 | style | object \| array | No | Additional styles for the outer container |
 | placeholder | string | No | Placeholder text when no date is selected |
+| disabled | boolean | No | When `true`, date picker does not open and the field is read-only |
 
 Notes:
 - Uses `@react-native-community/datetimepicker` for native date selection.
 - Opens picker modal when pressed (Android: closes after selection, iOS: uses Cancel/Done actions).
 - Restricts date selection to today or earlier via `maximumDate={new Date()}`.
-- Displays selected value as formatted `YYYY-MM-DD`.
+- Displays selected value as formatted `YYYY/MM/DD`.
+- Accepts both `YYYY-MM-DD` and `YYYY/MM/DD` incoming values and normalizes rendering.
 
 #### Example
 
@@ -253,7 +277,7 @@ const [birthDate, setBirthDate] = React.useState('');
 	label="Date of Birth"
 	value={birthDate}
 	onChange={setBirthDate}
-	placeholder="YYYY-MM-DD"
+	placeholder="YYYY/MM/DD"
 />
 ```
 
@@ -1061,6 +1085,35 @@ Params:
 
 Returns:
 - No payload.
+
+#### updatePersonalInfo
+
+Signature:
+- `updatePersonalInfo(email, updatedData)`
+
+Description:
+- Updates editable personal profile fields in the `drivers` table from Settings > Personal Information.
+
+Params:
+- `email` (string): user email used in `.eq('email', email)` filter.
+- `updatedData` (object): mapped payload with `fullName`, `PhoneNumber`, and `birthDate`.
+
+Returns:
+- Updated row payload returned by Supabase (`data`).
+
+Throws:
+- Supabase update error when write fails.
+
+### Known Issues
+
+Path: `BUGS.md`
+
+Current known iOS/UI issues are tracked in a dedicated document:
+- Splash screen layout issue in horizontal line.
+- TopControl vertical position issue.
+- Input keyboard-dismiss behavior issue.
+- Signin/signup TopControl back navigation issue.
+- Date of birth layout/position issue.
 
 ## Copilot Automation
 

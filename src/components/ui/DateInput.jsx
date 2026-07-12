@@ -8,7 +8,7 @@ const formatDate = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return `${year}/${month}/${day}`;
 };
 
 const parseDate = (value) => {
@@ -16,17 +16,29 @@ const parseDate = (value) => {
         return new Date();
     }
 
-    const [year, month, day] = value.split('-').map(Number);
-    if (!year || !month || !day) {
-        return new Date(value);
+    const partsMatch = value.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+    if (partsMatch) {
+        const [, year, month, day] = partsMatch;
+        return new Date(Number(year), Number(month) - 1, Number(day));
     }
 
-    return new Date(year, month - 1, day);
+    const parsedDate = new Date(value);
+    return Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
 };
 
-export function DateInput({label, value, onChange, error, style, placeholder}) {
+const normalizeDateValue = (value) => {
+    if (!value) {
+        return '';
+    }
+
+    const parsedDate = parseDate(value);
+    return Number.isNaN(parsedDate.getTime()) ? value : formatDate(parsedDate);
+};
+
+export function DateInput({label, value, onChange, error, style, placeholder, disabled = false}) {
     const [isPickerVisible, setIsPickerVisible] = React.useState(false);
     const [selectedDate, setSelectedDate] = React.useState(() => parseDate(value));
+    const displayValue = normalizeDateValue(value);
 
     React.useEffect(() => {
         if (value) {
@@ -62,7 +74,7 @@ export function DateInput({label, value, onChange, error, style, placeholder}) {
                 </Text>
             )}
             <Pressable
-                onPress={() => setIsPickerVisible(true)}
+                onPress={disabled ? undefined : () => setIsPickerVisible(true)}
                 style={{position: 'relative', width: '100%'}}
             >
                 <Feather
@@ -87,19 +99,19 @@ export function DateInput({label, value, onChange, error, style, placeholder}) {
                 >
                     <Text
                         style={{
-                            color: value ? colors.textPrimary : colors.textMuted,
+                            color: displayValue ? colors.textPrimary : colors.textMuted,
                             fontSize: typography.sizeMd,
                             fontFamily: typography.familyRegular,
                         }}
                     >
-                        {value || placeholder}
+                        {displayValue || placeholder}
                     </Text>
                 </View>
             </Pressable>
             {error && <Text style={{color: colors.error, marginTop: 10, textAlign: 'right'}}>{error}</Text>}
 
             <Modal
-                visible={isPickerVisible}
+                visible={isPickerVisible && !disabled}
                 transparent
                 animationType="fade"
                 onRequestClose={() => setIsPickerVisible(false)}

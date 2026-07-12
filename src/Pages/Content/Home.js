@@ -40,7 +40,11 @@ export default function Home({email, setLocalPage}) {
                     const userData = await getUserDataById(user.id);
 
                     setUserData(userData);
-
+                    // Add user data to the LocalStorage to get access from any screen
+                    await AsyncStorage.setItem(
+                        'userData',
+                        JSON.stringify(userData)
+                    );
                     console.log('User Data:', userData);
                 }
             } catch (error) {

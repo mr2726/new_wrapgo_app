@@ -144,6 +144,22 @@ export async function updateVehicleData(vehicleId, updatedData) {
     return data;
 }
 
+// Update Personal Information in drivers table after changing in the settings screen.
+export async function updatePersonalInfo(email, updatedData) {
+    const {data, error} = await supabase
+        .from('drivers')
+        .update([{
+            name: updatedData.fullName,
+            phone: updatedData.PhoneNumber,
+            dateofbirsday: updatedData.birthDate,
+        }])
+        .eq('email', email);
+    if (error) {
+        throw error;
+    }
+    return data;
+}
+
 
 // Change Password functions
 // - Send OTP to email

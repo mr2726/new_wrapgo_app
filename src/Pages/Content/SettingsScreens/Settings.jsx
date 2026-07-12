@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet} from "react-native";
+import {View, Text, StyleSheet, ScrollView} from "react-native";
 
 // COMPONENTS
 import { SettingsButton } from "../../../components/ui/settingsButton";
@@ -50,7 +50,7 @@ export default function Settings ({setPage, setSettingsPage}) {
     ]
 
     return (
-        <View>
+        <ScrollView>
             <View style={{marginBottom: 50}}>
                 <TopControl title="Settings" setLocalPage={setPage} switchTo="profile"/>
             </View>
@@ -59,7 +59,7 @@ export default function Settings ({setPage, setSettingsPage}) {
                     <SettingsButton key={index} title={item.title} onPress={item.onPress} icon={item.icon} style={{marginTop: 10}} />
                 ))
             }
-        </View>
+        </ScrollView>
     )
 }
 
