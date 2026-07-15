@@ -15,6 +15,8 @@ export const colors = {
   error: '#E53935',
   black: '#000000',
   white: '#FFFFFF',
+  iconBG: '#131313',
+  loaderBG: '#2C2C2C'
 };
 
 export const spacing = {

@@ -21,6 +21,15 @@ Latest patch updates:
 - Added `BUGS.md` as current iOS/UI known-issues list.
 - Settings now includes a Vehicle Information route backed by Supabase vehicle lookup.
 - Added `NonEditableInfo` reusable UI block for read-only profile and vehicle fields.
+- Profile page was redesigned to load and render real user data from `AsyncStorage` (`userData`) including avatar, name, and quick stats.
+- Profile metrics now include daily averages based on registration date (`userData.created_at`):
+	- Distance average per day = `totaldistance / daysSinceRegistration`
+	- Zone hours average per day = `zonehourse / daysSinceRegistration`
+- Added `ScoreBreakdown` component (`src/components/ui/ScoreBreakdown.jsx`) to display Safety, Acceptance, and Activity progress bars with an aggregate score.
+- Added `ProfileInfoBlock` component (`src/components/ui/profileInfoBlock.jsx`) for reusable stat cards on the profile screen.
+- Added new theme color tokens in `src/styles/theme.js`:
+	- `colors.iconBG` (`#131313`) for profile edit-button background
+	- `colors.loaderBG` (`#2C2C2C`) for score progress track background
 
 ## Development Build
 
