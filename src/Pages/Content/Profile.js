@@ -1,4 +1,4 @@
-import {View, Text, Image, StyleSheet, Pressable} from 'react-native';
+import {View, Text, Image, StyleSheet, Pressable, ScrollView} from 'react-native';
 import React from 'react';
 import {colors, radius, spacing, typography} from '../../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,10 +7,13 @@ import { Feather } from "@expo/vector-icons";
 import { TopControl } from '../../components/ui/topControl';
 import { ProfileInfoBlock } from '../../components/ui/profileInfoBlock';
 import { ScoreBreakdown } from '../../components/ui/ScoreBreakdown';
+import { SegmentedControl_ } from '../../components/ui/segmentedControl';
+import { Chart } from '../../components/ui/Chart';
 // ----------------------------------------------------------
 
 export default function Profile ({setLocalPage}) {
     const [userData, setUserData] = React.useState(null);
+    const [chartState, setChartState] = React.useState('distance'); // 'distance' or 'hours'
     React.useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -53,7 +56,7 @@ export default function Profile ({setLocalPage}) {
     const score = Math.round((safety + acceptance + activity) / 3);
 
     return (
-        <View>
+        <ScrollView style={{marginBottom: 100}}>
             <View style={styles.topControll}>
                 <TopControl setLocalPage={() => setLocalPage("home")} title="My Profile" additionalBTN="settings" setLocalPage={setLocalPage} switchTo="home"/>
             </View>
@@ -79,7 +82,32 @@ export default function Profile ({setLocalPage}) {
                     <ProfileInfoBlock title="Zone Hours" value={totalZoneHours} description={`AVG ${avgZoneHoursPerDay} hrs/ day`}/>
                 </View>
             </View>
-        </View>
+            <View style={{marginTop: 10}}>
+                <SegmentedControl_ 
+                    options={[
+                        { label: 'Distance', value: 'distance' },
+                        { label: 'Hours', value: 'hours' },
+                    ]}
+                    value={chartState}
+                    onValueChange={(value) => setChartState(value)}
+                />
+                <View style={{marginTop: 20}}>
+                    {chartState === 'distance' && <Chart data={
+                        [
+                            { lable: "Week 1", value: ((100/100)*100), data: "100km" },
+                            { lable: "Week 2", value: ((120/100)*100), data: "120km" },
+                            { lable: "Week 3", value: ((140/100)*100), data: "140km" },
+                            { lable: "Week 4", value: ((130/100)*100), data: "130km" },
+                        ] || []} />}
+                    {chartState === 'hours' && <Chart data={[
+                            { lable: "Week 1", value: ((12/100)*100), data: "12 h" },
+                            { lable: "Week 2", value: ((10/100)*100), data: "10 h" },
+                            { lable: "Week 3", value: ((15/100)*100), data: "15 h" },
+                            { lable: "Week 4", value: ((8/100)*100), data: "8 h" },
+                        ] || []} />}
+                </View>
+            </View>
+        </ScrollView>
     )
 } 
 

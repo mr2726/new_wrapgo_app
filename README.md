@@ -30,6 +30,14 @@ Latest patch updates:
 - Added new theme color tokens in `src/styles/theme.js`:
 	- `colors.iconBG` (`#131313`) for profile edit-button background
 	- `colors.loaderBG` (`#2C2C2C`) for score progress track background
+- Profile screen now includes a segmented switch (`Distance` / `Hours`) and weekly chart section under profile metrics.
+- Added `Chart` component (`src/components/ui/Chart.jsx`) with:
+	- custom data support via `data` prop (`label`/`lable`, `value`, `data`)
+	- press-to-activate columns (green active state only after tap)
+	- active value bubble above the selected week
+	- corrected rounded active bars with proper clipping and top marker positioning
+- `SegmentedControl_` (`src/components/ui/segmentedControl.jsx`) now has animated slider transition when switching options.
+- Profile page wrapper now uses `ScrollView` to keep the full profile + chart layout scrollable on smaller screens.
 
 ## Development Build
 
