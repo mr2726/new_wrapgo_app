@@ -38,6 +38,22 @@ Latest patch updates:
 	- corrected rounded active bars with proper clipping and top marker positioning
 - `SegmentedControl_` (`src/components/ui/segmentedControl.jsx`) now has animated slider transition when switching options.
 - Profile page wrapper now uses `ScrollView` to keep the full profile + chart layout scrollable on smaller screens.
+- Home screen now normalizes `weeklyStat` before saving to `AsyncStorage`, and logs full nested profile payload via `JSON.stringify(..., null, 2)`.
+- Profile weekly charts now read real values from `userData.weeklyStat.distance` and `userData.weeklyStat.hours` instead of hardcoded demo data.
+- Added `ProfilePhotoSheet` (`src/components/ui/ProfilePhotoSheet.jsx`) as an animated bottom action sheet for avatar actions:
+	- Choose from library
+	- Take photo
+	- Remove current photo
+- Profile photo flow is now end-to-end:
+	- pick/take image with `expo-image-picker`
+	- upload image to Supabase storage via `uploadImageToStorage`
+	- persist URL to `drivers.selfie` via `updateDriverSelfie`
+	- sync updated profile back to `AsyncStorage`
+- Profile now shows a fallback avatar placeholder when no selfie is available.
+- Camera permission handling was hardened in profile flow:
+	- blocked permission path now offers `Open settings`
+	- camera errors now display the original exception message for faster debugging
+- `app.json` now includes `expo-image-picker` and `expo-camera` plugins with explicit permission strings for stable native permission prompts.
 
 ## Development Build
 
@@ -66,6 +82,7 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [DateInput](#dateinput)
 - [ProgressBar](#progressbar)
 - [BottomSheet](#bottomsheet)
+- [ProfilePhotoSheet](#profilephotosheet)
 - [Map](#map)
 - [Week](#week)
 - [Upload](#upload)
@@ -119,6 +136,7 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [sendOTP](#sendotp)
 - [verifyOTP](#verifyotp)
 - [changePassword](#changepassword)
+- [updateDriverSelfie](#updatedriverselfie)
 
 ### Automation
 - [Copilot Automation](#copilot-automation)
@@ -334,6 +352,16 @@ Notes:
 Path: src/components/ui/BottomSheet.jsx
 
 This component renders a fullscreen modal-style bottom sheet with animated slide-up behavior and drag-to-close support. It is useful for onboarding guidance and other temporary panels.
+
+### ProfilePhotoSheet
+
+Path: src/components/ui/ProfilePhotoSheet.jsx
+
+This component wraps `BottomSheet` for profile avatar actions and provides:
+- choose from library action
+- take photo action
+- remove current photo action
+- loading state while avatar upload/update is in progress
 
 ### Map
 
@@ -1253,6 +1281,25 @@ Description:
 Params:
 - `email` (string): user email used in `.eq('email', email)` filter.
 - `updatedData` (object): mapped payload with `fullName`, `PhoneNumber`, and `birthDate`.
+
+Returns:
+- Updated row payload returned by Supabase (`data`).
+
+Throws:
+- Supabase update error when write fails.
+
+#### updateDriverSelfie
+
+Signature:
+- `updateDriverSelfie(email, selfieUrl)`
+
+Description:
+- Updates `selfie` field in the `drivers` table for the matched email.
+- Used by profile avatar action sheet after gallery/camera selection or remove-photo action.
+
+Params:
+- `email` (string): user email used in `.eq('email', email)` filter.
+- `selfieUrl` (string | null): public URL of uploaded image, or `null` to remove current avatar.
 
 Returns:
 - Updated row payload returned by Supabase (`data`).

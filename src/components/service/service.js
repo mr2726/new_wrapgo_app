@@ -44,6 +44,25 @@ export async function saveDriverData(userId, fullName, email) {
             zonehourse: 0,
             wrapped: false,
             dateofbirsday: null,
+            weeklyStat: {
+                "hours": [
+                    {"data": "0 h","label": "Week 1","value": 0},
+                    {"data": "0 h","label": "Week 2","value": 0},
+                    {"data": "0 h","label": "Week 3","value": 0},
+                    {"data": "0 h","label": "Week 4","value": 0}
+                ],
+                "distance": [
+                    {"data": "0km","label": "Week 1","value": 0},
+                    {"data": "0km","label": "Week 2","value": 0},
+                    {"data": "0km","label": "Week 3","value": 0},
+                    {"data": "0km","label": "Week 4","value": 0}
+                ]
+            },
+            score: {
+                "safety": 0,
+                "activity": 0,
+                "acceptance": 0
+            }
         }]);
     if (error) {
         throw error;
@@ -68,7 +87,7 @@ export async function getVehicleDataByOTP(otp) {
 export async function uploadImageToStorage({
     uri,
     storagePath,
-    bucket = process.env.EXPO_PUBLIC_SUPABASE_STORAGE_BUCKET || 'vehicle-documents',
+    bucket = process.env.EXPO_PUBLIC_SUPABASE_STORAGE_BUCKET || 'documents',
     contentType = 'image/jpeg',
 }) {
     const response = await fetch(uri);
@@ -157,6 +176,22 @@ export async function updatePersonalInfo(email, updatedData) {
     if (error) {
         throw error;
     }
+    return data;
+}
+
+// Update profile selfie URL in drivers table.
+export async function updateDriverSelfie(email, selfieUrl) {
+    const {data, error} = await supabase
+        .from('drivers')
+        .update([{
+            selfie: selfieUrl,
+        }])
+        .eq('email', email);
+
+    if (error) {
+        throw error;
+    }
+
     return data;
 }
 

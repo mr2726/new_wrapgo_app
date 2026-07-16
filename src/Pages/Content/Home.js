@@ -18,6 +18,29 @@ import Loading from '../../components/screens/Loading';
 import {getUserDataById} from '../../components/service/service';
 // ----------------------------------------------------------
 
+const normalizeWeeklyStat = (weeklyStat) => {
+    if (!weeklyStat) {
+        return {distance: [], hours: []};
+    }
+
+    if (typeof weeklyStat === 'string') {
+        try {
+            const parsed = JSON.parse(weeklyStat);
+            return {
+                distance: Array.isArray(parsed?.distance) ? parsed.distance : [],
+                hours: Array.isArray(parsed?.hours) ? parsed.hours : [],
+            };
+        } catch {
+            return {distance: [], hours: []};
+        }
+    }
+
+    return {
+        distance: Array.isArray(weeklyStat?.distance) ? weeklyStat.distance : [],
+        hours: Array.isArray(weeklyStat?.hours) ? weeklyStat.hours : [],
+    };
+};
+
 export default function Home({email, setLocalPage}) {
     const [showHowItWorks, setShowHowItWorks] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
@@ -38,14 +61,18 @@ export default function Home({email, setLocalPage}) {
 
                 if (user) {
                     const userData = await getUserDataById(user.id);
+                    const normalizedUserData = {
+                        ...userData,
+                        weeklyStat: normalizeWeeklyStat(userData?.weeklyStat),
+                    };
 
-                    setUserData(userData);
+                    setUserData(normalizedUserData);
                     // Add user data to the LocalStorage to get access from any screen
                     await AsyncStorage.setItem(
                         'userData',
-                        JSON.stringify(userData)
+                        JSON.stringify(normalizedUserData)
                     );
-                    console.log('User Data:', userData);
+                    console.log('User Data:', JSON.stringify(normalizedUserData, null, 2)); // Remove this line after debugging
                 }
             } catch (error) {
                 console.log(error);
