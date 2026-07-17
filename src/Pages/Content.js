@@ -17,20 +17,48 @@ export default function Content({isLogined, setIsLogined}) {
         isLogined ? "content" : "onboarding"
     );
     const [signUpInfo, setSignUpInfo] = React.useState({});
+    const [authInitialScreen, setAuthInitialScreen] = React.useState('signup');
+
+    const handleLogout = React.useCallback(() => {
+        setIsLogined(false);
+        setSignUpInfo({});
+        setAuthInitialScreen('signin');
+        setPage('signupandsignin');
+    }, [setIsLogined]);
+
+    const handleAccountDeleted = React.useCallback(() => {
+        setIsLogined(false);
+        setSignUpInfo({});
+        setAuthInitialScreen('signup');
+        setPage('onboarding');
+    }, [setIsLogined]);
 
     React.useEffect(() => {
         if (isLogined) {
             setPage("content");
+            setAuthInitialScreen('signup');
         }
     }, [isLogined]);
+
     return (
         <View style={styles.screen}>
             {page === "onboarding" && <OnboardingContent setPage={setPage} />}
-            {page === "signupandsignin" && <SignupAndSigninContent setPage={setPage} signUpInfo={setSignUpInfo} />}
+            {page === "signupandsignin" && (
+                <SignupAndSigninContent
+                    setPage={setPage}
+                    signUpInfo={setSignUpInfo}
+                    initialLocalPage={authInitialScreen}
+                />
+            )}
             {page === "success" && <Success title="Success" description="Your account has been created successfully!" />}
             {page === "verification" && <VereficationContent setPage={setPage} signUpInfo={signUpInfo} />}
             {page === "content" && (
-                <ContentPage isLogined={isLogined} setIsLogined={setIsLogined} />
+                <ContentPage
+                    isLogined={isLogined}
+                    setIsLogined={setIsLogined}
+                    onLogout={handleLogout}
+                    onAccountDeleted={handleAccountDeleted}
+                />
             )}
         </View>
     );

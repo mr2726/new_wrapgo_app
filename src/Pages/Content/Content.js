@@ -12,13 +12,19 @@ import Profile from './Profile';
 import SettingsContent from './SettingsScreens/SettingsContent';
 // ----------------------------------------------------------
 
-export default function ContentPage() {
+export default function ContentPage({onLogout, onAccountDeleted}) {
     const [localPage, setLocalPage] = React.useState("home"); // home | howitswork | faq | contactus | profile
     return (
         <View style={styles.screen}>
             {localPage === "home" && <Home email="user@example.com" setLocalPage={setLocalPage} />}
             {localPage === "profile" && <Profile setLocalPage={setLocalPage}/>}
-            {localPage === "settings" && <SettingsContent setPage={setLocalPage} />}
+            {localPage === "settings" && (
+                <SettingsContent
+                    setPage={setLocalPage}
+                    onLogout={onLogout}
+                    onAccountDeleted={onAccountDeleted}
+                />
+            )}
 
             <Menu
                 items={[

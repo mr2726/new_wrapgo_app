@@ -55,6 +55,42 @@ Latest patch updates:
 	- camera errors now display the original exception message for faster debugging
 - `app.json` now includes `expo-image-picker` and `expo-camera` plugins with explicit permission strings for stable native permission prompts.
 
+Current working tree updates:
+- Added TypeScript baseline support:
+	- new `tsconfig.json` extends `expo/tsconfig.base`
+	- added dev dependencies `typescript` and `@types/react`
+- Authentication shell now supports explicit auth entry points:
+	- `Content` tracks `authInitialScreen`
+	- logout routes user to sign-in screen
+	- account deletion routes user to onboarding
+- `SignupAndSigninContent` now accepts `initialLocalPage` and syncs local auth page when parent flow changes.
+- `Signup` top control now sets `switchTo="signin"` to preserve expected back-navigation behavior.
+- Settings flow now supports real account lifecycle actions:
+	- added `Logout` action with service call + warning alert handling
+	- added destructive `Delete Account` confirmation dialog
+	- wired settings callbacks through `Content` -> `ContentPage` -> `SettingsContent` -> `Settings`
+- Service layer (`src/components/service/service.js`) received major upgrades:
+	- added `AsyncStorage` cache helpers (`cacheUserData`, refresh by email/userId)
+	- added `weeklyStat` normalization before local cache write
+	- made driver update methods refresh cached `userData` automatically
+	- moved default storage bucket handling to constants
+	- added `deleteAccount()` that invokes Supabase edge function `delete_account`, signs out, and clears local storage
+	- updated `logout()` to clear storage while keeping onboarding hint (`howItWorksCompleted`)
+- Added Supabase edge function `supabase/functions/delete_account/index.ts`:
+	- validates bearer token
+	- removes user files from storage prefixes
+	- deletes `vehicles` and `drivers` rows
+	- deletes auth user via admin API
+- Home screen quality updates:
+	- renders loading state until both request and user data are available
+	- shows fallback avatar placeholder when selfie is missing
+	- uses safer optional chaining on user fields
+- Profile screen data fixes:
+	- score metrics now read from nested `userData.score.*`
+	- selfie uploads now use `vehicle-documents/<email>/...` storage path
+	- fixed top control prop usage to avoid duplicate `setLocalPage` assignment
+- Personal information save flow now relies on centralized service cache refresh instead of writing stale `userData` directly from screen state.
+
 ## Development Build
 
 This app uses native modules such as `@rnmapbox/maps`, so Expo Go is not the intended runtime.

@@ -1,11 +1,52 @@
-import {View, Text, StyleSheet, ScrollView} from "react-native";
+import {View, Text, StyleSheet, ScrollView, Alert} from "react-native";
+import React from 'react';
 
 // COMPONENTS
 import { SettingsButton } from "../../../components/ui/settingsButton";
 import { TopControl } from "../../../components/ui/topControl";
 // ----------------------------------------------------------------
+// SERVICES
+import {deleteAccount, logout} from "../../../components/service/service";
+// ----------------------------------------------------------------
 
-export default function Settings ({setPage, setSettingsPage}) {
+export default function Settings ({setPage, setSettingsPage, onLogout, onAccountDeleted}) {
+    const handleDeleteAccount = React.useCallback(() => {
+        Alert.alert(
+            'Delete account',
+            'This will permanently delete your account, profile data, and uploaded files. Continue?',
+            [
+                {text: 'Cancel', style: 'cancel'},
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const result = await deleteAccount();
+
+                            if (result?.warnings?.length) {
+                                Alert.alert('Account deleted', result.warnings.join('\n'));
+                            }
+
+                            onAccountDeleted?.();
+                        } catch (error) {
+                            Alert.alert('Delete account failed', error?.message || 'Could not delete account.');
+                        }
+                    },
+                },
+            ]
+        );
+    }, [onAccountDeleted]);
+
+    const handleLogout = React.useCallback(async () => {
+        const {error} = await logout();
+
+        if (error) {
+            Alert.alert('Logout warning', error.message || 'Session cleanup completed with warning.');
+        }
+
+        onLogout?.();
+    }, [onLogout]);
+
     const settingsContent = [
         {
             title: "Personal information",
@@ -40,12 +81,12 @@ export default function Settings ({setPage, setSettingsPage}) {
         {
             title: "Delete Account",
             icon : "user-x",
-            onPress: () => alert("Delete Account"),
+            onPress: handleDeleteAccount,
         },
         {
             title: "Logout",
             icon : "log-out",
-            onPress: () => alert("Logout"),
+            onPress: handleLogout,
         },
     ]
 

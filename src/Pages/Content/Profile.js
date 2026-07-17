@@ -82,9 +82,9 @@ export default function Profile ({setLocalPage}) {
     const avgDistancePerDay = (totalDistance / daysSinceRegistration).toFixed(1);
     const avgZoneHoursPerDay = (totalZoneHours / daysSinceRegistration).toFixed(1);
     // Get this data from DB 
-    const safety = userData?.safety || 0;
-    const acceptance = userData?.acceptance || 0;
-    const activity = userData?.activity || 0;
+    const safety = userData?.score.safety || 0;
+    const acceptance = userData?.score.acceptance || 0;
+    const activity = userData?.score.activity || 0;
 
     const score = Math.round((safety + acceptance + activity) / 3);
 
@@ -105,7 +105,7 @@ export default function Profile ({setLocalPage}) {
             if (uri) {
                 const fileExt = uri.split('.').pop()?.toLowerCase();
                 const supportedExt = fileExt === 'png' ? 'png' : 'jpg';
-                const storagePath = `${userData.email}/Selfie-${Date.now()}.${supportedExt}`;
+                const storagePath = `vehicle-documents/${userData.email}/Selfie-${Date.now()}.${supportedExt}`;
                 const uploadResult = await uploadImageToStorage({
                     uri,
                     storagePath,
@@ -218,7 +218,7 @@ export default function Profile ({setLocalPage}) {
         <>
             <ScrollView style={{marginBottom: 100}}>
                 <View style={styles.topControll}>
-                    <TopControl setLocalPage={() => setLocalPage("home")} title="My Profile" additionalBTN="settings" setLocalPage={setLocalPage} switchTo="home"/>
+                    <TopControl setLocalPage={setLocalPage} title="My Profile" additionalBTN="settings" switchTo="home"/>
                 </View>
                 <View style={styles.profileContent}>
                     <View style={styles.profileHeaderRow}>

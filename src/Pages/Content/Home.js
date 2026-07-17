@@ -2,6 +2,8 @@ import {View, Text, Image, StyleSheet} from 'react-native';
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {supabase} from "../../components/service/supabase";
+import {Feather} from '@expo/vector-icons';
+import {colors} from '../../styles/theme';
 
 // COMPONENTS
 import {Week} from '../../components/ui/Week';
@@ -84,7 +86,7 @@ export default function Home({email, setLocalPage}) {
         initialize();
     }, []);
 
-    if (loading) {
+    if (loading || !userData) {
         return <Loading />;
     }
     const text = 'Your Profile in Review, Please wait\nfor the verification process to complete.';
@@ -92,13 +94,19 @@ export default function Home({email, setLocalPage}) {
         <View>
             <View style={styles.header}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Image source={{uri: userData.selfie}} style={styles.selfie} />
-                    <Text style={[styles.text, { marginLeft: 8 }]}>Welcome, {userData.name}</Text>
+                    {userData?.selfie ? (
+                        <Image source={{uri: userData.selfie}} style={styles.selfie} />
+                    ) : (
+                        <View style={styles.selfiePlaceholder}>
+                            <Feather name="user" size={20} color={colors.textSecondary} />
+                        </View>
+                    )}
+                    <Text style={[styles.text, { marginLeft: 8 }]}>Welcome, {userData?.name || 'Driver'}</Text>
                 </View>
             </View>
             <Week />
             {
-                userData.status === 'In Progress' && (
+                userData?.status === 'In Progress' && (
                     <StatusBar_ 
                         style={{ marginTop: 25 }}
                         title="Verification Needed"
@@ -152,5 +160,15 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
+    },
+    selfiePlaceholder: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#202020',
+        borderWidth: 1,
+        borderColor: '#151515',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });

@@ -62,7 +62,6 @@ export default function PersonalInfo({setPage, setSettingsPage}) {
 
             await updatePersonalInfo(userData.email, payload);
             setInitialUserData(userData);
-            await AsyncStorage.setItem('userData', JSON.stringify(userData));
         } catch (error) {
             console.error('Error updating personal info:', error);
         }

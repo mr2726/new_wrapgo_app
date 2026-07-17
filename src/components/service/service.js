@@ -1,4 +1,135 @@
 import {supabase} from './supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_BUCKET = 'documents';
+const VEHICLE_DOCS_PREFIX = 'vehicle-documents';
+
+const normalizeWeeklyStat = (weeklyStat) => {
+    if (!weeklyStat) {
+        return {distance: [], hours: []};
+    }
+
+    if (typeof weeklyStat === 'string') {
+        try {
+            const parsed = JSON.parse(weeklyStat);
+            return {
+                distance: Array.isArray(parsed?.distance) ? parsed.distance : [],
+                hours: Array.isArray(parsed?.hours) ? parsed.hours : [],
+            };
+        } catch {
+            return {distance: [], hours: []};
+        }
+    }
+
+    return {
+        distance: Array.isArray(weeklyStat?.distance) ? weeklyStat.distance : [],
+        hours: Array.isArray(weeklyStat?.hours) ? weeklyStat.hours : [],
+    };
+};
+
+const cacheUserData = async (driverData) => {
+    if (!driverData) return;
+
+    const normalizedUserData = {
+        ...driverData,
+        weeklyStat: normalizeWeeklyStat(driverData?.weeklyStat),
+    };
+
+    await AsyncStorage.setItem('userData', JSON.stringify(normalizedUserData));
+};
+
+const refreshAndCacheDriverByEmail = async (email) => {
+    if (!email) return null;
+
+    const {data, error} = await supabase
+        .from('drivers')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+    if (error) {
+        throw error;
+    }
+
+    await cacheUserData(data);
+    return data;
+};
+
+const refreshAndCacheDriverByUserId = async (userId) => {
+    if (!userId) return null;
+
+    const {data, error} = await supabase
+        .from('drivers')
+        .select('*')
+        .eq('userid', userId)
+        .single();
+
+    if (error) {
+        throw error;
+    }
+
+    await cacheUserData(data);
+    return data;
+};
+
+const listAllFilesUnderPrefix = async (bucket, prefix) => {
+    const queue = [prefix];
+    const filePaths = [];
+
+    while (queue.length > 0) {
+        const currentPrefix = queue.shift();
+        const {data, error} = await supabase.storage
+            .from(bucket)
+            .list(currentPrefix, {
+                limit: 1000,
+                offset: 0,
+                sortBy: {column: 'name', order: 'asc'},
+            });
+
+        if (error) {
+            const message = String(error.message || '').toLowerCase();
+            if (message.includes('not found')) {
+                continue;
+            }
+            throw error;
+        }
+
+        for (const item of data || []) {
+            const fullPath = currentPrefix ? `${currentPrefix}/${item.name}` : item.name;
+
+            if (item?.metadata) {
+                filePaths.push(fullPath);
+            } else {
+                queue.push(fullPath);
+            }
+        }
+    }
+
+    return filePaths;
+};
+
+const removeFilesByPrefixes = async (bucket, prefixes) => {
+    const allFiles = [];
+
+    for (const prefix of prefixes) {
+        if (!prefix) continue;
+        const files = await listAllFilesUnderPrefix(bucket, prefix);
+        allFiles.push(...files);
+    }
+
+    if (allFiles.length === 0) {
+        return;
+    }
+
+    const chunkSize = 100;
+    for (let i = 0; i < allFiles.length; i += chunkSize) {
+        const chunk = allFiles.slice(i, i + chunkSize);
+        const {error} = await supabase.storage.from(bucket).remove(chunk);
+        if (error) {
+            throw error;
+        }
+    }
+};
 
 // Signup function
 export async function signUpWithEmail(email, password) {
@@ -67,6 +198,8 @@ export async function saveDriverData(userId, fullName, email) {
     if (error) {
         throw error;
     }
+
+    await refreshAndCacheDriverByUserId(userId);
     return data;
 }
 
@@ -87,7 +220,7 @@ export async function getVehicleDataByOTP(otp) {
 export async function uploadImageToStorage({
     uri,
     storagePath,
-    bucket = process.env.EXPO_PUBLIC_SUPABASE_STORAGE_BUCKET || 'documents',
+    bucket = STORAGE_BUCKET,
     contentType = 'image/jpeg',
 }) {
     const response = await fetch(uri);
@@ -140,6 +273,8 @@ export async function updateDriverData(updatedData) {
     if (error) {
         throw error;
     }
+
+    await refreshAndCacheDriverByEmail(updatedData.email);
     return data;
 }
 
@@ -176,6 +311,8 @@ export async function updatePersonalInfo(email, updatedData) {
     if (error) {
         throw error;
     }
+
+    await refreshAndCacheDriverByEmail(email);
     return data;
 }
 
@@ -191,6 +328,8 @@ export async function updateDriverSelfie(email, selfieUrl) {
     if (error) {
         throw error;
     }
+
+    await refreshAndCacheDriverByEmail(email);
 
     return data;
 }
@@ -244,5 +383,47 @@ export async function getUserDataById(id) {
     if (error) {
         throw error;
     }
+
+    await cacheUserData(data);
     return data;
 }
+
+export async function deleteAccount() {
+    const {data: authData, error: authError} = await supabase.auth.getUser();
+    if (authError) {
+        throw authError;
+    }
+
+    const currentUser = authData?.user;
+    if (!currentUser?.id || !currentUser?.email) {
+        throw new Error('User context not found for account deletion.');
+    }
+
+    const {data, error} = await supabase.functions.invoke('delete_account', {
+        body: {
+            storageBucket: STORAGE_BUCKET,
+            storagePrefix: VEHICLE_DOCS_PREFIX,
+        },
+    });
+
+    if (error) {
+        throw error;
+    }
+
+    await supabase.auth.signOut();
+    await AsyncStorage.clear();
+
+    return {
+        success: true,
+        warnings: Array.isArray(data?.warnings) ? data.warnings : [],
+    };
+}
+
+// LOGOUT
+export const logout = async () => {
+        const {error} = await supabase.auth.signOut();
+        await AsyncStorage.clear();
+    await AsyncStorage.setItem('howItWorksCompleted', 'true');
+
+        return {error};
+};
