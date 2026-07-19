@@ -56,6 +56,12 @@ Latest patch updates:
 - `app.json` now includes `expo-image-picker` and `expo-camera` plugins with explicit permission strings for stable native permission prompts.
 
 Current working tree updates:
+- Fleet Code settings flow was added and wired to live profile data:
+	- new `FleetCode` settings screen supports editable code input with change detection
+	- Save button now appears only when fleet code value has changed
+	- fleet code is validated against `vehicles.invite_code` before persisting
+	- successful save updates `drivers.carid` and refreshes cached `userData` in `AsyncStorage`
+- Vehicle Information now reads current invite code from `AsyncStorage.userData.carid` instead of a hardcoded value.
 - Added TypeScript baseline support:
 	- new `tsconfig.json` extends `expo/tsconfig.base`
 	- added dev dependencies `typescript` and `@types/react`
@@ -167,6 +173,7 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [SettingsContent](#settingscontent)
 - [PersonalInfo](#personalinfo)
 - [VehicleInformation](#vehicleinformation)
+- [FleetCode](#fleetcode)
 - [OnboardingContent](#onboardingcontent)
 - [Page1](#page1)
 - [Page2](#page2)
@@ -196,6 +203,8 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [sendOTP](#sendotp)
 - [verifyOTP](#verifyotp)
 - [changePassword](#changepassword)
+- [updatePersonalInfo](#updatepersonalinfo)
+- [updateDriverFleetCode](#updatedriverfleetcode)
 - [updateDriverSelfie](#updatedriverselfie)
 
 ### Automation
@@ -845,7 +854,7 @@ Path: src/Pages/Content/SettingsScreens/Settings.jsx
 
 Notes:
 - Renders settings actions through a `settingsContent` config array.
-- Includes navigation entries for Personal Information and Vehicle Information.
+- Includes navigation entries for Personal Information, Vehicle Information, and Fleet Code.
 - Uses `ScrollView` to avoid clipping on smaller screens.
 
 #### Example
@@ -866,7 +875,7 @@ Path: src/Pages/Content/SettingsScreens/SettingsContent.jsx
 
 Notes:
 - Manages local settings route state with `settingsPage`.
-- Switches between `Settings`, `PersonalInfo`, and `VehicleInformation` screens.
+- Switches between `Settings`, `PersonalInfo`, `VehicleInformation`, and `FleetCode` screens.
 - Wraps the local settings flow in `ScrollView`.
 
 #### Example
@@ -911,7 +920,7 @@ Path: src/Pages/Content/SettingsScreens/VehicleInformation.jsx
 | setSettingsPage | function | Yes | Used by `TopControl` to return to the main Settings list |
 
 Notes:
-- Fetches vehicle data on mount via `getVehicleDataByOTP("666666")`.
+- Fetches vehicle data on mount via `getVehicleDataByOTP(userData.carid)` loaded from `AsyncStorage`.
 - Displays vehicle make, model, year, and plate as read-only values.
 - Uses `NonEditableInfo` for consistent presentation of immutable vehicle details.
 
@@ -919,6 +928,29 @@ Notes:
 
 ```jsx
 <VehicleInformation setSettingsPage={setSettingsPage} />
+```
+
+### FleetCode
+
+Path: src/Pages/Content/SettingsScreens/FleetCode.jsx
+
+#### Props
+
+| Prop | Type | Required | Description |
+| --- | --- | --- | --- |
+| setSettingsPage | function | Yes | Used by `TopControl` to return to the main Settings list |
+
+Notes:
+- Loads current `email` and `carid` from `AsyncStorage` key `userData`.
+- Renders editable fleet code input and tracks initial value.
+- Shows `Save Code` only when fleet code value changes.
+- Validates code by calling `getVehicleDataByOTP` before updating driver profile.
+- Persists new code through `updateDriverFleetCode(email, fleetCode)` and refreshes local cache.
+
+#### Example
+
+```jsx
+<FleetCode setSettingsPage={setSettingsPage} />
 ```
 
 ### OnboardingContent
@@ -1341,6 +1373,25 @@ Description:
 Params:
 - `email` (string): user email used in `.eq('email', email)` filter.
 - `updatedData` (object): mapped payload with `fullName`, `PhoneNumber`, and `birthDate`.
+
+Returns:
+- Updated row payload returned by Supabase (`data`).
+
+Throws:
+- Supabase update error when write fails.
+
+#### updateDriverFleetCode
+
+Signature:
+- `updateDriverFleetCode(email, fleetCode)`
+
+Description:
+- Updates `carid` (fleet/invite code) in the `drivers` table from Settings > Fleet Code.
+- Refreshes and rewrites cached `userData` in `AsyncStorage` through service cache helpers.
+
+Params:
+- `email` (string): user email used in `.eq('email', email)` filter.
+- `fleetCode` (string): validated vehicle invite code to store into `drivers.carid`.
 
 Returns:
 - Updated row payload returned by Supabase (`data`).

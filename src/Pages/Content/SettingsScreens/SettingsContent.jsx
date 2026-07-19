@@ -4,6 +4,7 @@ import React from "react";
 import Settings from "./Settings";
 import PersonalInfo from "./PersonalInfo";
 import VehicleInformation from "./VehicleInformation";
+import FleetCode from "./FleetCode";
 
 export default function SettingsContent ({setPage, onLogout, onAccountDeleted}) {
     const [settingsPage, setSettingsPage] = React.useState("settings");
@@ -19,6 +20,7 @@ export default function SettingsContent ({setPage, onLogout, onAccountDeleted}) 
             )}
             {settingsPage === "personalInfo" && <PersonalInfo setPage={setPage} setSettingsPage={setSettingsPage} />}
             {settingsPage === "vehicleInfo" && <VehicleInformation setPage={setPage} setSettingsPage={setSettingsPage} />}
+            {settingsPage === "fleetCode" && <FleetCode setSettingsPage={setSettingsPage} />}
         </ScrollView>
     )
 }

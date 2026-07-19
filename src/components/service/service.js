@@ -362,6 +362,23 @@ export async function updatePersonalInfo(email, updatedData) {
     return data;
 }
 
+// Update fleet code (carid) in drivers table and refresh cached user data.
+export async function updateDriverFleetCode(email, fleetCode) {
+    const {data, error} = await supabase
+        .from('drivers')
+        .update([{
+            carid: fleetCode,
+        }])
+        .eq('email', email);
+
+    if (error) {
+        throw error;
+    }
+
+    await refreshAndCacheDriverByEmail(email);
+    return data;
+}
+
 // Update profile selfie URL in drivers table.
 export async function updateDriverSelfie(email, selfieUrl) {
     const {data, error} = await supabase

@@ -58,6 +58,11 @@ export default function Settings ({setPage, setSettingsPage, onLogout, onAccount
             icon : "car",
             onPress: () => setSettingsPage("vehicleInfo"),
         },
+        {
+            title: "Fleet Code",
+            icon : "hash",
+            onPress: () => setSettingsPage("fleetCode"),
+        },
         // {
         //     title: "Preferred Companies",
         //     icon : "info",

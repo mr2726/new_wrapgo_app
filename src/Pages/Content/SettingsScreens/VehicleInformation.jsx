@@ -1,5 +1,6 @@
 import {View, Text, ScrollView, StyleSheet} from "react-native";
 import React from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // COMPONENTS
 import { TopControl } from "../../../components/ui/topControl";
 import { NonEditableInfo } from "../../../components/ui/NonEdditableInfo";
@@ -13,11 +14,26 @@ export default function VehicleInformation ({setPage, setSettingsPage}) {
     React.useEffect(() => {
         const fetchVehicleData = async () => {
             try {
-                const data = await getVehicleDataByOTP("666666");
+                const userDataString = await AsyncStorage.getItem("userData");
+                if (!userDataString) {
+                    setVehicleData(null);
+                    return;
+                }
+
+                const userData = JSON.parse(userDataString);
+                const inviteCode = String(userData?.carid || "").trim();
+
+                if (!inviteCode) {
+                    setVehicleData(null);
+                    return;
+                }
+
+                const data = await getVehicleDataByOTP(inviteCode);
                 setVehicleData(data);
                 console.log("Vehicle Data:", data);
             } catch (error) {
                 console.error("Error fetching vehicle data:", error);
+                setVehicleData(null);
             }
         };
 
