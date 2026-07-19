@@ -91,6 +91,30 @@ Current working tree updates:
 	- fixed top control prop usage to avoid duplicate `setLocalPage` assignment
 - Personal information save flow now relies on centralized service cache refresh instead of writing stale `userData` directly from screen state.
 
+GPS and task system updates (July 2026):
+- Added continuous background GPS tracking flow for Expo SDK 54:
+	- `src/components/service/location/constants.js`
+	- `src/components/service/location/task.js`
+	- `src/components/service/location/sync.js`
+	- `src/components/service/location/tracking.js`
+- App boot now gates access with `LocationPermissionGate` until tracking prerequisites are satisfied (permissions, services, task manager availability).
+- Added a new Supabase location table migration:
+	- `supabase/sql/20260717_driver_location_updates.sql`
+	- stores latest driver location payload keyed by `driver_email`.
+- Added driver weekly GPS stats engine:
+	- `src/components/service/location/weeklyStats.js`
+	- computes driven distance and active hours from location batches
+	- uses speed threshold (`MIN_TRACKING_SPEED_KMH`) currently set to `0` for testing (set to `10` for production)
+	- updates `current_week_distance`, `current_week_hourse`, and `weeklyStat`
+	- performs automatic week rollover based on Monday week start.
+- Service layer now uploads location batches and synchronizes `drivers` row location + weekly progress on each accepted update.
+- Home screen now fetches `tasks` from Supabase and renders dynamic bonus progress cards through `StatsInfo`.
+- Tasks mapping behavior:
+	- `tasks.task_target` is treated as a text key pointing to a field in `userData`
+	- task card value is resolved dynamically via `userData[task_target]`
+	- progress labels are formatted by metric type (distance/hours).
+- Added `supabase/sql/20260719_tasks_select_policy.sql` to allow authenticated users to read public task definitions under RLS.
+
 ## Development Build
 
 This app uses native modules such as `@rnmapbox/maps`, so Expo Go is not the intended runtime.

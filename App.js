@@ -1,10 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Content from './src/Pages/Content';
+import LocationPermissionGate from './src/components/screens/LocationPermissionGate';
+import {
+  ensureLocationTrackingStarted,
+  getLocationTrackingPrerequisites,
+  hasRequestedLocationPermissionsBefore,
+  requestLocationTrackingPermissions,
+  subscribeToLocationQueueSync,
+} from './src/components/service/location/tracking';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -20,6 +28,13 @@ export default function App() {
   });
 
   const [isLogined, setIsLogined] = React.useState(null);
+  const [trackingState, setTrackingState] = React.useState({
+    loading: true,
+    ready: false,
+    status: null,
+    errorMessage: '',
+  });
+  const queueSyncSubscriptionRef = React.useRef(null);
 
   React.useEffect(() => {
     const checkLogin = async () => {
@@ -30,8 +45,95 @@ export default function App() {
     checkLogin();
   }, []);
 
+  const refreshLocationTracking = React.useCallback(async ({
+    requestPermissions = false,
+  } = {}) => {
+    try {
+      setTrackingState((currentState) => ({
+        ...currentState,
+        loading: true,
+        errorMessage: '',
+      }));
+
+      let status = await getLocationTrackingPrerequisites();
+      const hasRequestedBefore = await hasRequestedLocationPermissionsBefore();
+      const shouldAutoRequest =
+        !hasRequestedBefore &&
+        (!status.hasForegroundPermission || !status.hasBackgroundPermission);
+
+      if (requestPermissions || shouldAutoRequest) {
+        await requestLocationTrackingPermissions();
+        status = await getLocationTrackingPrerequisites();
+      }
+
+      const result = await ensureLocationTrackingStarted(status);
+
+      if (queueSyncSubscriptionRef.current) {
+        queueSyncSubscriptionRef.current.remove();
+        queueSyncSubscriptionRef.current = null;
+      }
+
+      if (result.ready) {
+        queueSyncSubscriptionRef.current = subscribeToLocationQueueSync((error) => {
+          console.warn('Location queue sync failed:', error);
+        });
+      }
+
+      setTrackingState({
+        loading: false,
+        ready: result.ready,
+        status: result.status,
+        errorMessage: result.error?.message || '',
+      });
+    } catch (error) {
+      const status = await getLocationTrackingPrerequisites().catch(() => null);
+
+      setTrackingState({
+        loading: false,
+        ready: false,
+        status,
+        errorMessage:
+          error?.message || 'Unable to initialize continuous location tracking.',
+      });
+    }
+  }, []);
+
+  React.useEffect(() => {
+    refreshLocationTracking();
+
+    return () => {
+      if (queueSyncSubscriptionRef.current) {
+        queueSyncSubscriptionRef.current.remove();
+        queueSyncSubscriptionRef.current = null;
+      }
+    };
+  }, [refreshLocationTracking]);
+
   if (!fontsLoaded || isLogined === null) {
     return null;
+  }
+
+  if (!trackingState.ready) {
+    return (
+      <View style={styles.screen}>
+        <LocationPermissionGate
+          busy={trackingState.loading}
+          errorMessage={trackingState.errorMessage}
+          status={trackingState.status}
+          onOpenSettings={() => Linking.openSettings()}
+          onRetry={() => {
+            const shouldRequestPermissions =
+              !trackingState.status?.hasForegroundPermission ||
+              !trackingState.status?.hasBackgroundPermission;
+
+            refreshLocationTracking({
+              requestPermissions: shouldRequestPermissions,
+            });
+          }}
+        />
+        <StatusBar style="light" />
+      </View>
+    );
   }
 
   return (

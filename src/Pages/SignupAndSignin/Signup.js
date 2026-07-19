@@ -96,6 +96,8 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
                     value={inputValues[field.key]}
                     onChangeText={(value) => handleInputChange(field.key, value)}
                     error={submitAttempted && formErrors[field.key]}
+                    type={field.key === 'email' ? 'email-address' : 'default'}
+                    style={field.key === 'email' ? {textTransform: 'lowercase'} : {}}
                 />
             ))}
             <Pressable

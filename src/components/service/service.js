@@ -1,8 +1,11 @@
 import {supabase} from './supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {buildWeeklyStatsUpdate} from './location/weeklyStats';
 
 const STORAGE_BUCKET = 'documents';
 const VEHICLE_DOCS_PREFIX = 'vehicle-documents';
+const LOCATION_UPDATES_TABLE = 'driver_location_updates';
+const MIN_TRACKING_SPEED_KMH = 0; // For production change this to 10.
 
 const normalizeWeeklyStat = (weeklyStat) => {
     if (!weeklyStat) {
@@ -36,6 +39,47 @@ const cacheUserData = async (driverData) => {
     };
 
     await AsyncStorage.setItem('userData', JSON.stringify(normalizedUserData));
+};
+
+const cacheLatestDriverLocation = async (latitude, longitude, timestamp) => {
+    const userDataString = await AsyncStorage.getItem('userData');
+
+    if (!userDataString) {
+        return;
+    }
+
+    try {
+        const userData = JSON.parse(userDataString);
+        const nextUserData = {
+            ...userData,
+            lat: latitude,
+            lan: longitude,
+            lastLocationTimestamp: timestamp,
+        };
+
+        await AsyncStorage.setItem('userData', JSON.stringify(nextUserData));
+    } catch (error) {
+        console.warn('Failed to cache latest driver location:', error);
+    }
+};
+
+const getCurrentDriverContext = async () => {
+    const {data: authData, error: authError} = await supabase.auth.getUser();
+
+    if (authError) {
+        throw authError;
+    }
+
+    const currentUser = authData?.user;
+
+    if (!currentUser) {
+        return null;
+    }
+
+    return {
+        userId: currentUser.id,
+        email: currentUser.email || null,
+    };
 };
 
 const refreshAndCacheDriverByEmail = async (email) => {
@@ -173,6 +217,8 @@ export async function saveDriverData(userId, fullName, email) {
             carid: null,
             fleet: null,
             zonehourse: 0,
+            current_week_distance: 0,
+            current_week_hourse: 0,
             wrapped: false,
             dateofbirsday: null,
             weeklyStat: {
@@ -254,7 +300,7 @@ export async function updateDriverData(updatedData) {
         .from('drivers')
         .update([{
             name: updatedData.fullName,
-            phone: updatedData.PhoneNumber,
+            phone: updatedData.phoneNumber,
             email: updatedData.email,
             dateofbirsday: updatedData.birthDate,
             contractid: null,
@@ -418,6 +464,185 @@ export async function deleteAccount() {
         warnings: Array.isArray(data?.warnings) ? data.warnings : [],
     };
 }
+
+export async function uploadDriverLocationUpdates(locationUpdates) {
+    if (!Array.isArray(locationUpdates) || locationUpdates.length === 0) {
+        return {uploaded: 0};
+    }
+
+    const sortedUpdates = [...locationUpdates]
+        .filter((update) => update && Number.isFinite(Number(update.timestamp)))
+        .sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
+
+    if (sortedUpdates.length === 0) {
+        return {uploaded: 0};
+    }
+
+    const driverContext = await getCurrentDriverContext();
+
+    if (!driverContext?.userId && !driverContext?.email) {
+        throw new Error('No authenticated driver is available for location upload yet.');
+    }
+
+    const latestUpdate = sortedUpdates[sortedUpdates.length - 1];
+    const row = {
+        user_id: latestUpdate.userId || driverContext.userId || null,
+        driver_email: latestUpdate.email || driverContext.email || null,
+        latitude: latestUpdate.latitude,
+        longitude: latestUpdate.longitude,
+        altitude: latestUpdate.altitude,
+        accuracy: latestUpdate.accuracy,
+        heading: latestUpdate.heading,
+        speed: latestUpdate.speed,
+        recorded_at: new Date(latestUpdate.timestamp).toISOString(),
+        payload: latestUpdate,
+    };
+
+    if (!row.driver_email) {
+        throw new Error('Driver email is required to upsert the latest location row.');
+    }
+
+    const {data: existingRow, error: existingRowError} = await supabase
+        .from(LOCATION_UPDATES_TABLE)
+        .select('id, latitude, longitude, speed, recorded_at, payload')
+        .eq('driver_email', row.driver_email)
+        .order('recorded_at', {ascending: false})
+        .limit(1)
+        .maybeSingle();
+
+    if (existingRowError) {
+        const message = String(existingRowError.message || '').toLowerCase();
+
+        if (message.includes('relation') || message.includes('schema cache')) {
+            throw new Error(
+                `Supabase table "${LOCATION_UPDATES_TABLE}" is missing. Apply supabase/sql/20260717_driver_location_updates.sql before enabling continuous tracking in production.`
+            );
+        }
+
+        throw existingRowError;
+    }
+
+    if (existingRow?.id) {
+        const {error: updateLocationError} = await supabase
+            .from(LOCATION_UPDATES_TABLE)
+            .update(row)
+            .eq('id', existingRow.id);
+
+        if (updateLocationError) {
+            throw updateLocationError;
+        }
+    } else {
+        const {error: insertLocationError} = await supabase
+            .from(LOCATION_UPDATES_TABLE)
+            .insert(row);
+
+        if (insertLocationError) {
+            const message = String(insertLocationError.message || '').toLowerCase();
+
+            if (message.includes('relation') || message.includes('schema cache')) {
+                throw new Error(
+                    `Supabase table "${LOCATION_UPDATES_TABLE}" is missing. Apply supabase/sql/20260717_driver_location_updates.sql before enabling continuous tracking in production.`
+                );
+            }
+
+            throw insertLocationError;
+        }
+    }
+
+    const identifierColumn = driverContext.userId ? 'userid' : 'email';
+    const identifierValue = driverContext.userId || driverContext.email;
+
+    const {data: driverRow, error: driverRowError} = await supabase
+        .from('drivers')
+        .select('weeklyStat, current_week_distance, current_week_hourse')
+        .eq(identifierColumn, identifierValue)
+        .maybeSingle();
+
+    if (driverRowError) {
+        throw driverRowError;
+    }
+
+    const previousPayload = existingRow?.payload || {};
+    const previousPoint = {
+        latitude: Number.isFinite(Number(previousPayload?.latitude))
+            ? Number(previousPayload.latitude)
+            : Number(existingRow?.latitude),
+        longitude: Number.isFinite(Number(previousPayload?.longitude))
+            ? Number(previousPayload.longitude)
+            : Number(existingRow?.longitude),
+        speed: Number.isFinite(Number(previousPayload?.speed))
+            ? Number(previousPayload.speed)
+            : Number(existingRow?.speed),
+        timestamp: Number.isFinite(Number(previousPayload?.timestamp))
+            ? Number(previousPayload.timestamp)
+            : new Date(existingRow?.recorded_at || 0).getTime(),
+    };
+
+    const weeklyStatsUpdate = buildWeeklyStatsUpdate({
+        weeklyStat: driverRow?.weeklyStat,
+        currentWeekDistance: driverRow?.current_week_distance,
+        currentWeekHours: driverRow?.current_week_hourse,
+        previousPoint,
+        locationUpdates: sortedUpdates,
+        minSpeedKmh: MIN_TRACKING_SPEED_KMH,
+        referenceTimestamp: latestUpdate.timestamp,
+    });
+
+    const {error: updateDriverError} = await supabase
+        .from('drivers')
+        .update([{
+            lat: latestUpdate.latitude,
+            lan: latestUpdate.longitude,
+            current_week_distance: weeklyStatsUpdate.currentWeekDistance,
+            current_week_hourse: weeklyStatsUpdate.currentWeekHours,
+            weeklyStat: weeklyStatsUpdate.weeklyStat,
+        }])
+        .eq(identifierColumn, identifierValue);
+
+    if (updateDriverError) {
+        throw updateDriverError;
+    }
+
+    await cacheLatestDriverLocation(
+        latestUpdate.latitude,
+        latestUpdate.longitude,
+        latestUpdate.timestamp
+    );
+
+    return {uploaded: 1};
+}
+
+// Get Tasks
+// const { data, error } = await supabase
+//     .from("tasks")
+//     .select("*");
+
+//     if (error) {
+//     console.error(error);
+//     } else {
+//     console.log(data);
+//     }
+
+
+export const getTasks = async () => {
+    const {data, error} = await supabase
+        .from('tasks')
+        .select('id, created_at, task_name, task_target, task_value_column_name')
+        .order('created_at', {ascending: false});
+
+    if (error) {
+        const message = String(error.message || '').toLowerCase();
+
+        if (message.includes('relation') && message.includes('tasks')) {
+            throw new Error('Table "tasks" does not exist in Supabase.');
+        }
+
+        throw error;
+    }
+
+    return Array.isArray(data) ? data : [];
+}
+
 
 // LOGOUT
 export const logout = async () => {

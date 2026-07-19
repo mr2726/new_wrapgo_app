@@ -16,7 +16,7 @@ export const colors = {
   black: '#000000',
   white: '#FFFFFF',
   iconBG: '#131313',
-  loaderBG: '#2C2C2C'
+  loaderBG: '#323232'
 };
 
 export const spacing = {

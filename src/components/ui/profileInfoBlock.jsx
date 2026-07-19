@@ -1,7 +1,6 @@
 import {View, Text, StyleSheet, Image, Pressable} from "react-native";
 import React from "react";
 import { colors, radius, spacing, typography } from "../../styles/theme";
-import { Feather } from "@expo/vector-icons";
 
 export const ProfileInfoBlock = ({title, value, description}) => {
     return (

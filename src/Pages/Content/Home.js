@@ -1,4 +1,4 @@
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, ScrollView, Text, Image, StyleSheet} from 'react-native';
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {supabase} from "../../components/service/supabase";
@@ -9,7 +9,8 @@ import {colors} from '../../styles/theme';
 import {Week} from '../../components/ui/Week';
 import HowItWorks from '../../components/screens/HowItWorks';
 import {StatusBar_} from '../../components/ui/statusBar';
-// import Map from '../../../components/ui/Map';
+import Map from '../../components/ui/Map';
+import { StatsInfo } from '../../components/ui/StatsInfo';
 // ----------------------------------------------------------
 
 // SCREENS
@@ -17,7 +18,7 @@ import Loading from '../../components/screens/Loading';
 // ----------------------------------------------------------
 
 // SERVICES
-import {getUserDataById} from '../../components/service/service';
+import {getUserDataById, getTasks} from '../../components/service/service';
 // ----------------------------------------------------------
 
 const normalizeWeeklyStat = (weeklyStat) => {
@@ -43,10 +44,78 @@ const normalizeWeeklyStat = (weeklyStat) => {
     };
 };
 
+const formatTaskMetric = (value, fieldName) => {
+    const numericValue = Number(value) || 0;
+    const normalizedFieldName = String(fieldName || '').toLowerCase();
+
+    if (normalizedFieldName.includes('distance') || normalizedFieldName.includes('km')) {
+        return `${numericValue.toFixed(1)} km`;
+    }
+
+    if (normalizedFieldName.includes('hourse') || normalizedFieldName.includes('hours')) {
+        return `${numericValue.toFixed(1)} h`;
+    }
+
+    return String(numericValue.toFixed(1));
+};
+
 export default function Home({email, setLocalPage}) {
     const [showHowItWorks, setShowHowItWorks] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
     const [userData, setUserData] = React.useState(null);
+    const [tasks, setTasks] = React.useState(null);
+
+    const mapCoordinate = React.useMemo(() => {
+        const latitude = Number(userData?.lat);
+        const longitude = Number(userData?.lan);
+
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+            return null;
+        }
+
+        return {
+            latitude,
+            longitude,
+        };
+    }, [userData?.lat, userData?.lan]);
+
+    const resolvedTasks = React.useMemo(() => {
+        if (!Array.isArray(tasks) || !userData) {
+            return [];
+        }
+
+        return tasks.map((task) => {
+            const targetColumnFromTaskTarget = String(task?.task_target || '').trim();
+            const targetColumnFromLegacyField = String(task?.task_value_column_name || '').trim();
+
+            let valueColumnName = targetColumnFromTaskTarget;
+
+            if (!valueColumnName || !(valueColumnName in userData)) {
+                valueColumnName = targetColumnFromLegacyField;
+            }
+
+            const currentValue = Number(userData?.[valueColumnName]) || 0;
+            const numericTarget = Number(task?.task_target);
+            const hasNumericTarget = Number.isFinite(numericTarget) && numericTarget > 0;
+            const progressPercent = hasNumericTarget
+                ? (currentValue / numericTarget) * 100
+                : Math.max(0, Math.min(100, currentValue));
+
+            return {
+                ...task,
+                valueColumnName,
+                currentValue,
+                taskTarget: hasNumericTarget ? numericTarget : null,
+                progressPercent: Math.max(0, Math.min(100, progressPercent)),
+                leftLabel: hasNumericTarget
+                    ? `${formatTaskMetric(currentValue, valueColumnName)} / ${formatTaskMetric(numericTarget, valueColumnName)}`
+                    : formatTaskMetric(currentValue, valueColumnName),
+                rightText: hasNumericTarget
+                    ? `${Math.max(0, Math.min(100, progressPercent)).toFixed(0)}%`
+                    : formatTaskMetric(currentValue, valueColumnName),
+            };
+        });
+    }, [tasks, userData]);
 
     React.useEffect(() => {
         const initialize = async () => {
@@ -74,6 +143,20 @@ export default function Home({email, setLocalPage}) {
                         'userData',
                         JSON.stringify(normalizedUserData)
                     );
+
+                    try {
+                        const tasks = await getTasks();
+                        console.log('[Tasks] payload:', JSON.stringify(tasks, null, 2));
+                        setTasks(tasks);
+                        if (tasks.length === 0) {
+                            console.log(
+                                '[Tasks] empty result. Check Supabase RLS and task assignment fields (user_id/userid/driver_email/email/fleet/carid).'
+                            );
+                        }
+                    } catch (tasksError) {
+                        console.log('[Tasks] fetch failed:', tasksError?.message || tasksError);
+                    }
+
                     console.log('User Data:', JSON.stringify(normalizedUserData, null, 2)); // Remove this line after debugging
                 }
             } catch (error) {
@@ -91,7 +174,7 @@ export default function Home({email, setLocalPage}) {
     }
     const text = 'Your Profile in Review, Please wait\nfor the verification process to complete.';
     return (
-        <View>
+        <ScrollView>
             <View style={styles.header}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {userData?.selfie ? (
@@ -118,11 +201,30 @@ export default function Home({email, setLocalPage}) {
                 )
             }
 
-            {/* <Map /> */}
+            <Map coordinate={mapCoordinate} />
 
-
-
-
+            <View>
+                <Text style={styles.sectionTitle}>Contract Forecast</Text>
+                <StatsInfo 
+                    title="Contract Task"
+                    value={userData?.current_week_distance || 45}
+                    description={'50 000 you can earn this month'}
+                />
+            </View>
+            {resolvedTasks.length > 0 && (
+                <View  style={{marginBottom: 100}}>
+                    <Text style={styles.sectionTitle}>Bonus Tasks</Text>
+                    {resolvedTasks.map((task) => (
+                        <StatsInfo 
+                            key={task.id}
+                            title={task.task_name}
+                            value={task.progressPercent}
+                            description={`${task.leftLabel}`}
+                            rightText={task.rightText}
+                        />
+                    ))}
+                </View>
+            )}
 
 
 
@@ -141,7 +243,7 @@ export default function Home({email, setLocalPage}) {
                     }}
                 />
             )}
-        </View>
+        </ScrollView>
     );
 }
 
@@ -170,5 +272,11 @@ const styles = StyleSheet.create({
         borderColor: '#151515',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontFamily: 'LufgaMedium',
+        color: '#fff',
+        marginTop: 20,
     },
 });
