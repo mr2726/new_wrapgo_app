@@ -18,8 +18,10 @@ import Loading from '../../components/screens/Loading';
 // ----------------------------------------------------------
 
 // SERVICES
-import {getUserDataById, getTasks} from '../../components/service/service';
+import {getUserDataById, getTasks, getCampaignById} from '../../components/service/service';
 // ----------------------------------------------------------
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const normalizeWeeklyStat = (weeklyStat) => {
     if (!weeklyStat) {
@@ -59,11 +61,106 @@ const formatTaskMetric = (value, fieldName) => {
     return String(numericValue.toFixed(1));
 };
 
+const parseCampaignDuration = (duration) => {
+    const durationText = String(duration || '').trim().toLowerCase();
+    const match = durationText.match(/^(\d+)\s*([dwmy])$/i);
+
+    if (!match) {
+        return null;
+    }
+
+    return {
+        amount: Number(match[1]),
+        unit: match[2].toLowerCase(),
+    };
+};
+
+const addDurationToDate = (startDate, duration) => {
+    const parsedDuration = parseCampaignDuration(duration);
+
+    if (!parsedDuration || !Number.isFinite(parsedDuration.amount) || parsedDuration.amount <= 0) {
+        return null;
+    }
+
+    const endDate = new Date(startDate);
+
+    if (parsedDuration.unit === 'd') {
+        endDate.setUTCDate(endDate.getUTCDate() + parsedDuration.amount);
+        return endDate;
+    }
+
+    if (parsedDuration.unit === 'w') {
+        endDate.setUTCDate(endDate.getUTCDate() + parsedDuration.amount * 7);
+        return endDate;
+    }
+
+    if (parsedDuration.unit === 'm') {
+        endDate.setUTCMonth(endDate.getUTCMonth() + parsedDuration.amount);
+        return endDate;
+    }
+
+    if (parsedDuration.unit === 'y') {
+        endDate.setUTCFullYear(endDate.getUTCFullYear() + parsedDuration.amount);
+        return endDate;
+    }
+
+    return null;
+};
+
+const formatDateLabel = (dateValue) => {
+    if (!(dateValue instanceof Date) || Number.isNaN(dateValue.getTime())) {
+        return '-';
+    }
+
+    return new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+    }).format(dateValue);
+};
+
+const buildContractTaskProgress = (campaign) => {
+    const createdAtDate = new Date(campaign?.created_at || '');
+
+    if (Number.isNaN(createdAtDate.getTime())) {
+        return {
+            value: 0,
+            description: 'Campaign period is not available',
+            rightText: '0%',
+        };
+    }
+
+    const endDate = addDurationToDate(createdAtDate, campaign?.duration);
+
+    if (!endDate || Number.isNaN(endDate.getTime())) {
+        return {
+            value: 0,
+            description: 'Campaign duration is not available',
+            rightText: '0%',
+        };
+    }
+
+    const nowTime = Date.now();
+    const startTime = createdAtDate.getTime();
+    const endTime = endDate.getTime();
+    const totalMs = Math.max(1, endTime - startTime);
+    const elapsedMs = Math.max(0, nowTime - startTime);
+    const progressPercent = Math.max(0, Math.min(100, (elapsedMs / totalMs) * 100));
+    const daysLeft = Math.max(0, Math.ceil((endTime - nowTime) / MS_PER_DAY));
+
+    return {
+        value: progressPercent,
+        description: `${formatDateLabel(createdAtDate)} - ${formatDateLabel(endDate)}`,
+        rightText: nowTime >= endTime ? 'Completed' : `${daysLeft}d left`,
+    };
+};
+
 export default function Home({email, setLocalPage}) {
     const [showHowItWorks, setShowHowItWorks] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
     const [userData, setUserData] = React.useState(null);
     const [tasks, setTasks] = React.useState(null);
+    const [campaign, setCampaign] = React.useState(null);
 
     const mapCoordinate = React.useMemo(() => {
         const latitude = Number(userData?.lat);
@@ -117,6 +214,18 @@ export default function Home({email, setLocalPage}) {
         });
     }, [tasks, userData]);
 
+    const contractTaskProgress = React.useMemo(() => {
+        if (!campaign) {
+            return {
+                value: 0,
+                description: 'Campaign is not assigned',
+                rightText: '0%',
+            };
+        }
+
+        return buildContractTaskProgress(campaign);
+    }, [campaign]);
+
     React.useEffect(() => {
         const initialize = async () => {
             try {
@@ -143,6 +252,18 @@ export default function Home({email, setLocalPage}) {
                         'userData',
                         JSON.stringify(normalizedUserData)
                     );
+
+                    if (normalizedUserData?.contractid != null) {
+                        try {
+                            const campaignData = await getCampaignById(normalizedUserData.contractid);
+                            setCampaign(campaignData);
+                        } catch (campaignError) {
+                            console.log('[Campaign] fetch failed:', campaignError?.message || campaignError);
+                            setCampaign(null);
+                        }
+                    } else {
+                        setCampaign(null);
+                    }
 
                     try {
                         const tasks = await getTasks();
@@ -201,28 +322,45 @@ export default function Home({email, setLocalPage}) {
                 )
             }
 
-            <Map coordinate={mapCoordinate} />
+            {(userData?.status !== 'In Progress' && userData?.contractid != null) && (
+                <>
+                    <Map coordinate={mapCoordinate} />
 
-            <View>
-                <Text style={styles.sectionTitle}>Contract Forecast</Text>
-                <StatsInfo 
-                    title="Contract Task"
-                    value={userData?.current_week_distance || 45}
-                    description={'50 000 you can earn this month'}
-                />
-            </View>
-            {resolvedTasks.length > 0 && (
-                <View  style={{marginBottom: 100}}>
-                    <Text style={styles.sectionTitle}>Bonus Tasks</Text>
-                    {resolvedTasks.map((task) => (
+                    <View>
+                        <Text style={styles.sectionTitle}>Contract Forecast</Text>
                         <StatsInfo 
-                            key={task.id}
-                            title={task.task_name}
-                            value={task.progressPercent}
-                            description={`${task.leftLabel}`}
-                            rightText={task.rightText}
+                            title="Contract Task"
+                            value={contractTaskProgress.value}
+                            description={contractTaskProgress.description}
+                            rightText={contractTaskProgress.rightText}
                         />
-                    ))}
+                    </View>
+                    {resolvedTasks.length > 0 && (
+                        <View  style={{marginBottom: 100}}>
+                            <Text style={styles.sectionTitle}>Bonus Tasks</Text>
+                            {resolvedTasks.map((task) => (
+                                <StatsInfo 
+                                    key={task.id}
+                                    title={task.task_name}
+                                    value={task.progressPercent}
+                                    description={`${task.leftLabel}`}
+                                    rightText={task.rightText}
+                                />
+                            ))}
+                        </View>
+                    )}
+                </>
+            )}
+
+            {userData?.status === 'In Progress' && (
+                <View style={{display: 'flex', alignItems: 'center', marginTop: 20, marginBottom: 100}}>
+                    <Text style={styles.infoText}>Your Profile under Verification. It can take up to 48 hours.</Text>
+                </View>
+            )}
+
+            {userData?.contractid === null && (
+                <View style={{display: 'flex', alignItems: 'center', marginTop: 20, marginBottom: 100}}>
+                    <Text style={styles.infoText}>You don't have a contract yet. Please contact your fleet manager.</Text>
                 </View>
             )}
 
@@ -253,6 +391,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontFamily: 'LufgaRegular',
     },
+
+    infoText: {
+        fontSize: 14,
+        color: '#fff',
+        fontFamily: 'LufgaRegular',
+        textAlign: 'center',
+    },
+
     header: {
         flexDirection: 'row',
         alignItems: 'center',

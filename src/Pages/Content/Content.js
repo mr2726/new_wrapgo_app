@@ -10,6 +10,7 @@ import {Menu} from '../../components/ui/menu';
 import Home from './Home';
 import Profile from './Profile';
 import SettingsContent from './SettingsScreens/SettingsContent';
+import Contracts from './Contracts';
 // ----------------------------------------------------------
 
 export default function ContentPage({onLogout, onAccountDeleted}) {
@@ -25,11 +26,13 @@ export default function ContentPage({onLogout, onAccountDeleted}) {
                     onAccountDeleted={onAccountDeleted}
                 />
             )}
+            {localPage === "contracts" && <Contracts setLocalPage={setLocalPage} contractId={38} />}
+            {/* {localPage === "contracts" && <Contracts setLocalPage={setLocalPage} />} */}
 
             <Menu
                 items={[
                     { title: 'Home', img: 'Home', target: "home" },
-                    { title: 'Contract', img: 'Settings', target: "contact" },
+                    { title: 'Contract', img: 'Settings', target: "contracts" },
                     { title: 'Wallet', img: 'Info', target: "wallet" },
                     { title: 'Profile', img: 'User', target: "profile" },
                 ]}

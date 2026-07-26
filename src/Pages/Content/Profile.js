@@ -37,6 +37,17 @@ const normalizeWeeklyStat = (weeklyStat) => {
     };
 };
 
+const sumWeeklyStatValues = (items) => {
+    if (!Array.isArray(items)) {
+        return 0;
+    }
+
+    return items.reduce((total, item) => {
+        const numericValue = Number(item?.value);
+        return total + (Number.isFinite(numericValue) ? numericValue : 0);
+    }, 0);
+};
+
 export default function Profile ({setLocalPage}) {
     const [userData, setUserData] = React.useState(null);
     const [chartState, setChartState] = React.useState('distance'); // 'distance' or 'hours'
@@ -76,8 +87,21 @@ export default function Profile ({setLocalPage}) {
         return Math.max(1, diffInDays);
     }, [userData?.created_at]);
 
-    const totalDistance = Number(userData?.totaldistance) || 0;
-    const totalZoneHours = Number(userData?.zonehourse) || 0;
+    const weeklyDistanceTotal = React.useMemo(
+        () => sumWeeklyStatValues(weeklyStat.distance),
+        [weeklyStat.distance]
+    );
+    const weeklyHoursTotal = React.useMemo(
+        () => sumWeeklyStatValues(weeklyStat.hours),
+        [weeklyStat.hours]
+    );
+
+    const totalDistance = weeklyDistanceTotal > 0
+        ? weeklyDistanceTotal
+        : (Number(userData?.totaldistance) || 0);
+    const totalZoneHours = weeklyHoursTotal > 0
+        ? weeklyHoursTotal
+        : (Number(userData?.zonehourse) || 0);
 
     const avgDistancePerDay = (totalDistance / daysSinceRegistration).toFixed(1);
     const avgZoneHoursPerDay = (totalZoneHours / daysSinceRegistration).toFixed(1);
@@ -244,8 +268,8 @@ export default function Profile ({setLocalPage}) {
                     </View>
                     <ScoreBreakdown safety={safety} acceptance={acceptance} activity={activity}/>
                     <View style={styles.metricsRow}>
-                        <ProfileInfoBlock title="Distance" value={totalDistance} description={`AVG ${avgDistancePerDay} km/ day`}/>
-                        <ProfileInfoBlock title="Zone Hours" value={totalZoneHours} description={`AVG ${avgZoneHoursPerDay} hrs/ day`}/>
+                        <ProfileInfoBlock title="Distance" value={`${totalDistance.toFixed(1)} km`} description={`AVG ${avgDistancePerDay} km/day`}/>
+                        <ProfileInfoBlock title="Zone Hours" value={`${totalZoneHours.toFixed(1)} h`} description={`AVG ${avgZoneHoursPerDay} h/day`}/>
                     </View>
                 </View>
                 <View style={{marginTop: 10}}>

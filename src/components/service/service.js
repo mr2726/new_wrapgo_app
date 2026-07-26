@@ -660,6 +660,30 @@ export const getTasks = async () => {
     return Array.isArray(data) ? data : [];
 }
 
+export const getCampaignById = async (campaignId) => {
+    if (campaignId == null || campaignId === '') {
+        return null;
+    }
+
+    const {data, error} = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', campaignId)
+        .maybeSingle();
+
+    if (error) {
+        const message = String(error.message || '').toLowerCase();
+
+        if (message.includes('relation') && message.includes('campaigns')) {
+            throw new Error('Table "campaigns" does not exist in Supabase.');
+        }
+
+        throw error;
+    }
+
+    return data || null;
+};
+
 
 // LOGOUT
 export const logout = async () => {

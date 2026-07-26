@@ -29,7 +29,7 @@ Latest patch updates:
 - Added `ProfileInfoBlock` component (`src/components/ui/profileInfoBlock.jsx`) for reusable stat cards on the profile screen.
 - Added new theme color tokens in `src/styles/theme.js`:
 	- `colors.iconBG` (`#131313`) for profile edit-button background
-	- `colors.loaderBG` (`#2C2C2C`) for score progress track background
+	- `colors.loaderBG` (`#323232`) for score progress track background
 - Profile screen now includes a segmented switch (`Distance` / `Hours`) and weekly chart section under profile metrics.
 - Added `Chart` component (`src/components/ui/Chart.jsx`) with:
 	- custom data support via `data` prop (`label`/`lable`, `value`, `data`)
@@ -96,6 +96,25 @@ Current working tree updates:
 	- selfie uploads now use `vehicle-documents/<email>/...` storage path
 	- fixed top control prop usage to avoid duplicate `setLocalPage` assignment
 - Personal information save flow now relies on centralized service cache refresh instead of writing stale `userData` directly from screen state.
+- Contracts feature and campaign flow updates:
+	- added new page `src/Pages/Content/Contracts.js` with segmented tabs (`Active` / `Service visit`)
+	- added reusable contract card `src/components/ui/ContractItem.jsx`
+	- `ContentPage` now routes menu target `Contract` to `contracts` and renders `Contracts`
+	- `Contracts` loads campaign data via `getCampaignById(contractId)`
+	- service layer now exports `getCampaignById()` for Supabase `campaigns` lookup with missing-table guard
+	- `Icons.jsx` now exports `Camera` icon for contract photo actions
+- Home page contract forecast updates:
+	- added campaign fetch based on `userData.contractid`
+	- added duration parser for campaign period (`d`, `w`, `m`, `y`) and progress calculation
+	- contract forecast now shows campaign date range and remaining days (or `Completed`)
+	- shows verification notice when `userData.status === 'In Progress'`
+	- shows empty-contract notice when `userData.contractid === null`
+- Profile totals update:
+	- total Distance and Zone Hours now prefer summed weekly stats (`userData.weeklyStat`) when available
+	- profile metric cards now display formatted unit values (`km`, `h`) and updated daily average labels
+- UI token and control tweaks:
+	- `colors.borderLight` token added in `src/styles/theme.js`
+	- `SegmentedControl_` keeps animated slider behavior and uses theme token for border radius and active text contrast
 
 GPS and task system updates (July 2026):
 - Added continuous background GPS tracking flow for Expo SDK 54:

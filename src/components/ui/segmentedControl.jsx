@@ -2,7 +2,7 @@ import {View, Text, Pressable, Animated, Easing} from 'react-native';
 import React from 'react';
 import {colors, radius, typography} from '../../styles/theme';
 
-export const SegmentedControl_ = ({options, value, onValueChange, style}) => {
+export const SegmentedControl_ = ({options = [], value, onValueChange, style}) => {
     const [containerWidth, setContainerWidth] = React.useState(0);
     const selectedIndex = Math.max(
         0,
@@ -55,7 +55,7 @@ export const SegmentedControl_ = ({options, value, onValueChange, style}) => {
                     />
                 )}
                 {options.map((option) => (
-                    <Pressable key={option.value} onPress={() => onValueChange(option.value)} style={{
+                    <Pressable key={option.value} onPress={() => onValueChange?.(option.value)} style={{
                         flex: 1, 
                         height: 32,
                         display: 'flex', 
