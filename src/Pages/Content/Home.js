@@ -18,7 +18,7 @@ import Loading from '../../components/screens/Loading';
 // ----------------------------------------------------------
 
 // SERVICES
-import {getUserDataById, getTasks, getCampaignById} from '../../components/service/service';
+import {getUserDataById, getTasks, getCampaignById, getSignedContracts} from '../../components/service/service';
 // ----------------------------------------------------------
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -161,6 +161,7 @@ export default function Home({email, setLocalPage}) {
     const [userData, setUserData] = React.useState(null);
     const [tasks, setTasks] = React.useState(null);
     const [campaign, setCampaign] = React.useState(null);
+    const [signedContractStatus, setSignedContractStatus] = React.useState(null);
 
     const mapCoordinate = React.useMemo(() => {
         const latitude = Number(userData?.lat);
@@ -226,6 +227,35 @@ export default function Home({email, setLocalPage}) {
         return buildContractTaskProgress(campaign);
     }, [campaign]);
 
+    const normalizedSignedContractStatus = React.useMemo(
+        () => String(signedContractStatus || '').trim().toLowerCase(),
+        [signedContractStatus]
+    );
+
+    const hasAnySignedContract = normalizedSignedContractStatus !== '';
+
+    const hasActiveSignedContract =
+        userData?.active_contract_id != null && normalizedSignedContractStatus === 'active';
+
+    React.useEffect(() => {
+        const loadActiveCampaign = async () => {
+            if (!hasActiveSignedContract) {
+                setCampaign(null);
+                return;
+            }
+
+            try {
+                const campaignData = await getCampaignById(userData?.active_contract_id);
+                setCampaign(campaignData);
+            } catch (campaignError) {
+                console.log('[Campaign] fetch failed:', campaignError?.message || campaignError);
+                setCampaign(null);
+            }
+        };
+
+        loadActiveCampaign();
+    }, [hasActiveSignedContract, userData?.active_contract_id]);
+
     React.useEffect(() => {
         const initialize = async () => {
             try {
@@ -253,16 +283,21 @@ export default function Home({email, setLocalPage}) {
                         JSON.stringify(normalizedUserData)
                     );
 
-                    if (normalizedUserData?.contractid != null) {
-                        try {
-                            const campaignData = await getCampaignById(normalizedUserData.contractid);
-                            setCampaign(campaignData);
-                        } catch (campaignError) {
-                            console.log('[Campaign] fetch failed:', campaignError?.message || campaignError);
-                            setCampaign(null);
+                    try {
+                        const signedContracts = await getSignedContracts({email: normalizedUserData?.email});
+                        const activeSignedContract = (signedContracts || []).find(
+                            (row) => String(row?.status || '').trim().toLowerCase() === 'active'
+                        );
+
+                        if (activeSignedContract) {
+                            setSignedContractStatus(activeSignedContract.status);
+                        } else {
+                            const latestStatus = signedContracts?.[0]?.status || null;
+                            setSignedContractStatus(latestStatus);
                         }
-                    } else {
-                        setCampaign(null);
+                    } catch (signedContractError) {
+                        console.log('[Signed contracts] fetch failed:', signedContractError?.message || signedContractError);
+                        setSignedContractStatus(null);
                     }
 
                     try {
@@ -322,7 +357,7 @@ export default function Home({email, setLocalPage}) {
                 )
             }
 
-            {(userData?.status !== 'In Progress' && userData?.contractid != null) && (
+            {(userData?.status !== 'In Progress' && hasActiveSignedContract) && (
                 <>
                     <Map coordinate={mapCoordinate} />
 
@@ -358,7 +393,7 @@ export default function Home({email, setLocalPage}) {
                 </View>
             )}
 
-            {userData?.contractid === null && (
+            {!hasAnySignedContract && (
                 <View style={{display: 'flex', alignItems: 'center', marginTop: 20, marginBottom: 100}}>
                     <Text style={styles.infoText}>You don't have a contract yet. Please contact your fleet manager.</Text>
                 </View>

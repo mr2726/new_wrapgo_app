@@ -15,6 +15,9 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Allow WrapGo to access your location while using the app so navigation and trip start points are accurate.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Allow WrapGo to access your location all the time so trip tracking continues in the background.",
+        "NSLocationAlwaysUsageDescription": "Allow WrapGo to access your location all the time so trip tracking continues in the background.",
         "UIBackgroundModes": [
           "location"
         ]
@@ -45,6 +48,7 @@
         {
           "locationWhenInUsePermission": "Allow WrapGo to access your location while the app is open so driver trips can start accurately.",
           "locationAlwaysAndWhenInUsePermission": "Allow WrapGo to access your location all the time so driver trips continue when the app is minimized, locked, or reopened later.",
+          "locationAlwaysPermission": "Allow WrapGo to access your location all the time so driver trips continue in the background.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": true

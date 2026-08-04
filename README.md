@@ -115,6 +115,16 @@ Current working tree updates:
 - UI token and control tweaks:
 	- `colors.borderLight` token added in `src/styles/theme.js`
 	- `SegmentedControl_` keeps animated slider behavior and uses theme token for border radius and active text contrast
+- Service Visit planning and routing flow is now live:
+	- added service center route map component `src/components/ui/ServiceRouteMap.jsx`
+	- service points are loaded from Supabase table `wrap_services` using `getServiceLocation()`
+	- selector now switches active service and updates marker/route instantly
+	- added iOS/Android wheel-style date and time input component `src/components/ui/ServiceDateTimePicker.jsx`
+	- date/time picker opens only after tapping Date or Time fields
+	- Service Visit screen now scrolls safely on small displays
+	- added Telegram message sender `sendServiceVisitTelegramMessage()` in `src/components/service/service.js`
+	- send action now posts selected visit details to `bot_token` + `chatid` stored in `wrap_services`
+	- message payload includes vehicle brand/model, driver name/phone, chosen date-time, and contact line
 
 GPS and task system updates (July 2026):
 - Added continuous background GPS tracking flow for Expo SDK 54:
@@ -163,12 +173,16 @@ Run `npm run android` again after changing native dependencies or app config so 
 ### Components
 - [Components](#components)
 - [Button_](#button_)
+- [ActiveContract](#activecontract)
+- [ContractItem](#contractitem)
 - [Input_](#input_)
 - [DateInput](#dateinput)
+- [ServiceDateTimePicker](#servicedatetimepicker)
 - [ProgressBar](#progressbar)
 - [BottomSheet](#bottomsheet)
 - [ProfilePhotoSheet](#profilephotosheet)
 - [Map](#map)
+- [ServiceRouteMap](#serviceroutemap)
 - [Week](#week)
 - [Upload](#upload)
 - [OTPinput](#otpinput)
@@ -188,6 +202,8 @@ Run `npm run android` again after changing native dependencies or app config so 
 ### Pages
 - [Pages](#pages)
 - [Content](#content)
+- [Contracts](#contracts)
+- [ServiceVisit](#servicevisit)
 - [Settings](#settings)
 - [SettingsContent](#settingscontent)
 - [PersonalInfo](#personalinfo)
@@ -225,6 +241,10 @@ Run `npm run android` again after changing native dependencies or app config so 
 - [updatePersonalInfo](#updatepersonalinfo)
 - [updateDriverFleetCode](#updatedriverfleetcode)
 - [updateDriverSelfie](#updatedriverselfie)
+- [getSignedContracts](#getsignedcontracts)
+- [getCampaignById](#getcampaignbyid)
+- [getServiceLocation](#getservicelocation)
+- [sendServiceVisitTelegramMessage](#sendservicevisittelegrammessage)
 
 ### Automation
 - [Copilot Automation](#copilot-automation)

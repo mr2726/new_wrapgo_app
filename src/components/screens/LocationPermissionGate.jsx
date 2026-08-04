@@ -33,10 +33,18 @@ const buildGateCopy = (status, errorMessage) => {
     }
 
     if (!status.hasBackgroundPermission) {
+        const iosScopeHint =
+            status.foregroundScope === 'whenInUse'
+                ? 'iOS currently has "While Using the App" access only. Open Settings > WrapGo > Location and switch to "Always".'
+                : '';
+
         return {
             title: 'Background location permission is required',
             description: 'WrapGo needs background location access to keep sending GPS updates while the app is minimized or the screen is locked.',
-            details: errorMessage || 'If iOS previously granted Allow Once, open Settings and switch Location access to Always. On Android 11+, the system may open Settings for the background permission step.',
+            details:
+                errorMessage ||
+                iosScopeHint ||
+                'If iOS previously granted Allow Once, open Settings and switch Location access to Always. On Android 11+, the system may open Settings for the background permission step.',
             retryLabel: 'Grant background access',
         };
     }

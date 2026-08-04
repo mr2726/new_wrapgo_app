@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Platform} from 'react-native';
 import * as Location from 'expo-location';
 import * as Network from 'expo-network';
 import * as TaskManager from 'expo-task-manager';
@@ -24,6 +25,16 @@ export const requestLocationTrackingPermissions = async () => {
 
     if (foreground.granted) {
         background = await Location.requestBackgroundPermissionsAsync();
+
+        if (
+            Platform.OS === 'ios' &&
+            !background.granted &&
+            foreground?.ios?.scope === 'whenInUse'
+        ) {
+            throw new Error(
+                'iOS granted only "When In Use" location access. To enable live tracking, open Settings > WrapGo > Location and choose "Always".'
+            );
+        }
     }
 
     return {
@@ -51,8 +62,10 @@ export const getLocationTrackingPrerequisites = async () => {
 
     return {
         backgroundLocationAvailable,
+        backgroundScope: backgroundPermission?.ios?.scope || 'none',
         canAskBackgroundAgain: backgroundPermission.canAskAgain,
         canAskForegroundAgain: foregroundPermission.canAskAgain,
+        foregroundScope: foregroundPermission?.ios?.scope || 'none',
         hasBackgroundPermission: backgroundPermission.granted,
         hasForegroundPermission: foregroundPermission.granted,
         servicesEnabled,

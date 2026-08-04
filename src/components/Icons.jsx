@@ -157,3 +157,25 @@ export const Camera = (props) => (
     />
   </Svg>
 )
+
+export const MapMark = () => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={11}
+    height={15}
+    fill="none"
+  >
+    <Path
+      stroke="#999"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M10.5 6.1c0 3.495-3.462 7.135-4.624 8.26a.582.582 0 0 1-.376.14.582.582 0 0 1-.376-.14C3.962 13.235.5 9.595.5 6.1c0-1.485.527-2.91 1.464-3.96C2.902 1.09 4.174.5 5.5.5s2.598.59 3.536 1.64C9.973 3.19 10.5 4.615 10.5 6.1Z"
+    />
+    <Path
+      stroke="#999"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M5.5 8.2c1.036 0 1.875-.94 1.875-2.1 0-1.16-.84-2.1-1.875-2.1-1.036 0-1.875.94-1.875 2.1 0 1.16.84 2.1 1.875 2.1Z"
+    />
+  </Svg>
+)

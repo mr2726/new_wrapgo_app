@@ -30,6 +30,21 @@ const normalizeWeeklyStat = (weeklyStat) => {
     };
 };
 
+const createEmptyWeeklyStat = () => ({
+    hours: [
+        {data: '0 h', label: 'Week 1', value: 0},
+        {data: '0 h', label: 'Week 2', value: 0},
+        {data: '0 h', label: 'Week 3', value: 0},
+        {data: '0 h', label: 'Week 4', value: 0},
+    ],
+    distance: [
+        {data: '0km', label: 'Week 1', value: 0},
+        {data: '0km', label: 'Week 2', value: 0},
+        {data: '0km', label: 'Week 3', value: 0},
+        {data: '0km', label: 'Week 4', value: 0},
+    ],
+});
+
 const cacheUserData = async (driverData) => {
     if (!driverData) return;
 
@@ -683,6 +698,172 @@ export const getCampaignById = async (campaignId) => {
 
     return data || null;
 };
+
+export const updateVehicleWrapPhotos = async ({
+    inviteCode,
+    leftImageUrl,
+    rightImageUrl,
+    driverEmail,
+    contractId,
+}) => {
+    if (!inviteCode) {
+        throw new Error('Invite code is required to update vehicle wrap photos.');
+    }
+
+    const vehiclePayload = {};
+
+    if (leftImageUrl != null) {
+        vehiclePayload.left_img = leftImageUrl;
+    }
+
+    if (rightImageUrl != null) {
+        vehiclePayload.right_img = rightImageUrl;
+    }
+
+    if (Object.keys(vehiclePayload).length === 0) {
+        throw new Error('At least one photo URL is required to update vehicle wrap photos.');
+    }
+
+    const {data: vehicleData, error: vehicleError} = await supabase
+        .from('vehicles')
+        .update([vehiclePayload])
+        .eq('invite_code', inviteCode)
+        .select('*')
+        .maybeSingle();
+
+    if (vehicleError) {
+        const message = String(vehicleError.message || '').toLowerCase();
+
+        if (message.includes('relation') && message.includes('vehicles')) {
+            throw new Error('Table "vehicles" does not exist in Supabase.');
+        }
+
+        throw vehicleError;
+    }
+
+    const isBothSidesUploaded = Boolean(leftImageUrl) && Boolean(rightImageUrl);
+
+    let signedContractData = null;
+
+    if (isBothSidesUploaded && driverEmail) {
+        if (contractId == null) {
+            throw new Error('Contract ID is required to activate wrap contract.');
+        }
+
+        const signedAtIso = new Date().toISOString();
+        const {data: signedContractRow, error: signedContractError} = await supabase
+            .from('fleet_signed_contracts')
+            .update([{
+                status: 'under review',
+                signed_at: signedAtIso,
+            }])
+            .eq('driver_email', driverEmail)
+            .eq('contract_id', contractId)
+            .select('*')
+            .maybeSingle();
+
+        if (signedContractError) {
+            throw signedContractError;
+        }
+
+        signedContractData = signedContractRow || null;
+
+        const {error: driverError} = await supabase
+            .from('drivers')
+            .update([{
+                active_contract_id: contractId,
+                contractid: null,
+                totaldistance: 0,
+                zonehourse: 0,
+                current_week_distance: 0,
+                current_week_hourse: 0,
+                weeklyStat: createEmptyWeeklyStat(),
+            }])
+            .eq('email', driverEmail);
+
+        if (driverError) {
+            throw driverError;
+        }
+
+        await refreshAndCacheDriverByEmail(driverEmail);
+    }
+
+    return {
+        vehicleData: vehicleData || null,
+        signedContract: signedContractData,
+    };
+};
+
+
+// Get all signed Contracts 
+export const getSignedContracts = async ({email}) => {
+    if (!email) {
+        return [];
+    }
+
+    const {data, error} = await supabase
+        .from('fleet_signed_contracts')
+        .select('*')
+        .eq('driver_email', email)
+        .order('created_at', {ascending: false});
+
+    if (error) {
+        throw error;
+    }
+
+    return data || [];
+};
+
+// Get service location
+export const getServiceLocation = async () => {
+    const {data, error} = await supabase
+        .from('wrap_services')
+        .select('*')
+        .order('created_at', {ascending: false});
+
+    if (error) {
+        throw error;
+    }
+
+    return data || [];
+}
+
+export const sendServiceVisitTelegramMessage = async ({botToken, chatId, message}) => {
+    const normalizedBotToken = String(botToken || '').trim();
+    const normalizedChatId = String(chatId || '').trim();
+    const normalizedMessage = String(message || '').trim();
+
+    if (!normalizedBotToken) {
+        throw new Error('bot_token is missing for selected service.');
+    }
+
+    if (!normalizedChatId) {
+        throw new Error('chatid is missing for selected service.');
+    }
+
+    if (!normalizedMessage) {
+        throw new Error('Message is empty.');
+    }
+
+    const response = await fetch(`https://api.telegram.org/bot${normalizedBotToken}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            chat_id: normalizedChatId,
+            text: normalizedMessage,
+        }),
+    });
+
+    const payload = await response.json().catch(() => null);
+
+    if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.description || `Telegram request failed with status ${response.status}`);
+    }
+
+    return payload?.result || null;
+}
 
 
 // LOGOUT

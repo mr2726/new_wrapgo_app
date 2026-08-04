@@ -11,7 +11,7 @@ import { ScoreBreakdown } from '../../components/ui/ScoreBreakdown';
 import { SegmentedControl_ } from '../../components/ui/segmentedControl';
 import { Chart } from '../../components/ui/Chart';
 import { ProfilePhotoSheet } from '../../components/ui/ProfilePhotoSheet';
-import { uploadImageToStorage, updateDriverSelfie } from '../../components/service/service';
+import { getSignedContracts, uploadImageToStorage, updateDriverSelfie } from '../../components/service/service';
 // ----------------------------------------------------------
 
 const normalizeWeeklyStat = (weeklyStat) => {
@@ -50,6 +50,7 @@ const sumWeeklyStatValues = (items) => {
 
 export default function Profile ({setLocalPage}) {
     const [userData, setUserData] = React.useState(null);
+    const [statsStartDate, setStatsStartDate] = React.useState(null);
     const [chartState, setChartState] = React.useState('distance'); // 'distance' or 'hours'
     const [isSheetVisible, setIsSheetVisible] = React.useState(false);
     const [isUpdatingPhoto, setIsUpdatingPhoto] = React.useState(false);
@@ -60,6 +61,12 @@ export default function Profile ({setLocalPage}) {
                 if (userDataString) {
                     const userData = JSON.parse(userDataString);
                     setUserData(userData);
+
+                    if (userData?.email) {
+                        const signedContracts = await getSignedContracts({email: userData.email});
+                        const latestSignedContract = (signedContracts || []).find((row) => row?.signed_at);
+                        setStatsStartDate(latestSignedContract?.signed_at || null);
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching user data from AsyncStorage:', error);
@@ -75,9 +82,11 @@ export default function Profile ({setLocalPage}) {
     );
 
     const daysSinceRegistration = React.useMemo(() => {
-        if (!userData?.created_at) return 1;
+        const startDateSource = statsStartDate || userData?.created_at;
 
-        const createdAt = new Date(userData.created_at);
+        if (!startDateSource) return 1;
+
+        const createdAt = new Date(startDateSource);
         if (Number.isNaN(createdAt.getTime())) return 1;
 
         const now = new Date();
@@ -85,7 +94,7 @@ export default function Profile ({setLocalPage}) {
         const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
         return Math.max(1, diffInDays);
-    }, [userData?.created_at]);
+    }, [statsStartDate, userData?.created_at]);
 
     const weeklyDistanceTotal = React.useMemo(
         () => sumWeeklyStatValues(weeklyStat.distance),
