@@ -139,10 +139,15 @@ GPS and task system updates (July 2026):
 - Added driver weekly GPS stats engine:
 	- `src/components/service/location/weeklyStats.js`
 	- computes driven distance and active hours from location batches
-	- uses speed threshold (`MIN_TRACKING_SPEED_KMH`) currently set to `0` for testing (set to `10` for production)
+	- uses production speed threshold (`MIN_TRACKING_SPEED_KMH = 10`) to reduce idle/GPS drift overcounting
+	- ignores noisy micro-segments under `0.02 km`
+	- ignores stale point gaps longer than `0.5 h` to avoid counting offline/parked time as driving hours
 	- updates `current_week_distance`, `current_week_hourse`, and `weeklyStat`
 	- performs automatic week rollover based on Monday week start.
 - Service layer now uploads location batches and synchronizes `drivers` row location + weekly progress on each accepted update.
+- Service layer now also increments cumulative totals on every accepted GPS batch:
+	- `drivers.totaldistance`
+	- `drivers.zonehourse`
 - Home screen now fetches `tasks` from Supabase and renders dynamic bonus progress cards through `StatsInfo`.
 - Tasks mapping behavior:
 	- `tasks.task_target` is treated as a text key pointing to a field in `userData`

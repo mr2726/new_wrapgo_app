@@ -179,3 +179,20 @@ export const MapMark = () => (
     />
   </Svg>
 )
+
+export const InfoIcon = () => (
+  <Svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={25}
+    height={25}
+    fill="none"
+  >
+    <Path
+      stroke="#626262"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={1.8}
+      d="M12.15 16.65v-4.5m0-4.5h.012m11.238 4.5c0 6.214-5.036 11.25-11.25 11.25C5.937 23.4.9 18.364.9 12.15.9 5.937 5.937.9 12.15.9 18.364.9 23.4 5.937 23.4 12.15Z"
+    />
+  </Svg>
+)

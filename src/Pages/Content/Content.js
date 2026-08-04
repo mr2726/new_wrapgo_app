@@ -11,6 +11,7 @@ import Home from './Home';
 import Profile from './Profile';
 import SettingsContent from './SettingsScreens/SettingsContent';
 import Contracts from './Contracts';
+import Payment from './Payment';
 // ----------------------------------------------------------
 
 export default function ContentPage({onLogout, onAccountDeleted}) {
@@ -27,7 +28,7 @@ export default function ContentPage({onLogout, onAccountDeleted}) {
                 />
             )}
             {localPage === "contracts" && <Contracts setLocalPage={setLocalPage} contractId={38} />}
-            {/* {localPage === "contracts" && <Contracts setLocalPage={setLocalPage} />} */}
+            {localPage === "wallet" && <Payment setLocalPage={setLocalPage} />}
 
             <Menu
                 items={[

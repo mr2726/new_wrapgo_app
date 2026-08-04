@@ -5,7 +5,7 @@ import {buildWeeklyStatsUpdate} from './location/weeklyStats';
 const STORAGE_BUCKET = 'documents';
 const VEHICLE_DOCS_PREFIX = 'vehicle-documents';
 const LOCATION_UPDATES_TABLE = 'driver_location_updates';
-const MIN_TRACKING_SPEED_KMH = 0; // For production change this to 10.
+const MIN_TRACKING_SPEED_KMH = 10;
 
 const normalizeWeeklyStat = (weeklyStat) => {
     if (!weeklyStat) {
@@ -586,7 +586,7 @@ export async function uploadDriverLocationUpdates(locationUpdates) {
 
     const {data: driverRow, error: driverRowError} = await supabase
         .from('drivers')
-        .select('weeklyStat, current_week_distance, current_week_hourse')
+        .select('weeklyStat, current_week_distance, current_week_hourse, totaldistance, zonehourse')
         .eq(identifierColumn, identifierValue)
         .maybeSingle();
 
@@ -620,11 +620,20 @@ export async function uploadDriverLocationUpdates(locationUpdates) {
         referenceTimestamp: latestUpdate.timestamp,
     });
 
+    const nextTotalDistance = Number(
+        ((Number(driverRow?.totaldistance) || 0) + weeklyStatsUpdate.batchDistanceKm).toFixed(4)
+    );
+    const nextZoneHours = Number(
+        ((Number(driverRow?.zonehourse) || 0) + weeklyStatsUpdate.batchHours).toFixed(4)
+    );
+
     const {error: updateDriverError} = await supabase
         .from('drivers')
         .update([{
             lat: latestUpdate.latitude,
             lan: latestUpdate.longitude,
+            totaldistance: nextTotalDistance,
+            zonehourse: nextZoneHours,
             current_week_distance: weeklyStatsUpdate.currentWeekDistance,
             current_week_hourse: weeklyStatsUpdate.currentWeekHours,
             weeklyStat: weeklyStatsUpdate.weeklyStat,

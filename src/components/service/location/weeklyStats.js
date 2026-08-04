@@ -2,6 +2,8 @@ const EARTH_RADIUS_KM = 6371;
 const WEEK_STATS_SIZE = 4;
 const ZERO_DISTANCE_LABEL = '0km';
 const ZERO_HOURS_LABEL = '0 h';
+const MIN_SEGMENT_DISTANCE_KM = 0.02;
+const MAX_SEGMENT_DURATION_HOURS = 0.5;
 
 const toFiniteNumber = (value, fallback = 0) => {
     const nextValue = Number(value);
@@ -159,7 +161,12 @@ const toKmhFromMetersPerSecond = (speed) => {
 };
 
 const shouldCountDrivingSegment = ({fromPoint, toPoint, distanceKm, durationHours, minSpeedKmh}) => {
-    if (distanceKm <= 0 || durationHours <= 0) {
+    if (distanceKm < MIN_SEGMENT_DISTANCE_KM || durationHours <= 0) {
+        return false;
+    }
+
+    // Drop stale gaps between points to avoid counting parked/offline time as driving hours.
+    if (durationHours > MAX_SEGMENT_DURATION_HOURS) {
         return false;
     }
 
