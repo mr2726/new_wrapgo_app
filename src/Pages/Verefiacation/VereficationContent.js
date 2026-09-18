@@ -160,14 +160,14 @@ export default function VereficationContent({setPage, signUpInfo}) {
             <View style={{position: 'relative', height: 50, marginBottom: 20}}>
                 <TopControl title="Driver Verification" setLocalPage={() => currentScreen <= 0 ? setPage('signupandsignin') : setCurrentScreen(currentScreen - 1)}/>
             </View>
-            <ProgressBar step={6} activeStep={currentScreen} />
+            <ProgressBar step={5} activeStep={currentScreen} />
             <Text style={styles.screenText}>
                 {currentScreen === 0 && 'Personal Info'}
                 {currentScreen === 1 && 'Vehicle Ownership'}
                 {currentScreen === 2 && 'Vehicle Information'}
                 {currentScreen === 3 && 'Vehicle Documentation'}
-                {currentScreen === 4 && 'Vehicle Photo'}
-                {currentScreen === 5 && 'Selfie'}
+                {/* {currentScreen === 4 && 'Vehicle Photo'} */}
+                {currentScreen === 4 && 'Selfie'}
             </Text>
 
             {currentScreen === 0 && (
@@ -198,14 +198,14 @@ export default function VereficationContent({setPage, signUpInfo}) {
                     validationErrors={validationErrors}
                 />
             )}
-            {currentScreen === 4 && (
+            {/* {currentScreen === 4 && (
                 <VehiclePhoto
                     collectedData={collectedData}
                     setCollectedData={setCollectedData}
                     validationErrors={validationErrors}
                 />
-            )}
-            {currentScreen === 5 && (
+            )} */}
+            {currentScreen === 4 && (
                 <SelfieScreen
                     collectedData={collectedData}
                     setCollectedData={setCollectedData}

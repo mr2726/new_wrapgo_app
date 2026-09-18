@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Linking, StyleSheet, View } from 'react-native';
+import { AppState, Linking, StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -35,6 +35,11 @@ export default function App() {
     errorMessage: '',
   });
   const queueSyncSubscriptionRef = React.useRef(null);
+  const trackingReadyRef = React.useRef(false);
+
+  React.useEffect(() => {
+    trackingReadyRef.current = trackingState.ready;
+  }, [trackingState.ready]);
 
   React.useEffect(() => {
     const checkLogin = async () => {
@@ -101,7 +106,15 @@ export default function App() {
   React.useEffect(() => {
     refreshLocationTracking();
 
+    // Settings changes (e.g. granting "Allow all the time") don't notify the app, so recheck on resume.
+    const appStateSubscription = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active' && !trackingReadyRef.current) {
+        refreshLocationTracking();
+      }
+    });
+
     return () => {
+      appStateSubscription.remove();
       if (queueSyncSubscriptionRef.current) {
         queueSyncSubscriptionRef.current.remove();
         queueSyncSubscriptionRef.current = null;

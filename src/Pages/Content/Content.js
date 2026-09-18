@@ -27,7 +27,7 @@ export default function ContentPage({onLogout, onAccountDeleted}) {
                     onAccountDeleted={onAccountDeleted}
                 />
             )}
-            {localPage === "contracts" && <Contracts setLocalPage={setLocalPage} contractId={38} />}
+            {localPage === "contracts" && <Contracts setLocalPage={setLocalPage} />}
             {localPage === "wallet" && <Payment setLocalPage={setLocalPage} />}
 
             <Menu

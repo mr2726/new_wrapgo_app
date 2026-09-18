@@ -16,7 +16,6 @@ import {getCampaignById, getSignedContracts} from "../../components/service/serv
 // --------------------------------------------------------------
 
 const STATUS_IN_PROGRESS = 'in progress';
-// const STATUS_IN_PROCESS = 'in process';
 const STATUS_UNDER_REVIEW = 'under review';
 const STATUS_ACTIVE = 'active';
 
@@ -150,6 +149,7 @@ export default function Contracts({setLocalPage}) {
                                 data={campaignData}
                                 status={selectedSignedContract.status}
                                 signedAt={selectedSignedContract.signed_at}
+                                contractId={selectedSignedContract.contract_id}
                                 onStatusUpdated={loadDriverContracts}
                                 setSelectedTab={setSelectedTab}
                             />

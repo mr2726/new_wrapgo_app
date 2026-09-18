@@ -42,6 +42,8 @@ export const Input_ = ({
   isPassword,
   disable = true,
   type = 'text',
+  autoCapitalize = 'sentences',
+  autoCorrect = true,
   }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isPasswordVisibleState, setIsPasswordVisibleState] = useState(false);
@@ -139,6 +141,8 @@ export const Input_ = ({
           secureTextEntry={Boolean(isPassword) && !isPasswordVisibleState}
           editable={disableInput}
           maxLength={type === 'phone-pad' ? 15 : undefined}
+          autoCapitalize={autoCapitalize}
+          autoCorrect={autoCorrect}
         />
 
         {isPassword && (

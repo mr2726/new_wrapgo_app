@@ -38,7 +38,7 @@ export function OTPinput({value, onChangeText, error}) {
                         }}
                         value={value[key]}
                         onChangeText={(text) => handleInputChange(text, key, index)}
-                        keyboardType="numeric"
+                        keyboardType="text"
                         maxLength={1}
                         style={[
                             styles.input,

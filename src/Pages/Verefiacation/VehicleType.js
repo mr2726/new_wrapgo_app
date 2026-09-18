@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: colors.background,
-        marginVertical: 25,
-        paddingHorizontal: spacing.lg,
+        // marginVertical: 25,
+        // paddingHorizontal: spacing.lg,
     },
     row: {
         display: 'flex',

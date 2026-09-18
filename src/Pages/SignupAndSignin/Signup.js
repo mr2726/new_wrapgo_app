@@ -54,7 +54,8 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
     const validateCurrentForm = () => validateSignupForm(inputValues, isAgreed);
 
     const handleInputChange = (field, value) => {
-        const nextValues = { ...inputValues, [field]: value };
+        const nextValue = field === 'email' ? value.toLowerCase() : value;
+        const nextValues = { ...inputValues, [field]: nextValue };
         setInputValues(nextValues);
         signUpInfo(nextValues);
         if (submitAttempted) {
@@ -97,7 +98,8 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
                     onChangeText={(value) => handleInputChange(field.key, value)}
                     error={submitAttempted && formErrors[field.key]}
                     type={field.key === 'email' ? 'email-address' : 'default'}
-                    style={field.key === 'email' ? {textTransform: 'lowercase'} : {}}
+                    autoCapitalize={field.key === 'email' ? 'none' : 'sentences'}
+                    autoCorrect={field.key === 'email' ? false : true}
                 />
             ))}
             <Pressable

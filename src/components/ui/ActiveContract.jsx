@@ -80,12 +80,12 @@ export function ActiveContract({data, status, signedAt}) {
 
     return (
         <View style={styles.container}>
-            <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10}}>
-                <View style={{borderBottomWidth: 1, borderBottomColor: colors.border, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10}}>
+            <View style={styles.headerRow}>
+                <View style={styles.contractMeta}>
                     <Image source={{uri: data.document}} style={styles.image} />
-                    <View>
-                        <Text style={styles.title}>{data.name}</Text>
-                        <Text style={styles.description}>{data.city}</Text>
+                    <View style={styles.contractTextBlock}>
+                        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{data.name}</Text>
+                        <Text style={styles.description} numberOfLines={1} ellipsizeMode="tail">{data.city}</Text>
                     </View>
                 </View>
                 <View style={styles.status}>
@@ -110,6 +110,27 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 10,
     },
+    headerRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    contractMeta: {
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        flex: 1,
+        minWidth: 0,
+    },
+    contractTextBlock: {
+        flex: 1,
+        minWidth: 0,
+    },
     title: {
         fontSize: 16,
         fontWeight: 'bold',
@@ -133,6 +154,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         borderRadius: 100,
         alignItems: 'center',
+        marginLeft: 10,
+        flexShrink: 0,
     },
     statusText: {
         fontSize: 12,

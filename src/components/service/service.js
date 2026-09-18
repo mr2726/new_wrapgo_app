@@ -390,6 +390,17 @@ export async function updateDriverFleetCode(email, fleetCode) {
         throw error;
     }
 
+    const {error: vehicleError} = await supabase
+        .from('vehicles')
+        .update([{
+            signeddriveremail: email,
+        }])
+        .eq('invite_code', fleetCode);
+
+    if (vehicleError) {
+        throw vehicleError;
+    }
+
     await refreshAndCacheDriverByEmail(email);
     return data;
 }
