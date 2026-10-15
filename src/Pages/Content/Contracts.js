@@ -36,7 +36,6 @@ export default function Contracts({setLocalPage}) {
             const userDataString = await AsyncStorage.getItem('userData');
 
             if (!userDataString) {
-                setUserData(null);
                 setSignedContracts([]);
                 return;
             }

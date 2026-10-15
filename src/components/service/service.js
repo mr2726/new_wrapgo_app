@@ -458,7 +458,7 @@ export const changePassword = async (newPassword) => {
         password: newPassword,
     });
     if (error) {
-        console.log(error.message);
+        throw error;
     }
 };
 
