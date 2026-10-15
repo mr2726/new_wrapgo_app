@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "test:regressions": "node --test tests/mobile-regressions.test.cjs",
     "start": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -40,3 +41,4 @@
     "typescript": "~5.9.2"
   }
 }
+
