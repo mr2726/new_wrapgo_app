@@ -1,6 +1,6 @@
 import React from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AppState, View, StyleSheet } from "react-native";
+import { AppState, Text, View, StyleSheet } from "react-native";
 import MapView from "react-native-maps/lib/MapView";
 import { MapMarker as Marker } from "react-native-maps/lib/MapMarker";
 import { PROVIDER_GOOGLE } from "react-native-maps/lib/ProviderConstants";
@@ -9,6 +9,8 @@ const FALLBACK_COORDINATE = {
   latitude: 40.18874434273496,
   longitude: 44.516992688037945,
 };
+
+const GOOGLE_MAPS_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY;
 
 const buildCoordinate = (latitude, longitude) => {
   const parsedLatitude = Number(latitude);
@@ -221,6 +223,14 @@ export default function Map({ coordinate }) {
     );
   }, [userCoordinate]);
 
+  if (!GOOGLE_MAPS_API_KEY) {
+    return (
+      <View style={[styles.container, styles.unconfiguredMap]}>
+        <Text style={styles.unconfiguredMapText}>Map is unavailable until Google Maps is configured.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <MapView
@@ -266,5 +276,15 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  unconfiguredMap: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  unconfiguredMapText: {
+    color: "#8f8f8f",
+    textAlign: "center",
+    fontSize: 14,
   },
 });

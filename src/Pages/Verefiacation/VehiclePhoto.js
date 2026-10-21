@@ -37,32 +37,32 @@ export default function VehiclePhoto({collectedData, setCollectedData, validatio
 
     const onPressUpload = async (side) => {
         setError('');
+        setUploading((prev) => ({...prev, [side]: true}));
 
-        const hasPermission = await requestLibraryPermission();
-        if (!hasPermission) {
-            setError('Gallery permission is required to upload vehicle photos.');
-            return;
-        }
+        try {
+            const hasPermission = await requestLibraryPermission();
+            if (!hasPermission) {
+                setError('Gallery permission is required to upload vehicle photos.');
+                return;
+            }
 
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: false,
             quality: 0.9,
         });
 
-        if (pickerResult.canceled || !pickerResult.assets?.length) {
-            return;
-        }
+            if (pickerResult.canceled || !pickerResult.assets?.length) {
+                return;
+            }
 
-        const asset = pickerResult.assets[0];
-        const extension = getFileExtension(asset.uri);
-        const userKey = collectedData.email || 'driver';
-        const timestamp = Date.now();
-        const fileLabel = side === 'left' ? 'LeftSide' : 'RightSide';
-        const storagePath = `vehicle-documents/${userKey}/${fileLabel}-${timestamp}.${extension}`;
+            const asset = pickerResult.assets[0];
+            const extension = getFileExtension(asset.uri);
+            const userKey = collectedData.email || 'driver';
+            const timestamp = Date.now();
+            const fileLabel = side === 'left' ? 'LeftSide' : 'RightSide';
+            const storagePath = `vehicle-documents/${userKey}/${fileLabel}-${timestamp}.${extension}`;
 
-        setUploading((prev) => ({...prev, [side]: true}));
-        try {
             const uploaded = await uploadImageToStorage({
                 uri: asset.uri,
                 storagePath,
@@ -96,12 +96,16 @@ export default function VehiclePhoto({collectedData, setCollectedData, validatio
             <UploadDocuments
                 insideText={uploading.left ? 'Uploading left side photo...' : 'Upload a photo of your vehicle\'s\nleft side'}
                 onPress={() => onPressUpload('left')}
+                disabled={uploading.left || uploading.right}
+                loading={uploading.left}
             />
             {photos.leftSide ? <Text style={styles.successText}>Left side photo uploaded</Text> : null}
 
             <UploadDocuments
                 insideText={uploading.right ? 'Uploading right side photo...' : 'Upload a photo of your vehicle\'s\nright side'}
                 onPress={() => onPressUpload('right')}
+                disabled={uploading.left || uploading.right}
+                loading={uploading.right}
                 style={{marginTop: spacing.lg}}
             />
             {photos.rightSide ? <Text style={styles.successText}>Right side photo uploaded</Text> : null}

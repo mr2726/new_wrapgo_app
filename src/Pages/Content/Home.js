@@ -17,6 +17,10 @@ import { StatsInfo } from '../../components/ui/StatsInfo';
 import Loading from '../../components/screens/Loading';
 // ----------------------------------------------------------
 
+// UI
+import {Button_} from '../../components/ui/buttons';
+// ----------------------------------------------------------
+
 // SERVICES
 import {getUserDataById, getTasks, getCampaignById, getSignedContracts} from '../../components/service/service';
 // ----------------------------------------------------------
@@ -155,9 +159,11 @@ const buildContractTaskProgress = (campaign) => {
     };
 };
 
-export default function Home({email, setLocalPage}) {
+export default function Home({email, setLocalPage, onSessionExpired}) {
     const [showHowItWorks, setShowHowItWorks] = React.useState(false);
     const [loading, setLoading] = React.useState(true);
+    const [loadError, setLoadError] = React.useState(null);
+    const [retryToken, setRetryToken] = React.useState(0);
     const [userData, setUserData] = React.useState(null);
     const [tasks, setTasks] = React.useState(null);
     const [campaign, setCampaign] = React.useState(null);
@@ -259,6 +265,7 @@ export default function Home({email, setLocalPage}) {
     React.useEffect(() => {
         const initialize = async () => {
             try {
+                setLoadError(null);
                 const completed = await AsyncStorage.getItem(
                     'howItWorksCompleted'
                 );
@@ -267,9 +274,18 @@ export default function Home({email, setLocalPage}) {
 
                 const {
                     data: { user },
+                    error: authError,
                 } = await supabase.auth.getUser();
 
-                if (user) {
+                if (authError || !user) {
+                    console.log('[Home] no authenticated session, redirecting to sign-in:', authError?.message || 'no user');
+                    if (typeof onSessionExpired === 'function') {
+                        onSessionExpired();
+                    }
+                    return;
+                }
+
+                {
                     const userData = await getUserDataById(user.id);
                     const normalizedUserData = {
                         ...userData,
@@ -317,13 +333,27 @@ export default function Home({email, setLocalPage}) {
                 }
             } catch (error) {
                 console.log(error);
+                setLoadError(error?.message || 'Failed to load your driver data.');
             } finally {
                 setLoading(false);
             }
         };
 
         initialize();
-    }, []);
+    }, [retryToken]);
+
+    if (loadError) {
+        return (
+            <View style={styles.errorScreen}>
+                <Text style={styles.errorText}>{loadError}</Text>
+                <Button_ title="Retry" onPress={() => {
+                    setLoading(true);
+                    setLoadError(null);
+                    setRetryToken((token) => token + 1);
+                }} />
+            </View>
+        );
+    }
 
     if (loading || !userData) {
         return <Loading />;
@@ -359,7 +389,7 @@ export default function Home({email, setLocalPage}) {
 
             {(userData?.status !== 'In Progress' && hasActiveSignedContract) && (
                 <>
-                    <Map coordinate={mapCoordinate} />
+                    {/* <Map coordinate={mapCoordinate} /> */}
 
                     <View>
                         <Text style={styles.sectionTitle}>Contract Forecast</Text>
@@ -425,6 +455,21 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#fff',
         fontFamily: 'LufgaRegular',
+    },
+
+    errorScreen: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+        gap: 16,
+    },
+
+    errorText: {
+        fontSize: 15,
+        color: '#fff',
+        fontFamily: 'LufgaRegular',
+        textAlign: 'center',
     },
 
     infoText: {

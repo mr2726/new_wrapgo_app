@@ -8,7 +8,6 @@ import {Input_} from '../../components/ui/inputs';
 import {Button_} from '../../components/ui/buttons';
 // ------------------------------------------------------------------------
 // BACKEND
-import {signUpWithEmail, saveDriverData} from '../../components/service/service';
 import {
     INITIAL_SIGNUP_VALUES,
     validateSignupForm,
@@ -72,15 +71,10 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
             return;
         }
 
-        try {
-            const user = await signUpWithEmail(inputValues.email, inputValues.password);
-            const data = await saveDriverData(user.id, inputValues.fullName, inputValues.email);
-            signUpInfo(inputValues);
-            setPage('verification');
-        } catch (error) {
-            console.error('Error:', error);
-        }
-        
+        // Supabase Auth account + driver record are created only after the
+        // mandatory selfie step succeeds (see VereficationContent.handleContinue).
+        signUpInfo(inputValues);
+        setPage('verification');
     };
 
     return (

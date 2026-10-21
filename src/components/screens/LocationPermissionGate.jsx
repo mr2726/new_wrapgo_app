@@ -14,7 +14,7 @@ const buildGateCopy = (status, errorMessage) => {
         };
     }
 
-    if (!status.taskManagerAvailable || !status.backgroundLocationAvailable) {
+    if (!status.taskManagerAvailable) {
         return {
             title: 'Background tracking needs a dev or production build',
             description: 'Expo background location does not run fully inside Expo Go. Use a development build or a standalone binary for continuous tracking.',

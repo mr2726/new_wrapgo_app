@@ -1,10 +1,25 @@
-import {View, Text, Pressable} from 'react-native';
+import {ActivityIndicator, Text, Pressable} from 'react-native';
 import React from 'react';
 import {colors, radius, spacing, typography} from '../../styles/theme';
 
-export const Button_ = ({title, onPress, style, dispable}) => {
+export const Button_ = ({title, onPress, style, dispable, disabled, loading = false}) => {
+  const [isPressed, setIsPressed] = React.useState(false);
+  const isDisabled = Boolean(dispable || disabled || loading || isPressed);
+
+  const handlePress = async () => {
+    if (isDisabled || typeof onPress !== 'function') return;
+
+    setIsPressed(true);
+    try {
+      await onPress();
+    } finally {
+      setIsPressed(false);
+    }
+  };
+
   return (
-    <Pressable      onPress={dispable ? null : onPress}
+    <Pressable      onPress={handlePress}
+      disabled={isDisabled}
       style={({pressed}) => [
         {
             backgroundColor: pressed ? colors.accentPressed : colors.accent,
@@ -15,12 +30,16 @@ export const Button_ = ({title, onPress, style, dispable}) => {
             height: 55,
             borderRadius: radius.pill,
             transition: '0.3s',
-            opacity: dispable ? 0.15 : 1,
+            opacity: isDisabled ? 0.6 : 1,
         },
         style,
-        dispable && {backgroundColor: colors.accentDisabled},
+        isDisabled && {backgroundColor: colors.accentDisabled},
         ]}>
-        <Text style={{color: colors.textOnAccent, fontSize: typography.sizeLg, fontFamily: typography.familyMedium}}>{title}</Text>
+        {loading || isPressed || dispable || disabled ? (
+          <ActivityIndicator color={colors.textOnAccent} />
+        ) : (
+          <Text style={{color: colors.textOnAccent, fontSize: typography.sizeLg, fontFamily: typography.familyMedium}}>{title}</Text>
+        )}
     </Pressable>
   );
 }

@@ -5,9 +5,11 @@ import {
   Text,
   Image,
   StyleSheet,
+  Linking,
 } from 'react-native';
 import {CameraView, useCameraPermissions} from 'expo-camera';
 import {colors, spacing, typography} from '../../styles/theme';
+import {Button_} from '../../components/ui/buttons';
 
 export default function SelfieScreen({collectedData, setCollectedData, validationErrors}) {
     const [permission, requestPermission] = useCameraPermissions();
@@ -15,22 +17,32 @@ export default function SelfieScreen({collectedData, setCollectedData, validatio
 
     const [photo, setPhoto] = useState(collectedData?.selfieLocalUri || null);
     const [cameraTextState, setCameraTextState] = useState(true);
+    const [captureError, setCaptureError] = useState('');
 
     useEffect(() => {
         if (!permission) return;
-        if (!permission.granted) requestPermission();
+        if (!permission.granted && permission.canAskAgain) requestPermission();
         const timer = setTimeout(() => setCameraTextState(false), 5000);
         return () => clearTimeout(timer);
     }, [permission]);
 
     const takeSelfie = async () => {
         if (!cameraRef.current) return;
-        const result = await cameraRef.current.takePictureAsync({quality: 0.8});
-        setPhoto(result.uri);
-        setCollectedData({...collectedData, selfieLocalUri: result.uri, selfie: null});
+        setCaptureError('');
+        try {
+            const result = await cameraRef.current.takePictureAsync({quality: 0.8});
+            if (!result?.uri) {
+                throw new Error('No photo was captured.');
+            }
+            setPhoto(result.uri);
+            setCollectedData({...collectedData, selfieLocalUri: result.uri, selfie: null});
+        } catch (error) {
+            setCaptureError(error?.message || 'Failed to take the selfie. Please try again.');
+        }
     };
 
     const retake = () => {
+        setCaptureError('');
         setPhoto(null);
         setCollectedData({...collectedData, selfieLocalUri: null, selfie: null});
     };
@@ -40,7 +52,15 @@ export default function SelfieScreen({collectedData, setCollectedData, validatio
     if (!permission.granted) {
         return (
             <View style={styles.center}>
-                <Text style={{color: colors.textPrimary}}>We don't have access to the camera</Text>
+                <Text style={styles.permissionTitle}>Camera access is required</Text>
+                <Text style={styles.permissionText}>
+                    A selfie is mandatory to complete your registration. Grant camera access to continue.
+                </Text>
+                {permission.canAskAgain ? (
+                    <Button_ title="Grant Camera Access" onPress={requestPermission} style={{marginTop: spacing.lg}} />
+                ) : (
+                    <Button_ title="Open Settings" onPress={() => Linking.openSettings()} style={{marginTop: spacing.lg}} />
+                )}
             </View>
         );
     }
@@ -61,6 +81,7 @@ export default function SelfieScreen({collectedData, setCollectedData, validatio
                             </Text>
                         )}
                     </View>
+                    {captureError ? <Text style={styles.errorText}>{captureError}</Text> : null}
                     <TouchableOpacity style={styles.captureButton} onPress={takeSelfie}>
                         <View style={styles.innerCircle} />
                     </TouchableOpacity>
@@ -131,6 +152,20 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  permissionTitle: {
+    color: colors.textPrimary,
+    fontFamily: typography.familyBold,
+    fontSize: typography.sizeLg,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+  },
+  permissionText: {
+    color: colors.textSecondary,
+    fontFamily: typography.familyRegular,
+    fontSize: typography.sizeMd,
+    textAlign: 'center',
   },
   frame: {
     width: SIZE,

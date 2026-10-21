@@ -1,12 +1,13 @@
-import {View, Text, Pressable, StyleSheet} from 'react-native';
+import {ActivityIndicator, Text, Pressable, StyleSheet} from 'react-native';
 import React from 'react';
 import {colors, spacing, typography} from '../../styles/theme';
 import {Feather} from '@expo/vector-icons';
 
-export function UploadDocuments({insideText, onPress, style}) {
+export function UploadDocuments({insideText, onPress, style, disabled = false, loading = false}) {
     return (
         <Pressable
             onPress={onPress}
+            disabled={disabled || loading}
             style={{
                 width: '100%',
                 padding: spacing.lg,
@@ -16,10 +17,15 @@ export function UploadDocuments({insideText, onPress, style}) {
                 borderWidth: 1,
                 borderColor: '#444444',
                 paddingVertical: 55,
+                opacity: disabled || loading ? 0.6 : 1,
                 ...style,
             }}
         >
-            <Feather name="upload" size={24} color={colors.accent} />
+            {loading ? (
+                <ActivityIndicator size="small" color={colors.accent} />
+            ) : (
+                <Feather name="upload" size={24} color={colors.accent} />
+            )}
             <Text style={styles.text}>{insideText}</Text>
         </Pressable>
     );

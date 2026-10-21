@@ -6,6 +6,7 @@ import * as TaskManager from 'expo-task-manager';
 
 import {
     LOCATION_PERMISSION_REQUESTED_KEY,
+    LOCATION_QUEUE_STORAGE_KEY,
     LOCATION_TASK_NAME,
     LOCATION_TASK_OPTIONS,
 } from './constants';
@@ -132,15 +133,6 @@ export const ensureLocationTrackingStarted = async (existingStatus) => {
 
     try {
         await startLocationTrackingIfNeeded();
-        await flushLocationQueue();
-
-        return {
-            ready: true,
-            status: {
-                ...(await getLocationTrackingPrerequisites()),
-                trackingStarted: true,
-            },
-        };
     } catch (error) {
         return {
             ready: false,
@@ -148,6 +140,32 @@ export const ensureLocationTrackingStarted = async (existingStatus) => {
             error,
         };
     }
+
+    try {
+        await flushLocationQueue();
+    } catch (error) {
+        console.warn('Location queue flush failed after starting tracking:', error);
+    }
+
+    return {
+        ready: true,
+        status: {
+            ...(await getLocationTrackingPrerequisites()),
+            trackingStarted: true,
+        },
+    };
+};
+
+export const stopLocationTracking = async () => {
+    const trackingStarted = await Location.hasStartedLocationUpdatesAsync(
+        LOCATION_TASK_NAME
+    );
+
+    if (trackingStarted) {
+        await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+    }
+
+    await AsyncStorage.removeItem(LOCATION_QUEUE_STORAGE_KEY);
 };
 
 export const subscribeToLocationQueueSync = (onError) => {

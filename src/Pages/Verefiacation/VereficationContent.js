@@ -12,7 +12,12 @@ import {supabase} from '../../components/service/supabase';
 // ------------------------------------------------------------------------
 
 // SERVICE
-import {uploadImageToStorage, updateDriverData, updateVehicleData} from '../../components/service/service';
+import {
+    uploadImageToStorage,
+    updateVehicleData,
+    finalizeAuthAccount,
+    finalizeDriverRegistration,
+} from '../../components/service/service';
 // ------------------------------------------------------------------------
 
 // CONTENT
@@ -32,10 +37,13 @@ export default function VereficationContent({setPage, signUpInfo}) {
     const [validationErrors, setValidationErrors] = React.useState({});
     const [selfieUploading, setSelfieUploading] = React.useState(false);
     const [selfieError, setSelfieError] = React.useState('');
+    const isSubmittingRef = React.useRef(false);
+    const uploadedSelfieRef = React.useRef({localUri: null, publicUrl: null});
 
     const [collectedData, setCollectedData] = React.useState({
         fullName: signUpInfo.fullName || '',
         email: signUpInfo.email || '',
+        password: signUpInfo.password || '',
         phoneNumber: '',
         birthDate: '',
         vehicleType: '',
@@ -91,7 +99,7 @@ export default function VereficationContent({setPage, signUpInfo}) {
             }
         }
 
-        if (currentScreen === 5) {
+        if (currentScreen === 4) {
             if (!collectedData.selfieLocalUri) {
                 nextErrors.selfie = 'Please take a selfie to continue';
             }
@@ -102,51 +110,75 @@ export default function VereficationContent({setPage, signUpInfo}) {
     };
 
     const handleContinue = async () => {
+        if (isSubmittingRef.current) return;
         if (!validateCurrentScreen()) return;
-        console.log('Collected Data:', collectedData);
-        if (currentScreen === 5) {
+
+        if (currentScreen === 4) {
+            isSubmittingRef.current = true;
             setSelfieError('');
             setSelfieUploading(true);
 
             try {
-                const userKey = collectedData.email || 'driver';
-                const timestamp = Date.now();
-                const storagePath = `vehicle-documents/${userKey}/Selfie-${timestamp}.jpg`;
+                // Reuse the already-uploaded selfie if the user is retrying without
+                // retaking the photo, so we never upload duplicate selfie files.
+                let selfieUrl = collectedData.selfie;
+                if (!selfieUrl || uploadedSelfieRef.current.localUri !== collectedData.selfieLocalUri) {
+                    const userKey = collectedData.email || 'driver';
+                    const storagePath = `vehicle-documents/${userKey}/selfie.jpg`;
 
-                const result = await uploadImageToStorage({
-                    uri: collectedData.selfieLocalUri,
-                    storagePath,
-                    bucket: STORAGE_BUCKET,
-                    contentType: 'image/jpeg',
-                });
+                    const result = await uploadImageToStorage({
+                        uri: collectedData.selfieLocalUri,
+                        storagePath,
+                        bucket: STORAGE_BUCKET,
+                        contentType: 'image/jpeg',
+                    });
 
-                const updatedData = {
-                    ...collectedData,
-                    selfie: result.publicUrl,
-                };
+                    selfieUrl = result.publicUrl;
+                    uploadedSelfieRef.current = {localUri: collectedData.selfieLocalUri, publicUrl: selfieUrl};
+                    setCollectedData((current) => ({...current, selfie: selfieUrl}));
+                }
 
-                setCollectedData(updatedData);
-                console.log(updatedData);
-
-                await updateDriverData(updatedData);
-                await updateVehicleData(updatedData.otp, updatedData);
-                // setPage('success');
-                await AsyncStorage.setItem('isLogined', 'true');
-                setCurrentScreen(6);
+                // The Auth account and driver record are NOT created here yet -
+                // only once the user presses "Go to Home" on the next screen.
+                setCurrentScreen(5);
             } catch (err) {
                 console.log(err);
                 setSelfieError(err?.message || 'Failed to upload selfie. Please try again.');
-                return;
             } finally {
                 setSelfieUploading(false);
+                isSubmittingRef.current = false;
             }
+            return;
         }
 
-        if (currentScreen < 5) {
+        if (currentScreen < 4) {
             setCurrentScreen(currentScreen + 1);
+            return;
         }
-        if (currentScreen === 6) {
-            setPage('content');
+
+        if (currentScreen === 5) {
+            isSubmittingRef.current = true;
+            setSelfieError('');
+            setSelfieUploading(true);
+
+            try {
+                // The real Auth account and final registration data are only
+                // created here, when the user presses "Go to Home".
+                const authUser = await finalizeAuthAccount(collectedData.email, collectedData.password);
+                const finalData = {...collectedData};
+
+                await finalizeDriverRegistration(authUser.id, finalData);
+                await updateVehicleData(finalData.otp, finalData);
+
+                await AsyncStorage.setItem('isLogined', 'true');
+                setPage('content');
+            } catch (err) {
+                console.log(err);
+                setSelfieError(err?.message || 'Failed to complete registration. Please try again.');
+            } finally {
+                setSelfieUploading(false);
+                isSubmittingRef.current = false;
+            }
         }
     };
 
@@ -154,6 +186,27 @@ export default function VereficationContent({setPage, signUpInfo}) {
         ...validationErrors,
         selfie: validationErrors.selfie || selfieError || undefined,
     }), [validationErrors, selfieError]);
+
+    if (sessionState.loading) {
+        return (
+            <View style={[styles.screen, styles.centered]}>
+                <ActivityIndicator color={colors.accent} />
+                <Text style={styles.message}>Preparing verification...</Text>
+            </View>
+        );
+    }
+
+    if (sessionState.error) {
+        return (
+            <View style={[styles.screen, styles.centered]}>
+                <Text style={styles.title}>Unable to start verification</Text>
+                <Text style={styles.message}>{sessionState.error}</Text>
+                <View style={{marginTop: spacing.lg, width: '100%'}}>
+                    <Button_ title="Retry" onPress={bootstrapSession} />
+                </View>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.screen}>
@@ -206,20 +259,29 @@ export default function VereficationContent({setPage, signUpInfo}) {
                 />
             )} */}
             {currentScreen === 4 && (
-                <SelfieScreen
-                    collectedData={collectedData}
-                    setCollectedData={setCollectedData}
-                    validationErrors={selfieValidationErrors}
-                />
+                <>
+                    <Text style={styles.selfieNotice}>Selfie is required to complete registration.</Text>
+                    <SelfieScreen
+                        collectedData={collectedData}
+                        setCollectedData={setCollectedData}
+                        validationErrors={selfieValidationErrors}
+                    />
+                </>
             )}
 
-            {currentScreen === 6 && (
-                <Success />
+            {currentScreen === 5 && (
+                <>
+                    <Success
+                        title="Selfie Captured"
+                        description="Press Go to Home to finish creating your account."
+                    />
+                    {selfieError ? <Text style={styles.selfieNotice}>{selfieError}</Text> : null}
+                </>
             )}
 
             <View style={{position: 'absolute', bottom: spacing.xxl, left: 0, right: 0, paddingHorizontal: spacing.lg}}>
                 <Button_
-                    title={selfieUploading ? 'Uploading...' : currentScreen === 6 ? 'Go to Home' : 'Continue'}
+                    title={selfieUploading ? (currentScreen === 5 ? 'Finishing...' : 'Uploading...') : currentScreen === 5 ? 'Go to Home' : 'Continue'}
                     onPress={handleContinue}
                     disabled={selfieUploading}
                 />
@@ -234,6 +296,10 @@ const styles = StyleSheet.create({
         height: '100%',
         marginTop: spacing.xl,
         paddingHorizontal: spacing.lg,
+    },
+    centered: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     content: {
         flex: 1,
@@ -258,5 +324,12 @@ const styles = StyleSheet.create({
         marginBottom: spacing.lg,
         fontFamily: typography.familyRegular,
         textAlign: 'center',
+    },
+    selfieNotice: {
+        fontSize: typography.sizeSm,
+        color: colors.textSecondary,
+        fontFamily: typography.familyRegular,
+        textAlign: 'center',
+        marginBottom: spacing.md,
     },
 });

@@ -1,6 +1,8 @@
 import {supabase} from './supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import {buildWeeklyStatsUpdate} from './location/weeklyStats';
+import {LOCATION_QUEUE_STORAGE_KEY, LOCATION_TASK_NAME} from './location/constants';
 
 const STORAGE_BUCKET = 'documents';
 const VEHICLE_DOCS_PREFIX = 'vehicle-documents';
@@ -76,6 +78,20 @@ const cacheLatestDriverLocation = async (latitude, longitude, timestamp) => {
     } catch (error) {
         console.warn('Failed to cache latest driver location:', error);
     }
+};
+
+const stopBackgroundLocationTracking = async () => {
+    try {
+        const trackingStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+
+        if (trackingStarted) {
+            await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+        }
+    } catch (error) {
+        console.warn('Failed to stop background location tracking:', error);
+    }
+
+    await AsyncStorage.removeItem(LOCATION_QUEUE_STORAGE_KEY);
 };
 
 const getCurrentDriverContext = async () => {
@@ -212,6 +228,128 @@ export async function signInWithEmail(email, password) {
         throw error;
     }
     return data.user;
+}
+
+// Ensures an authenticated session exists so RLS-protected verification steps
+// (OTP lookup, document/selfie upload) work before the real account exists.
+// Reuses any existing anonymous session instead of creating a new one. A real
+// (non-anonymous) session should never be present here under normal navigation
+// (the app routes logged-in users away from signup); sign it out defensively so
+// a stray session can't get this new registration attempt's data written to it.
+export async function ensureVerificationSession() {
+    const {data: {session}, error: sessionError} = await supabase.auth.getSession();
+    if (sessionError) {
+        throw sessionError;
+    }
+
+    if (session?.user?.is_anonymous) {
+        return session.user;
+    }
+
+    if (session?.user) {
+        await supabase.auth.signOut();
+    }
+
+    const {data, error} = await supabase.auth.signInAnonymously();
+    if (error) {
+        throw error;
+    }
+    return data.user;
+}
+
+// Converts the temporary verification session into the real, sign-in-able account.
+// Must only be called after the selfie has been captured and uploaded.
+export async function finalizeAuthAccount(email, password) {
+    const {data: {session}, error: sessionError} = await supabase.auth.getSession();
+    if (sessionError) {
+        throw sessionError;
+    }
+
+    if (session?.user?.is_anonymous) {
+        const {data, error} = await supabase.auth.updateUser({email, password});
+        if (error) {
+            throw error;
+        }
+        return data.user;
+    }
+
+    if (session?.user) {
+        return session.user;
+    }
+
+    return signUpWithEmail(email, password);
+}
+
+const DEFAULT_WEEKLY_STAT = {
+    hours: [
+        {data: '0 h', label: 'Week 1', value: 0},
+        {data: '0 h', label: 'Week 2', value: 0},
+        {data: '0 h', label: 'Week 3', value: 0},
+        {data: '0 h', label: 'Week 4', value: 0},
+    ],
+    distance: [
+        {data: '0km', label: 'Week 1', value: 0},
+        {data: '0km', label: 'Week 2', value: 0},
+        {data: '0km', label: 'Week 3', value: 0},
+        {data: '0km', label: 'Week 4', value: 0},
+    ],
+};
+
+const DEFAULT_SCORE = {safety: 0, activity: 0, acceptance: 0};
+
+// Creates or updates the driver's row with the full registration payload in one call.
+// Only called after the selfie is uploaded, so a driver row never ends up in a
+// "registered" state without a completed selfie. Safe to retry: updates in place
+// instead of inserting a duplicate row if a previous attempt partially succeeded.
+export async function finalizeDriverRegistration(userId, payload) {
+    const {data: existing, error: existingError} = await supabase
+        .from('drivers')
+        .select('userid')
+        .eq('userid', userId)
+        .maybeSingle();
+
+    if (existingError) {
+        throw existingError;
+    }
+
+    const row = {
+        name: payload.fullName,
+        email: payload.email,
+        phone: payload.phoneNumber,
+        dateofbirsday: payload.birthDate,
+        contractid: null,
+        totaldistance: 0,
+        lat: null,
+        lan: null,
+        kmtoday: 0,
+        status: 'In Progress',
+        carid: payload.otp,
+        fleet: null,
+        zonehourse: 0,
+        current_week_distance: 0,
+        current_week_hourse: 0,
+        wrapped: false,
+        selfie: payload.selfie || null,
+        weeklyStat: DEFAULT_WEEKLY_STAT,
+        score: DEFAULT_SCORE,
+    };
+
+    if (existing) {
+        const {data, error} = await supabase.from('drivers').update(row).eq('userid', userId);
+        if (error) {
+            throw error;
+        }
+        await refreshAndCacheDriverByUserId(userId);
+        return data;
+    }
+
+    const {data, error} = await supabase.from('drivers').insert([{userid: userId, ...row}]);
+    if (error) {
+        throw error;
+    }
+
+    await refreshAndCacheDriverByUserId(userId);
+    return data;
 }
 
 // Save data of user in drivers table after signup
@@ -499,6 +637,7 @@ export async function deleteAccount() {
         throw error;
     }
 
+    await stopBackgroundLocationTracking();
     await supabase.auth.signOut();
     await AsyncStorage.clear();
 
@@ -888,6 +1027,7 @@ export const sendServiceVisitTelegramMessage = async ({botToken, chatId, message
 
 // LOGOUT
 export const logout = async () => {
+        await stopBackgroundLocationTracking();
         const {error} = await supabase.auth.signOut();
         await AsyncStorage.clear();
     await AsyncStorage.setItem('howItWorksCompleted', 'true');

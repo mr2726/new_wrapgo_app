@@ -168,6 +168,33 @@ npm start
 
 Run `npm run android` again after changing native dependencies or app config so the dev client stays in sync.
 
+## Android production AAB (Google Play)
+
+This project has a native Android folder, so production bundles are built locally with Gradle.
+
+1. Create your upload keystore once (first release only), then keep it safe for all future updates.
+2. Create `android/keystore.properties` locally (do not commit it) with:
+
+```properties
+storeFile=your-upload-key.jks
+storePassword=YOUR_STORE_PASSWORD
+keyAlias=YOUR_KEY_ALIAS
+keyPassword=YOUR_KEY_PASSWORD
+```
+
+`storeFile` can be a file name inside `android/app/` (for example `upload-key.jks`) or an absolute path.
+
+3. Build signed release AAB:
+
+```sh
+cd android
+gradlew.bat bundleRelease
+```
+
+Output:
+
+`android/app/build/outputs/bundle/release/app-release.aab`
+
 ## Navigation
 
 ### Design System

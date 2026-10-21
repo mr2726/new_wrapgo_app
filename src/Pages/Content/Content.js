@@ -18,7 +18,7 @@ export default function ContentPage({onLogout, onAccountDeleted}) {
     const [localPage, setLocalPage] = React.useState("home"); // home | howitswork | faq | contactus | profile
     return (
         <View style={styles.screen}>
-            {localPage === "home" && <Home email="user@example.com" setLocalPage={setLocalPage} />}
+            {localPage === "home" && <Home email="user@example.com" setLocalPage={setLocalPage} onSessionExpired={onLogout} />}
             {localPage === "profile" && <Profile setLocalPage={setLocalPage}/>}
             {localPage === "settings" && (
                 <SettingsContent

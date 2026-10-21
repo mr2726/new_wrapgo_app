@@ -1,12 +1,12 @@
-import {View, Text, StyleSheet, Image, ScrollView, Alert, useWindowDimensions} from "react-native";
+import {View, Text, StyleSheet, Image, ScrollView, Alert, Linking, useWindowDimensions} from "react-native";
 import React, {useEffect} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {colors} from "../../styles/theme";
 
 import {MapMark} from '../Icons';
-import ServiceRouteMap from "../ui/ServiceRouteMap";
 import {Button_} from "../ui/buttons";
 import {ServiceDateTimePicker} from "../ui/ServiceDateTimePicker";
+import {Selector_} from "../ui/selectors";
 
 import {getServiceLocation, getVehicleDataByOTP, sendServiceVisitTelegramMessage} from "../service/service";
 
@@ -42,6 +42,76 @@ const pickValue = (...values) => {
     return 'Not specified';
 };
 
+const buildCoordinate = (service) => {
+    if (!service) {
+        return null;
+    }
+
+    if (Array.isArray(service) && service.length >= 2) {
+        return buildCoordinate({latitude: service[0], longitude: service[1]});
+    }
+
+    const latitude = service.latitude ?? service.lat ?? service.service_lat ?? service.serviceLatitude;
+    const longitude = service.longitude ?? service.lng ?? service.lon ?? service.lan ?? service.service_lng ?? service.service_lon ?? service.serviceLongitude;
+    const coordinates = service.coordinates ?? service.coords;
+
+    if (latitude == null || longitude == null) {
+        if (Array.isArray(coordinates) && coordinates.length >= 2) {
+            return buildCoordinate({latitude: coordinates[0], longitude: coordinates[1]});
+        }
+
+        return null;
+    }
+
+    const parsedLatitude = Number(latitude);
+    const parsedLongitude = Number(longitude);
+
+    if (!Number.isFinite(parsedLatitude) || !Number.isFinite(parsedLongitude)) {
+        return null;
+    }
+
+    return {latitude: parsedLatitude, longitude: parsedLongitude};
+};
+
+const normalizeServiceOptions = (services) => (Array.isArray(services) ? services : [])
+    .map((service, index) => ({
+        value: String(service?.id ?? service?.service_id ?? service?.name ?? index),
+        label: String(service?.name ?? service?.title ?? service?.city ?? `Service ${index + 1}`),
+        coordinate: buildCoordinate(service),
+        raw: service,
+    }));
+
+const openServiceNavigation = async (service) => {
+    const coordinate = buildCoordinate(service);
+
+    if (!coordinate) {
+        throw new Error('Selected service does not have map coordinates.');
+    }
+
+    const destination = `${coordinate.latitude},${coordinate.longitude}`;
+    const encodedLabel = encodeURIComponent(service?.name || service?.title || 'Service');
+    const mapUrls = [
+        `geo:0,0?q=${destination}(${encodedLabel})`,
+        `comgooglemaps://?daddr=${destination}&directionsmode=driving`,
+        `yandexmaps://maps.yandex.com/?rtext=~${destination}&rtt=auto`,
+        `maps://?daddr=${destination}&dirflg=d`,
+        `https://www.google.com/maps/dir/?api=1&destination=${destination}`,
+    ];
+
+    for (const url of mapUrls) {
+        try {
+            if (await Linking.canOpenURL(url)) {
+                await Linking.openURL(url);
+                return;
+            }
+        } catch (error) {
+            console.warn('Failed to open map URL:', error);
+        }
+    }
+
+    throw new Error('No map application is available on this phone.');
+};
+
 export const ServiceVisit = ({contract}) => {
     const {height} = useWindowDimensions();
     const scrollAreaHeight = Math.max(320, Math.round(height * 0.62));
@@ -52,6 +122,12 @@ export const ServiceVisit = ({contract}) => {
     const [serviceLocationError, setServiceLocationError] = React.useState(null);
     const [isServiceLocationLoading, setIsServiceLocationLoading] = React.useState(true);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    const serviceOptions = React.useMemo(() => normalizeServiceOptions(serviceLocation), [serviceLocation]);
+    const selectedServiceOption = React.useMemo(
+        () => serviceOptions.find((option) => option.raw === selectedService) || serviceOptions[0] || null,
+        [selectedService, serviceOptions]
+    );
 
     useEffect(() => {
         let isMounted = true;
@@ -159,7 +235,16 @@ export const ServiceVisit = ({contract}) => {
                 message,
             });
 
-            Alert.alert('Success', 'Service visit details sent successfully.');
+            try {
+                await openServiceNavigation(targetService);
+                Alert.alert('Success', 'Service visit details sent successfully.');
+            } catch (navigationError) {
+                console.warn('Failed to open service navigation:', navigationError);
+                Alert.alert(
+                    'Message sent',
+                    'Service visit details were sent, but no map application could be opened.'
+                );
+            }
         } catch (error) {
             console.warn('Failed to send service visit details:', error);
             Alert.alert('Send failed', error?.message || 'Could not send service visit details.');
@@ -196,7 +281,12 @@ export const ServiceVisit = ({contract}) => {
                 <MapMark style={{marginTop: 10}} width={20} height={20} fill={colors.primary} />
                 <Text style={styles.secondaryText}>Service Center Location</Text>
             </View>
-            <ServiceRouteMap services={serviceLocation} onServiceChange={setSelectedService} />
+            <Selector_
+                label="Select service"
+                options={serviceOptions}
+                value={selectedServiceOption}
+                onValueChange={(option) => setSelectedService(option.raw)}
+            />
             {isServiceLocationLoading ? (
                 <Text style={styles.secondaryText}>Loading services...</Text>
             ) : null}

@@ -1,13 +1,33 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Location from 'expo-location';
 import * as Network from 'expo-network';
 
 import {
     LOCATION_QUEUE_STORAGE_KEY,
+    LOCATION_TASK_NAME,
     MAX_QUEUED_LOCATION_UPDATES,
 } from './constants';
 import {uploadDriverLocationUpdates} from '../service';
 
 let isFlushingQueue = false;
+
+const isMissingAuthSessionError = (error) =>
+    error?.name === 'AuthSessionMissingError' ||
+    /auth session missing|refresh token/i.test(error?.message || '');
+
+const stopOrphanedLocationTracking = async () => {
+    try {
+        const trackingStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TASK_NAME);
+
+        if (trackingStarted) {
+            await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME);
+        }
+    } catch (stopError) {
+        console.warn('Failed to stop orphaned background location task:', stopError);
+    }
+
+    await AsyncStorage.removeItem(LOCATION_QUEUE_STORAGE_KEY);
+};
 
 const readQueuedLocationUpdates = async () => {
     const rawValue = await AsyncStorage.getItem(LOCATION_QUEUE_STORAGE_KEY);
@@ -113,6 +133,12 @@ export const persistLocationBatch = async (locations) => {
     try {
         await flushLocationQueue();
     } catch (error) {
+        if (isMissingAuthSessionError(error)) {
+            console.warn('No authenticated driver session; stopping background location tracking.');
+            await stopOrphanedLocationTracking();
+            return;
+        }
+
         console.warn('Location queue flush failed, updates remain queued:', error);
     }
 };

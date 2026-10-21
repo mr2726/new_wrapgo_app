@@ -37,31 +37,31 @@ export default function VehicleDocuments({collectedData, setCollectedData, valid
 
     const onPressUpload = async (side) => {
         setError('');
+        setUploading((prev) => ({...prev, [side]: true}));
 
-        const hasPermission = await requestLibraryPermission();
-        if (!hasPermission) {
-            setError('Gallery permission is required to upload documents.');
-            return;
-        }
+        try {
+            const hasPermission = await requestLibraryPermission();
+            if (!hasPermission) {
+                setError('Gallery permission is required to upload documents.');
+                return;
+            }
 
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: false,
             quality: 0.9,
         });
 
-        if (pickerResult.canceled || !pickerResult.assets?.length) {
-            return;
-        }
+            if (pickerResult.canceled || !pickerResult.assets?.length) {
+                return;
+            }
 
-        const asset = pickerResult.assets[0];
-        const extension = getFileExtension(asset.uri);
-        const userKey = collectedData.email || 'driver';
-        const timestamp = Date.now();
-        const storagePath = `vehicle-documents/${userKey}/${side}-${timestamp}.${extension}`;
+            const asset = pickerResult.assets[0];
+            const extension = getFileExtension(asset.uri);
+            const userKey = collectedData.email || 'driver';
+            const timestamp = Date.now();
+            const storagePath = `vehicle-documents/${userKey}/${side}-${timestamp}.${extension}`;
 
-        setUploading((prev) => ({...prev, [side]: true}));
-        try {
             const uploaded = await uploadImageToStorage({
                 uri: asset.uri,
                 storagePath,
@@ -95,12 +95,16 @@ export default function VehicleDocuments({collectedData, setCollectedData, valid
             <UploadDocuments
                 insideText={uploading.front ? 'Uploading front document...' : 'Upload the front view of your\nvehicle passport'}
                 onPress={() => onPressUpload('front')}
+                disabled={uploading.front || uploading.back}
+                loading={uploading.front}
             />
             {documents.frontView ? <Text style={styles.successText}>Front document uploaded</Text> : null}
 
             <UploadDocuments
                 insideText={uploading.back ? 'Uploading back document...' : 'Upload the back view of your\nvehicle passport'}
                 onPress={() => onPressUpload('back')}
+                disabled={uploading.front || uploading.back}
+                loading={uploading.back}
                 style={{marginTop: spacing.lg}}
             />
             {documents.backView ? <Text style={styles.successText}>Back document uploaded</Text> : null}
