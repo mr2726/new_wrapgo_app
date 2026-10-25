@@ -115,9 +115,9 @@ export default function Profile ({setLocalPage}) {
     const avgDistancePerDay = (totalDistance / daysSinceRegistration).toFixed(1);
     const avgZoneHoursPerDay = (totalZoneHours / daysSinceRegistration).toFixed(1);
     // Get this data from DB 
-    const safety = userData?.score.safety || 0;
-    const acceptance = userData?.score.acceptance || 0;
-    const activity = userData?.score.activity || 0;
+    const safety = userData?.score?.safety || 0;
+    const acceptance = userData?.score?.acceptance || 0;
+    const activity = userData?.score?.activity || 0;
 
     const score = Math.round((safety + acceptance + activity) / 3);
 

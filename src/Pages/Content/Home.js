@@ -318,7 +318,6 @@ export default function Home({email, setLocalPage, onSessionExpired}) {
 
                     try {
                         const tasks = await getTasks();
-                        console.log('[Tasks] payload:', JSON.stringify(tasks, null, 2));
                         setTasks(tasks);
                         if (tasks.length === 0) {
                             console.log(
@@ -328,8 +327,6 @@ export default function Home({email, setLocalPage, onSessionExpired}) {
                     } catch (tasksError) {
                         console.log('[Tasks] fetch failed:', tasksError?.message || tasksError);
                     }
-
-                    console.log('User Data:', JSON.stringify(normalizedUserData, null, 2)); // Remove this line after debugging
                 }
             } catch (error) {
                 console.log(error);

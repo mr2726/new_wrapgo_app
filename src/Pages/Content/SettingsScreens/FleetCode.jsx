@@ -76,7 +76,12 @@ export default function FleetCode({code = "", userEmail = "", setSettingsPage}) 
 
             setSuccessText("Fleet code updated");
         } catch (error) {
-            setErrorText("Fleet code does not exist");
+            console.error("Failed to update fleet code:", error);
+            setErrorText(
+                error?.code === "PGRST116"
+                    ? "Fleet code does not exist"
+                    : (error?.message || "Could not update fleet code. Please try again.")
+            );
         } finally {
             setIsSaving(false);
         }

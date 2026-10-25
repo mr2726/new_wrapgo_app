@@ -17,6 +17,7 @@ import {
     updateVehicleData,
     finalizeAuthAccount,
     finalizeDriverRegistration,
+    ensureVerificationSession,
 } from '../../components/service/service';
 // ------------------------------------------------------------------------
 
@@ -39,6 +40,27 @@ export default function VereficationContent({setPage, signUpInfo}) {
     const [selfieError, setSelfieError] = React.useState('');
     const isSubmittingRef = React.useRef(false);
     const uploadedSelfieRef = React.useRef({localUri: null, publicUrl: null});
+    const [sessionState, setSessionState] = React.useState({loading: true, error: ''});
+
+    // Verification steps (OTP lookup, document/selfie upload) need an authenticated
+    // session for RLS before the real account exists, so start one up front.
+    const bootstrapSession = React.useCallback(async () => {
+        setSessionState({loading: true, error: ''});
+        try {
+            await ensureVerificationSession();
+            setSessionState({loading: false, error: ''});
+        } catch (err) {
+            console.log('Verification session error:', err);
+            setSessionState({
+                loading: false,
+                error: err?.message || 'Could not start a secure session. Please try again.',
+            });
+        }
+    }, []);
+
+    React.useEffect(() => {
+        bootstrapSession();
+    }, [bootstrapSession]);
 
     const [collectedData, setCollectedData] = React.useState({
         fullName: signUpInfo.fullName || '',

@@ -498,40 +498,140 @@ export async function updateVehicleData(vehicleId, updatedData) {
 }
 
 // Update Personal Information in drivers table after changing in the settings screen.
-export async function updatePersonalInfo(email, updatedData) {
-    const {data, error} = await supabase
+// The drivers row is matched by the authenticated user's id (drivers.userid), never by
+// the new email (which doesn't exist in the table yet -- that was the cause of PGRST116).
+// Email changes go through Supabase Auth; drivers.email is set to the email Auth reports,
+// so it only changes once a required confirmation is completed. Auth and the table are
+// separate operations (not atomic); if the table write fails after Auth succeeded, the
+// error says so and a retry re-syncs drivers.email from Auth.
+// Returns {emailChangePending, pendingEmail}.
+export async function updatePersonalInfo(updatedData) {
+    const {data: authData, error: authError} = await supabase.auth.getUser();
+    if (authError) {
+        throw authError;
+    }
+
+    const currentUser = authData?.user;
+    if (!currentUser?.id) {
+        throw new Error('You are not signed in. Please sign in again.');
+    }
+
+    const newEmail = String(updatedData.email || '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+        throw new Error('Please enter a valid email address.');
+    }
+    const emailChanged = newEmail.toLowerCase() !== String(currentUser.email || '').toLowerCase();
+
+    // Verify the profile row is visible/owned before touching Auth to avoid partial updates.
+    const {data: existingRow, error: existingError} = await supabase
         .from('drivers')
-        .update([{
+        .select('userid')
+        .eq('userid', currentUser.id)
+        .maybeSingle();
+    if (existingError) {
+        throw existingError;
+    }
+    if (!existingRow) {
+        throw new Error('Your driver profile was not found (or access is blocked by security rules). Email was not changed.');
+    }
+
+    let authEmail = currentUser.email || newEmail;
+    let emailChangePending = false;
+    if (emailChanged) {
+        const {data: updateData, error: emailError} = await supabase.auth.updateUser({email: newEmail});
+        if (emailError) {
+            throw emailError;
+        }
+        authEmail = updateData?.user?.email || authEmail;
+        emailChangePending = authEmail.toLowerCase() !== newEmail.toLowerCase();
+    }
+
+    const {data: updatedRows, error: updateError} = await supabase
+        .from('drivers')
+        .update({
             name: updatedData.fullName,
             phone: updatedData.PhoneNumber,
             dateofbirsday: updatedData.birthDate,
-        }])
-        .eq('email', email);
-    if (error) {
-        throw error;
+            email: authEmail,
+        })
+        .eq('userid', currentUser.id)
+        .select('*');
+
+    const partialNote = emailChanged
+        ? (emailChangePending
+            ? ' A confirmation email was sent, but your profile was not saved.'
+            : ' Your login email was changed, but your profile was not saved. Tap Save again to retry.')
+        : '';
+    if (updateError) {
+        throw new Error(`${updateError.message || 'Profile update failed.'}${partialNote}`);
+    }
+    if (!updatedRows || updatedRows.length !== 1) {
+        throw new Error(`Profile record was not updated.${partialNote}`);
     }
 
-    await refreshAndCacheDriverByEmail(email);
-    return data;
+    await cacheUserData(updatedRows[0]);
+    return {emailChangePending, pendingEmail: emailChangePending ? newEmail : null};
+}
+
+// Re-syncs drivers.email with the Auth email (e.g. after the user confirmed a pending change).
+export async function syncDriverEmailWithAuth() {
+    const {data: authData, error: authError} = await supabase.auth.getUser();
+    if (authError || !authData?.user?.email) {
+        return null;
+    }
+
+    const {id, email} = authData.user;
+    const {data: rows, error} = await supabase
+        .from('drivers')
+        .update({email})
+        .eq('userid', id)
+        .neq('email', email)
+        .select('*');
+    if (error || !rows?.length) {
+        return null;
+    }
+
+    await cacheUserData(rows[0]);
+    return rows[0];
 }
 
 // Update fleet code (carid) in drivers table and refresh cached user data.
-export async function updateDriverFleetCode(email, fleetCode) {
+const requireAuthUserId = async () => {
+    const context = await getCurrentDriverContext();
+    if (!context?.userId) {
+        throw new Error('You are not signed in. Please sign in again.');
+    }
+    return context.userId;
+};
+
+// Updates the signed-in user's drivers row (matched by userid) and fails if no row changed.
+const updateCurrentDriverRow = async (userId, values) => {
     const {data, error} = await supabase
         .from('drivers')
-        .update([{
-            carid: fleetCode,
-        }])
-        .eq('email', email);
+        .update(values)
+        .eq('userid', userId)
+        .select('*');
 
     if (error) {
         throw error;
     }
+    if (!data || data.length !== 1) {
+        throw new Error('Driver profile was not updated (record missing or access denied).');
+    }
+
+    await cacheUserData(data[0]);
+    return data[0];
+};
+
+// Update fleet code (carid) in drivers table and refresh cached user data.
+export async function updateDriverFleetCode(email, fleetCode) {
+    const userId = await requireAuthUserId();
+    const row = await updateCurrentDriverRow(userId, {carid: fleetCode});
 
     const {error: vehicleError} = await supabase
         .from('vehicles')
         .update([{
-            signeddriveremail: email,
+            signeddriveremail: row.email || email,
         }])
         .eq('invite_code', fleetCode);
 
@@ -539,26 +639,13 @@ export async function updateDriverFleetCode(email, fleetCode) {
         throw vehicleError;
     }
 
-    await refreshAndCacheDriverByEmail(email);
-    return data;
+    return row;
 }
 
 // Update profile selfie URL in drivers table.
 export async function updateDriverSelfie(email, selfieUrl) {
-    const {data, error} = await supabase
-        .from('drivers')
-        .update([{
-            selfie: selfieUrl,
-        }])
-        .eq('email', email);
-
-    if (error) {
-        throw error;
-    }
-
-    await refreshAndCacheDriverByEmail(email);
-
-    return data;
+    const userId = await requireAuthUserId();
+    return updateCurrentDriverRow(userId, {selfie: selfieUrl});
 }
 
 
@@ -596,7 +683,7 @@ export const changePassword = async (newPassword) => {
         password: newPassword,
     });
     if (error) {
-        console.log(error.message);
+        throw error;
     }
 };
 

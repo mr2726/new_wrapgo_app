@@ -30,7 +30,6 @@ export default function VehicleInformation ({setPage, setSettingsPage}) {
 
                 const data = await getVehicleDataByOTP(inviteCode);
                 setVehicleData(data);
-                console.log("Vehicle Data:", data);
             } catch (error) {
                 console.error("Error fetching vehicle data:", error);
                 setVehicleData(null);

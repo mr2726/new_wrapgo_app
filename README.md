@@ -176,7 +176,7 @@ This project has a native Android folder, so production bundles are built locall
 2. Create `android/keystore.properties` locally (do not commit it) with:
 
 ```properties
-storeFile=your-upload-key.jks
+storeFile=upload-key.jks
 storePassword=YOUR_STORE_PASSWORD
 keyAlias=YOUR_KEY_ALIAS
 keyPassword=YOUR_KEY_PASSWORD
