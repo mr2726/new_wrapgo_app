@@ -249,7 +249,7 @@ export default function Profile ({setLocalPage}) {
 
     return (
         <>
-            <ScrollView style={{marginBottom: 100}}>
+            <ScrollView contentContainerStyle={{paddingBottom: spacing.lg}} showsVerticalScrollIndicator={false}>
                 <View style={styles.topControll}>
                     <TopControl setLocalPage={setLocalPage} title="My Profile" additionalBTN="settings" switchTo="home"/>
                 </View>
@@ -267,7 +267,7 @@ export default function Profile ({setLocalPage}) {
                                 <Feather name="edit" size={16} color="white" />
                             </Pressable>
                         </View>
-                        <View>
+                        <View style={styles.headerText}>
                             <Text style={styles.text}>Evening {userData?.name}</Text>
                             <View style={{display: "flex", flexDirection: "row", alignItems: "center", gap: 5}}>
                                 <Feather name="star" size={14} color={colors.accent} style={{marginRight: 5, marginTop: 5}} />
@@ -312,11 +312,14 @@ export default function Profile ({setLocalPage}) {
 
 const styles = StyleSheet.create({
     text: {
-        width: 200,
         color: "white",
         fontSize: typography.sizeMd,
         fontFamily: typography.familyRegular,
         marginTop: spacing.sm,
+    },
+    headerText: {
+        flex: 1,
+        minWidth: 0,
     },
 
     topControll: {

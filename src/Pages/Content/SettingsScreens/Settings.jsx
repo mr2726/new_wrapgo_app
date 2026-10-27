@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, ScrollView, Alert} from "react-native";
+import {View, Linking, StyleSheet, ScrollView, Alert, Modal, ActivityIndicator, Text} from "react-native";
 import React from 'react';
 
 // COMPONENTS
@@ -6,36 +6,40 @@ import { SettingsButton } from "../../../components/ui/settingsButton";
 import { TopControl } from "../../../components/ui/topControl";
 // ----------------------------------------------------------------
 // SERVICES
-import {deleteAccount, logout} from "../../../components/service/service";
+import {logout} from "../../../components/service/service";
 // ----------------------------------------------------------------
 
 export default function Settings ({setPage, setSettingsPage, onLogout, onAccountDeleted}) {
+    const [isDeleting, setIsDeleting] = React.useState(false);
+    const isDeletingRef = React.useRef(false);
+
+    const runDeletion = React.useCallback(async () => {
+        if (isDeletingRef.current) return;
+        isDeletingRef.current = true;
+        setIsDeleting(true);
+
+        try {
+            Linking.openURL("https://wrapgo-delete-account.vercel.app/")
+        } catch (error) {
+            setIsDeleting(false);
+            Alert.alert('Delete account failed', error?.message || 'Could not delete account.');
+        } finally {
+            isDeletingRef.current = false;
+        }
+    }, [onAccountDeleted]);
+
     const handleDeleteAccount = React.useCallback(() => {
+        if (isDeletingRef.current) return;
+
         Alert.alert(
-            'Delete account',
-            'This will permanently delete your account, profile data, and uploaded files. Continue?',
+            'Delete account permanently?',
+            'This cannot be undone. Your account, profile, personal information, selfie, vehicle photos and documents, signed contracts and location history will be permanently deleted. The vehicle assigned to you will be released back to your fleet. You will not be able to sign in again.',
             [
                 {text: 'Cancel', style: 'cancel'},
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            const result = await deleteAccount();
-
-                            if (result?.warnings?.length) {
-                                Alert.alert('Account deleted', result.warnings.join('\n'));
-                            }
-
-                            onAccountDeleted?.();
-                        } catch (error) {
-                            Alert.alert('Delete account failed', error?.message || 'Could not delete account.');
-                        }
-                    },
-                },
+                {text: 'Delete permanently', style: 'destructive', onPress: () => Linking.openURL("https://wrapgo-delete-account.vercel.app/")},
             ]
         );
-    }, [onAccountDeleted]);
+    }, [runDeletion]);
 
     const handleLogout = React.useCallback(async () => {
         const {error} = await logout();
@@ -76,12 +80,12 @@ export default function Settings ({setPage, setSettingsPage, onLogout, onAccount
         {
             title: "Terms of Service",
             icon : "file-text",
-            onPress: () => alert("Terms of Service"),
+            onPress: () => Linking.openURL("https://new-wrap-go-jyeh.vercel.app/app?view=terms"),
         },
         {
             title: "Privacy Policy",
             icon : "shield",
-            onPress: () => alert("Privacy Policy"),
+            onPress: () => Linking.openURL("https://new-wrap-go-jyeh.vercel.app/app?view=privacy"),
         },
         {
             title: "Delete Account",
@@ -96,7 +100,13 @@ export default function Settings ({setPage, setSettingsPage, onLogout, onAccount
     ]
 
     return (
-        <ScrollView>
+        <ScrollView contentContainerStyle={{paddingBottom: 16}} showsVerticalScrollIndicator={false}>
+            <Modal visible={isDeleting} transparent animationType="fade" statusBarTranslucent onRequestClose={() => {}}>
+                <View style={styles.overlay}>
+                    <ActivityIndicator size="large" color="white" />
+                    <Text style={styles.text}>Deleting your account…</Text>
+                </View>
+            </Modal>
             <View style={{marginBottom: 50}}>
                 <TopControl title="Settings" setLocalPage={setPage} switchTo="profile"/>
             </View>
@@ -111,6 +121,13 @@ export default function Settings ({setPage, setSettingsPage, onLogout, onAccount
 
 const styles = StyleSheet.create({
     text: {
-        color: "white"
+        color: "white",
+        marginTop: 16
+    },
+    overlay: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(0,0,0,0.7)"
     }
 })

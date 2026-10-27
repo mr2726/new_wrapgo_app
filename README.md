@@ -83,10 +83,9 @@ Current working tree updates:
 	- added `deleteAccount()` that invokes Supabase edge function `delete_account`, signs out, and clears local storage
 	- updated `logout()` to clear storage while keeping onboarding hint (`howItWorksCompleted`)
 - Added Supabase edge function `supabase/functions/delete_account/index.ts`:
-	- validates bearer token
-	- removes user files from storage prefixes
-	- deletes `vehicles` and `drivers` rows
-	- deletes auth user via admin API
+	- validates the signed-in user, with a separate fixed-code flow restricted to a server-configured test account
+	- removes user files from Storage, releases assigned fleet vehicles, and deletes driver contracts and location history
+	- deletes the driver profile and Auth user via the admin API
 - Home screen quality updates:
 	- renders loading state until both request and user data are available
 	- shows fallback avatar placeholder when selfie is missing
@@ -1304,6 +1303,14 @@ Environment keys used:
 
 Export:
 - `supabase`: configured result of `createClient(supabaseUrl, supabaseKey)`.
+
+### Account deletion
+
+- In the app, **Settings → Delete Account** calls the `delete_account` Edge Function for the signed-in user.
+- The public deletion page is served from `/delete-account` when the `web` directory is deployed to Vercel. Configure `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` in the Vercel project; its build script writes the public client config.
+- Deploy `supabase/functions/delete_account` and configure the server-only `ACCOUNT_DELETION_TEST_EMAIL` secret with a dedicated disposable test/review account email. The test deletion code is `123456` and is accepted only for that configured email. Other users must verify a one-time code sent to their email.
+- The Edge Function also requires the project’s `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` secrets. Never expose the service-role key in the app or website.
+- Run the deletion tests with `node --test tests/account-deletion.test.mjs`.
 
 ### Service Layer
 

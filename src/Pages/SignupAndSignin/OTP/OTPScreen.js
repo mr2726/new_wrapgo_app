@@ -8,6 +8,7 @@ import {TopControl} from '../../../components/ui/topControl';
 import {OTPinput} from '../../../components/ui/OTPinput';
 import {Button_} from '../../../components/ui/buttons';
 import {Input_} from "../../../components/ui/inputs";
+import {FormScroll} from '../../../components/ui/layout';
 // ------------------------------------------------------------------------
 
 export default function OTPScreen({setLocalPage, setPage}) {
@@ -106,7 +107,7 @@ export default function OTPScreen({setLocalPage, setPage}) {
             <View style={{position: "relative", height: 50, marginBottom: 20}}>
                 <TopControl setLocalPage={setLocalPage} title="Verify Code" />
             </View>
-            <View>
+            <FormScroll>
                 <Text style={styles.text}>Enter your email address below and we’ll send you a 6-digit OTP code.</Text>
 
                 <Input_ 
@@ -160,15 +161,14 @@ export default function OTPScreen({setLocalPage, setPage}) {
                     ? "Verify OTP"
                     : "Reset Password"
                 } onPress={handleSubmit} />
-            </View>
+            </FormScroll>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     screen: {
-        width: '100%',
-        height: '100%',
+        flex: 1,
         backgroundColor: colors.background,
         paddingHorizontal: spacing.lg,
     },

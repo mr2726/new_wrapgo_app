@@ -7,6 +7,7 @@ import { colors, spacing, typography } from "../../../styles/theme";
 import { Input_ } from "../../../components/ui/inputs";
 import {TopControl} from "../../../components/ui/topControl";
 import { Button_ } from "../../../components/ui/buttons";
+import { FormScroll } from "../../../components/ui/layout";
 import { getVehicleDataByOTP, updateDriverFleetCode } from "../../../components/service/service";
 // ----------------------------------------------------------
 
@@ -88,7 +89,7 @@ export default function FleetCode({code = "", userEmail = "", setSettingsPage}) 
     };
 
     return (
-        <View style={styles.infoBlock}>
+        <FormScroll contentContainerStyle={styles.infoBlock}>
             <View style={{marginBottom: 50}}>
                 <TopControl title="Fleet Code" setLocalPage={() => {setSettingsPage("settings")}} switchTo="settings"/>
             </View>
@@ -110,7 +111,7 @@ export default function FleetCode({code = "", userEmail = "", setSettingsPage}) 
             {hasChanges && (
                 <Button_ title={isSaving ? "Saving..." : "Save Code"} onPress={handleSave} dispable={isSaving} />
             )}
-        </View>
+        </FormScroll>
     )
 }
 

@@ -24,6 +24,7 @@ export function Menu({items, onSelect, current}) {
   };
 
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [menuWidth, setMenuWidth] = React.useState(MENU_WIDTH);
 
   React.useEffect(() => {
     if (current !== "settings") {
@@ -42,8 +43,8 @@ export function Menu({items, onSelect, current}) {
       return 0;
     }
 
-    return (MENU_WIDTH - MENU_PADDING_HORIZONTAL * 2 - MENU_ITEM_SIZE) / (total - 1);
-  }, [items]);
+    return (menuWidth - MENU_PADDING_HORIZONTAL * 2 - MENU_ITEM_SIZE) / (total - 1);
+  }, [items, menuWidth]);
 
   React.useEffect(() => {
     Animated.spring(animatedOffset, {
@@ -62,7 +63,7 @@ export function Menu({items, onSelect, current}) {
   };
 
   return (
-    <View style={styles.menu}>
+    <View style={styles.menu} onLayout={(event) => setMenuWidth(event.nativeEvent.layout.width)}>
       <Animated.View
         pointerEvents="none"
         style={[
@@ -87,7 +88,8 @@ export function Menu({items, onSelect, current}) {
 
 const styles = StyleSheet.create({
   menu: {
-    width: 320,
+    width: '100%',
+    maxWidth: MENU_WIDTH,
     height: 64,
     backgroundColor: colors.surface,
     borderRadius: 32,
@@ -96,9 +98,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 20,
     alignSelf: 'center',
+    marginTop: spacing.md,
+    marginBottom: 20,
+    flexShrink: 0,
   },
   activeBubble: {
     position: 'absolute',

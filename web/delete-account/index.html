@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Delete your WrapGo account</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; color: #111; line-height: 1.5; }
+    main { max-width: 640px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.6rem; margin: 0 0 8px; }
+    h2 { font-size: 1.1rem; margin: 24px 0 8px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; margin-top: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    label { display: block; font-weight: 600; margin-bottom: 6px; }
+    input[type=email], input[type=text] { width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #bbb; border-radius: 8px; }
+    button { width: 100%; margin-top: 14px; padding: 14px; font-size: 1rem; font-weight: 600; border: 0; border-radius: 8px; background: #111; color: #fff; cursor: pointer; }
+    button.danger { background: #c62828; }
+    button.link { background: none; color: #111; text-decoration: underline; font-weight: 400; padding: 8px; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .check { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; font-weight: 400; }
+    .check input { margin-top: 4px; }
+    .status { margin-top: 14px; padding: 12px; border-radius: 8px; display: none; }
+    .status.show { display: block; }
+    .status.info { background: #e8f0fe; }
+    .status.ok { background: #e6f4ea; }
+    .status.err { background: #fdecea; }
+    ul { padding-left: 20px; margin: 8px 0; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 24px; font-size: .9rem; color: #444; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Delete your WrapGo account</h1>
+  <p>Use this page to permanently delete your <strong>WrapGo</strong> driver account and its data. You do not need the app installed.</p>
+
+  <section class="card">
+    <h2 style="margin-top:0">What will be deleted</h2>
+    <ul>
+      <li>Your account and sign-in credentials</li>
+      <li>Your driver profile (name, email, phone, date of birth, statistics and score)</li>
+      <li>Your selfie, vehicle photos and vehicle registration documents</li>
+      <li>Your signed wrap contracts</li>
+      <li>Your location history</li>
+    </ul>
+    <p>The vehicle assigned to you belongs to your fleet and is not deleted: it is released from your account.</p>
+    <h2>What may be kept</h2>
+    <ul>
+      <li>Encrypted backups kept by our hosting provider are overwritten on their normal backup cycle, so deleted data can remain there for a limited time and is not used.</li>
+      <li>Records that your fleet operator keeps outside the app are governed by that operator.</li>
+      <li>Basic security logs may be kept by our infrastructure providers for a limited time.</li>
+    </ul>
+    <p>WrapGo does not sell subscriptions through Google Play, so there is nothing to cancel there. Deletion is permanent and cannot be undone.</p>
+  </section>
+
+  <section class="card" id="step-email">
+    <h2 style="margin-top:0">1. Verify it is you</h2>
+    <form id="email-form" novalidate>
+      <label for="email">Email address of your WrapGo account</label>
+      <input id="email" type="email" autocomplete="email" inputmode="email" required>
+      <button type="submit" id="email-submit">Continue</button>
+    </form>
+  </section>
+
+  <section class="card" id="step-code" hidden>
+    <h2 style="margin-top:0">2. Enter the code</h2>
+    <form id="code-form" novalidate>
+      <label for="code" id="code-label">Verification code from the email</label>
+      <input id="code" type="text" autocomplete="one-time-code" inputmode="numeric" maxlength="10" required>
+      <button type="submit" id="code-submit">Verify code</button>
+      <button type="button" class="link" id="back">Use a different email</button>
+    </form>
+  </section>
+
+  <section class="card" id="step-confirm" hidden>
+    <h2 style="margin-top:0">3. Confirm deletion</h2>
+    <p>You are verified as <strong id="verified-email"></strong>. This will permanently delete the account and data listed above.</p>
+    <label class="check"><input type="checkbox" id="confirm-check"> I understand this is permanent and cannot be undone.</label>
+    <button type="button" class="danger" id="delete-btn" disabled>Request Account Deletion</button>
+  </section>
+
+  <div id="status" class="status" role="status" aria-live="polite"></div>
+
+  <footer>
+    Questions? Contact <a href="mailto:admin@wrapgo.am">admin@wrapgo.am</a> ·
+    <a href="https://new-wrap-go-jyeh.vercel.app/app?view=privacy">Privacy Policy</a>
+  </footer>
+</main>
+<script src="/delete-account/config.js"></script>
+<script>
+(function () {
+  var cfg = window.WRAPGO_CONFIG || {};
+  var base = (cfg.supabaseUrl || '').replace(/\/$/, '');
+  var anonKey = cfg.supabaseAnonKey || '';
+  var $ = function (id) { return document.getElementById(id); };
+  var accessToken = null; // kept in memory only
+  var verifiedEmail = '';
+  var isTestAccount = false;
+  var testCode = null;
+  var busy = false;
+
+  function show(kind, text) {
+    var el = $('status');
+    el.className = 'status show ' + kind;
+    el.textContent = text;
+  }
+  function clearStatus() { $('status').className = 'status'; $('status').textContent = ''; }
+  function setBusy(value, buttons) {
+    busy = value;
+    buttons.forEach(function (b) { b.disabled = value; });
+  }
+  function headers(extra) {
+    var h = { 'Content-Type': 'application/json', apikey: anonKey };
+    for (var k in extra) h[k] = extra[k];
+    return h;
+  }
+  function edgeHeaders(token) {
+    return headers({ Authorization: 'Bearer ' + (token || anonKey) });
+  }
+
+  if (!base || !anonKey) {
+    show('err', 'This page is not configured yet. Please contact admin@wrapgo.am to request deletion.');
+    ['email-submit'].forEach(function (id) { $(id).disabled = true; });
+    return;
+  }
+
+  $('email-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (busy) return;
+    var email = $('email').value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { show('err', 'Enter a valid email address.'); return; }
+    var button = $('email-submit');
+    setBusy(true, [button]);
+    clearStatus();
+    fetch(base + '/functions/v1/delete_account', {
+      method: 'POST',
+      headers: edgeHeaders(),
+      body: JSON.stringify({ action: 'check_test_account', email: email })
+    }).then(function (res) {
+      if (!res.ok) throw new Error('Could not check account deletion options.');
+      return res.json();
+    }).then(function (body) {
+      if (body.testAccount) {
+        isTestAccount = true;
+        verifiedEmail = email;
+        $('code-label').textContent = 'Test account deletion code';
+        $('step-email').hidden = true;
+        $('step-code').hidden = false;
+        show('info', 'Enter the test code provided for this account.');
+        $('code').focus();
+        return null;
+      }
+      isTestAccount = false;
+      return fetch(base + '/auth/v1/otp', {
+        method: 'POST',
+        headers: headers(),
+        body: JSON.stringify({ email: email, create_user: false })
+      });
+    }).then(function (res) {
+      if (!res) return;
+      // The server answers the same way whether or not the account exists
+      // (4xx responses are not surfaced). Only rate limits and outages are shown.
+      if (res.status === 429) { show('err', 'Too many requests. Please wait a few minutes and try again.'); return; }
+      if (res.status >= 500) { show('err', 'We could not send the email right now. Please try again later or contact admin@wrapgo.am.'); return; }
+      verifiedEmail = email;
+      $('step-email').hidden = true;
+      $('step-code').hidden = false;
+      show('info', 'If an account exists for this email, a verification code has been sent. It expires shortly and works once.');
+      $('code').focus();
+    }).catch(function () {
+      show('err', 'Network error. Check your connection and try again.');
+    }).then(function () { setBusy(false, [button]); });
+  });
+
+  $('back').addEventListener('click', function () {
+    $('step-code').hidden = true;
+    $('step-email').hidden = false;
+    $('code').value = '';
+    clearStatus();
+  });
+
+  $('code-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (busy) return;
+    var token = $('code').value.replace(/\s+/g, '');
+    if (!/^\d{4,10}$/.test(token)) { show('err', 'Enter the numeric code.'); return; }
+    var button = $('code-submit');
+    setBusy(true, [button]);
+    clearStatus();
+    if (isTestAccount) {
+      fetch(base + '/functions/v1/delete_account', {
+        method: 'POST',
+        headers: edgeHeaders(),
+        body: JSON.stringify({
+          action: 'verify_test_code',
+          email: verifiedEmail,
+          test_code: token
+        })
+      }).then(function (res) {
+        return res.json().catch(function () { return {}; }).then(function (body) {
+          if (res.ok && body.verified) {
+            testCode = token;
+            $('verified-email').textContent = verifiedEmail;
+            $('step-code').hidden = true;
+            $('step-confirm').hidden = false;
+            clearStatus();
+          } else {
+            show('err', 'The test code is invalid. Please check it and try again.');
+          }
+        });
+      }).catch(function () {
+        show('err', 'Network error. Check your connection and try again.');
+      }).then(function () { setBusy(false, [button]); });
+      return;
+    }
+
+    fetch(base + '/auth/v1/verify', {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ type: 'email', email: verifiedEmail, token: token })
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (body) {
+        if (res.ok && body.access_token) {
+          accessToken = body.access_token;
+          $('verified-email').textContent = verifiedEmail;
+          $('step-code').hidden = true;
+          $('step-confirm').hidden = false;
+          clearStatus();
+        } else if (res.status === 429) {
+          show('err', 'Too many attempts. Please wait a few minutes and try again.');
+        } else if (res.status >= 500) {
+          show('err', 'Verification is unavailable right now. Please try again later.');
+        } else {
+          show('err', 'The code is invalid, expired or already used. Request a new code.');
+        }
+      });
+    }).catch(function () {
+      show('err', 'Network error. Check your connection and try again.');
+    }).then(function () { setBusy(false, [button]); });
+  });
+
+  $('confirm-check').addEventListener('change', function () {
+    $('delete-btn').disabled = busy || !this.checked;
+  });
+
+  $('delete-btn').addEventListener('click', function () {
+    if (busy || (!accessToken && !(isTestAccount && testCode)) || !$('confirm-check').checked) return;
+    var button = $('delete-btn');
+    setBusy(true, [button]);
+    $('confirm-check').disabled = true;
+    show('info', 'Deleting your account…');
+    fetch(base + '/functions/v1/delete_account', {
+      method: 'POST',
+      headers: isTestAccount
+        ? edgeHeaders()
+        : edgeHeaders(accessToken),
+      body: isTestAccount
+        ? JSON.stringify({
+            action: 'delete_test_account',
+            email: verifiedEmail,
+            test_code: testCode,
+            confirm: true
+          })
+        : '{}'
+    }).then(function (res) {
+      if (res.ok) {
+        accessToken = null;
+        testCode = null;
+        $('step-confirm').hidden = true;
+        show('ok', 'Your account and data have been permanently deleted.');
+        return;
+      }
+      $('confirm-check').disabled = false;
+      setBusy(false, [button]);
+      if (res.status === 401) {
+        accessToken = null;
+        $('step-confirm').hidden = true;
+        $('step-email').hidden = false;
+        show('err', 'Your verification expired. Please verify your email again. If your account was already deleted, nothing more is needed.');
+      } else {
+        show('err', 'Deletion could not be completed and your account was not reported as deleted. Please press the button again to retry, or contact admin@wrapgo.am.');
+      }
+    }).catch(function () {
+      $('confirm-check').disabled = false;
+      setBusy(false, [button]);
+      show('err', 'Network error. We could not confirm the result. Press the button again to retry (it is safe to repeat).');
+    });
+  });
+})();
+</script>
+</body>
+</html>

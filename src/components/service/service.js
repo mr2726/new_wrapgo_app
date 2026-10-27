@@ -702,38 +702,6 @@ export async function getUserDataById(id) {
     return data;
 }
 
-export async function deleteAccount() {
-    const {data: authData, error: authError} = await supabase.auth.getUser();
-    if (authError) {
-        throw authError;
-    }
-
-    const currentUser = authData?.user;
-    if (!currentUser?.id || !currentUser?.email) {
-        throw new Error('User context not found for account deletion.');
-    }
-
-    const {data, error} = await supabase.functions.invoke('delete_account', {
-        body: {
-            storageBucket: STORAGE_BUCKET,
-            storagePrefix: VEHICLE_DOCS_PREFIX,
-        },
-    });
-
-    if (error) {
-        throw error;
-    }
-
-    await stopBackgroundLocationTracking();
-    await supabase.auth.signOut();
-    await AsyncStorage.clear();
-
-    return {
-        success: true,
-        warnings: Array.isArray(data?.warnings) ? data.warnings : [],
-    };
-}
-
 export async function uploadDriverLocationUpdates(locationUpdates) {
     if (!Array.isArray(locationUpdates) || locationUpdates.length === 0) {
         return {uploaded: 0};

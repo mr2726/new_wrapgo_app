@@ -6,6 +6,7 @@ import { Input_ } from "../../../components/ui/inputs";
 import { DateInput } from "../../../components/ui/DateInput";
 import { TopControl } from "../../../components/ui/topControl";
 import { Button_ } from "../../../components/ui/buttons";
+import { FormScroll } from "../../../components/ui/layout";
 // ----------------------------------------------------------------
 // SERVICES
 import {updatePersonalInfo, syncDriverEmailWithAuth} from "../../../components/service/service";
@@ -118,7 +119,7 @@ export default function PersonalInfo({setPage, setSettingsPage}) {
         fetchUserData();
     }, []);
     return (
-        <View>
+        <FormScroll>
             <View style={{marginBottom: 50}}>
                 <TopControl title="Personal Information" setLocalPage={() => {setSettingsPage("settings")}} switchTo="settings"/>
             </View>
@@ -136,6 +137,6 @@ export default function PersonalInfo({setPage, setSettingsPage}) {
                 )}
                 {hasChanges && <Button_ title={saving ? "Saving..." : "Save"} onPress={handleSave} disabled={saving} />}
             </View>
-        </View>
+        </FormScroll>
     )
 }

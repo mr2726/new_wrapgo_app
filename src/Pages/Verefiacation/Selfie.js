@@ -109,7 +109,6 @@ const COLOR = '#00FF66';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginBottom: 100,
   },
   camera: {
     flex: 1,

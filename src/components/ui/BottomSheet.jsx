@@ -3,13 +3,12 @@ import {
   Modal,
   View,
   Animated,
-  Dimensions,
+  useWindowDimensions,
   TouchableWithoutFeedback,
   PanResponder,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../../styles/theme';
-
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function BottomSheet({
   visible,
@@ -17,6 +16,8 @@ export default function BottomSheet({
   children,
   height = '85%',
 }) {
+  const { height: SCREEN_HEIGHT } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const translateY = useRef(
     new Animated.Value(SCREEN_HEIGHT)
   ).current;
@@ -72,6 +73,8 @@ export default function BottomSheet({
   return (
     <Modal
       transparent
+      statusBarTranslucent
+      navigationBarTranslucent
       visible={visible}
       animationType="none"
       onRequestClose={closeSheet}
@@ -97,7 +100,9 @@ export default function BottomSheet({
 
         <Animated.View
           style={{
-            height,
+            height: typeof height === 'number' ? height + insets.bottom : height,
+            maxHeight: SCREEN_HEIGHT - insets.top - 16,
+            paddingBottom: insets.bottom,
             backgroundColor: colors.background,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,

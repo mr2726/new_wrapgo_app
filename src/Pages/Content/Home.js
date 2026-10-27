@@ -357,7 +357,7 @@ export default function Home({email, setLocalPage, onSessionExpired}) {
     }
     const text = 'Your Profile in Review, Please wait\nfor the verification process to complete.';
     return (
-        <ScrollView>
+        <ScrollView contentContainerStyle={{paddingBottom: 16}} showsVerticalScrollIndicator={false}>
             <View style={styles.header}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {userData?.selfie ? (
@@ -398,7 +398,7 @@ export default function Home({email, setLocalPage, onSessionExpired}) {
                         />
                     </View>
                     {resolvedTasks.length > 0 && (
-                        <View  style={{marginBottom: 100}}>
+                        <View>
                             <Text style={styles.sectionTitle}>Bonus Tasks</Text>
                             {resolvedTasks.map((task) => (
                                 <StatsInfo 
@@ -415,13 +415,13 @@ export default function Home({email, setLocalPage, onSessionExpired}) {
             )}
 
             {userData?.status === 'In Progress' && (
-                <View style={{display: 'flex', alignItems: 'center', marginTop: 20, marginBottom: 100}}>
+                <View style={{display: 'flex', alignItems: 'center', marginTop: 20}}>
                     <Text style={styles.infoText}>Your Profile under Verification. It can take up to 48 hours.</Text>
                 </View>
             )}
 
             {!hasAnySignedContract && (
-                <View style={{display: 'flex', alignItems: 'center', marginTop: 20, marginBottom: 100}}>
+                <View style={{display: 'flex', alignItems: 'center', marginTop: 20}}>
                     <Text style={styles.infoText}>You don't have a contract yet. Please contact your fleet manager.</Text>
                 </View>
             )}

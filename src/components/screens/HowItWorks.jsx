@@ -1,4 +1,4 @@
-import {View,Text, StyleSheet, Pressable} from 'react-native';
+import {View,Text, StyleSheet, ScrollView} from 'react-native';
 import React from 'react';
 import {colors} from '../../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -82,17 +82,23 @@ export default function HowItWorks() {
                 visible={showSheet}
                 onClose={() => setShowSheet(false)}
             >
-                <View style={{ padding: 20 , flex: 1, justifyContent: 'space-between', alignItems: 'center'}}>
-                    <View>
-                        <Text style={styles.title}>{stepContent[state].title}</Text>
-                        <Text style={styles.description}>{stepContent[state].description}</Text>
-                    </View>
-                    <View style={styles.imageContainer}>
-                        {stepContent[state].image}
-                        <Text style={styles.imageDescription}>{stepContent[state].imageDescription}</Text>
-                    </View>
+                <View style={{ padding: 20 , flex: 1, alignItems: 'center'}}>
+                    <ScrollView
+                        style={{width: '100%'}}
+                        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between', alignItems: 'center'}}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <View>
+                            <Text style={styles.title}>{stepContent[state].title}</Text>
+                            <Text style={styles.description}>{stepContent[state].description}</Text>
+                        </View>
+                        <View style={styles.imageContainer}>
+                            {stepContent[state].image}
+                            <Text style={styles.imageDescription}>{stepContent[state].imageDescription}</Text>
+                        </View>
+                    </ScrollView>
 
-                    <Button_ title={stepContent[state].buttonTitle} onPress={handelClick}/>
+                    <Button_ title={stepContent[state].buttonTitle} onPress={handelClick} style={{marginTop: 12}}/>
                 </View>
             </BottomSheet>
         </View>
@@ -103,7 +109,6 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: colors.background,
-        marginVertical: 25,
     },
     title: {
         fontSize: 20,

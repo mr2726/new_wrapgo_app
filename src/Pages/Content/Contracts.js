@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet} from "react-native";
+import {View, Text, StyleSheet, ScrollView} from "react-native";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {colors} from "../../styles/theme";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -124,7 +124,7 @@ export default function Contracts({setLocalPage}) {
     };
 
     return (
-        <View>
+        <ScrollView contentContainerStyle={{paddingBottom: 16}} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
             <View style={{marginBottom: 70}}>
                 <TopControl setLocalPage={setLocalPage} title="Contracts" switchTo="home"/>
             </View>
@@ -182,7 +182,7 @@ export default function Contracts({setLocalPage}) {
                     </View>
                 )}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 

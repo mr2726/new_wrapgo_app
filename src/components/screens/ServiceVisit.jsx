@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Image, ScrollView, Alert, Linking, useWindowDimensions} from "react-native";
+import {View, Text, StyleSheet, Image, Alert, Linking} from "react-native";
 import React, {useEffect} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {colors} from "../../styles/theme";
@@ -113,9 +113,6 @@ const openServiceNavigation = async (service) => {
 };
 
 export const ServiceVisit = ({contract}) => {
-    const {height} = useWindowDimensions();
-    const scrollAreaHeight = Math.max(320, Math.round(height * 0.62));
-
     const [serviceLocation, setServiceLocation] = React.useState([]);
     const [selectedService, setSelectedService] = React.useState(null);
     const [visitDateTime, setVisitDateTime] = React.useState(new Date());
@@ -263,13 +260,8 @@ export const ServiceVisit = ({contract}) => {
     }
 
     return (
-        <View style={[styles.container, {maxHeight: scrollAreaHeight}]}>
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={true}
-                nestedScrollEnabled={true}
-                keyboardShouldPersistTaps="handled"
-            >
+        <View style={styles.container}>
+            <View style={styles.scrollContent}>
             <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
                 <Image source={{uri: contract.document}} style={styles.image} />
                 <View>
@@ -306,7 +298,7 @@ export const ServiceVisit = ({contract}) => {
                 dispable={isSubmitting || isServiceLocationLoading || serviceLocation.length === 0}
                 style={styles.submitButton}
             />
-            </ScrollView>
+            </View>
         </View>
     );
 }
@@ -327,8 +319,8 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 15,
-        paddingBottom: 56,
-        marginBottom: 20,
+        paddingBottom: 16,
+        paddingTop: 0,
     },
     title: {
         fontSize: 16,

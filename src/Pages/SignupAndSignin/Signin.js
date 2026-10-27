@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {LOGO}  from '../../components/ui/LOGO';
 import {Input_} from '../../components/ui/inputs';
 import {Button_} from '../../components/ui/buttons';
+import {FormScroll} from '../../components/ui/layout';
 // ------------------------------------------------------------------------
 
 // BACKEND
@@ -58,11 +59,12 @@ export default function Signin({setLocalPage, setPage}) {
     };
 
     return (
-        <View style={styles.screen}>
+        <FormScroll contentContainerStyle={styles.screen}>
             <View style={styles.welcomeBlock}>
                 <Text style={{color: colors.textPrimary, fontSize: typography.size2xl, fontFamily: typography.familyBold}}>Welcome to </Text>
                 <LOGO />
             </View>
+            <View style={styles.form}>
             {SIGNIN_FIELDS.map((field) => (
                 <Input_
                     key={field.key}
@@ -85,22 +87,28 @@ export default function Signin({setLocalPage, setPage}) {
                 <Text style={{color: colors.textMuted, fontSize: typography.sizeSm, fontFamily: typography.familyRegular}}>Don't have an account?</Text>
                 <Pressable onPress={() => setLocalPage('signup')}><Text style={{color: colors.accent, marginLeft: 5, fontSize: typography.sizeSm, fontFamily: typography.familyRegular}}>Sign Up</Text></Pressable>
             </View>
-        </View>
+            </View>
+        </FormScroll>
     );
 }
 
 const styles = StyleSheet.create({
     screen: {
-        flex: 1,
-        justifyContent: 'center',
+        flexGrow: 1,
         alignItems: 'center',
         paddingHorizontal: spacing.lg,
+    },
+    form: {
+        flexGrow: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     welcomeBlock: {
         flexDirection: 'row',
         alignItems: 'center',
-        position: 'absolute',
-        top: 30,
+        marginTop: 30,
+        marginBottom: spacing.xl,
     },
     forgotPassword: {
         fontSize: typography.sizeSm,

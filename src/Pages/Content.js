@@ -1,5 +1,6 @@
 import {View, StyleSheet} from 'react-native';
 import React from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {colors} from '../styles/theme';
 
 // Pages Content Page
@@ -40,8 +41,15 @@ export default function Content({isLogined, setIsLogined}) {
         }
     }, [isLogined]);
 
+    const insets = useSafeAreaInsets();
+
     return (
-        <View style={styles.screen}>
+        <View style={[styles.screen, {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left + 16,
+            paddingRight: insets.right + 16,
+        }]}>
             {page === "onboarding" && <OnboardingContent setPage={setPage} />}
             {page === "signupandsignin" && (
                 <SignupAndSigninContent
@@ -68,7 +76,5 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
         backgroundColor: colors.background,
-        marginVertical: 25,
-        marginHorizontal: 16,
     },
 });

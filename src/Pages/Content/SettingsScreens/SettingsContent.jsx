@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, ScrollView} from "react-native";
+import {View, StyleSheet} from "react-native";
 import React from "react";
 // Screens
 import Settings from "./Settings";
@@ -9,7 +9,7 @@ import FleetCode from "./FleetCode";
 export default function SettingsContent ({setPage, onLogout, onAccountDeleted}) {
     const [settingsPage, setSettingsPage] = React.useState("settings");
     return (
-        <ScrollView>
+        <View style={styles.screen}>
             {settingsPage === "settings" && (
                 <Settings
                     setPage={setPage}
@@ -21,12 +21,12 @@ export default function SettingsContent ({setPage, onLogout, onAccountDeleted}) 
             {settingsPage === "personalInfo" && <PersonalInfo setPage={setPage} setSettingsPage={setSettingsPage} />}
             {settingsPage === "vehicleInfo" && <VehicleInformation setPage={setPage} setSettingsPage={setSettingsPage} />}
             {settingsPage === "fleetCode" && <FleetCode setSettingsPage={setSettingsPage} />}
-        </ScrollView>
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
-    text: {
-        color: "white"
-    }
+    screen: {
+        flex: 1,
+    },
 })

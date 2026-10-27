@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ProgressBar} from '../../components/ui/ProgressBar';
 import {TopControl} from '../../components/ui/topControl';
 import {Button_} from '../../components/ui/buttons';
+import {FormScroll} from '../../components/ui/layout';
 import {supabase} from '../../components/service/supabase';
 // ------------------------------------------------------------------------
 
@@ -245,6 +246,7 @@ export default function VereficationContent({setPage, signUpInfo}) {
                 {currentScreen === 4 && 'Selfie'}
             </Text>
 
+            <View style={styles.body}>
             {currentScreen === 0 && (
                 <DriverInfo
                     collectedData={collectedData}
@@ -253,25 +255,31 @@ export default function VereficationContent({setPage, signUpInfo}) {
                 />
             )}
             {currentScreen === 1 && (
-                <VehicleType
-                    collectedData={collectedData}
-                    setCollectedData={setCollectedData}
-                    validationErrors={validationErrors}
-                />
+                <FormScroll>
+                    <VehicleType
+                        collectedData={collectedData}
+                        setCollectedData={setCollectedData}
+                        validationErrors={validationErrors}
+                    />
+                </FormScroll>
             )}
             {currentScreen === 2 && (
-                <VehicleInfo
-                    collectedData={collectedData}
-                    setCollectedData={setCollectedData}
-                    validationErrors={validationErrors}
-                />
+                <FormScroll>
+                    <VehicleInfo
+                        collectedData={collectedData}
+                        setCollectedData={setCollectedData}
+                        validationErrors={validationErrors}
+                    />
+                </FormScroll>
             )}
             {currentScreen === 3 && (
-                <VehicleDocuments
-                    collectedData={collectedData}
-                    setCollectedData={setCollectedData}
-                    validationErrors={validationErrors}
-                />
+                <FormScroll>
+                    <VehicleDocuments
+                        collectedData={collectedData}
+                        setCollectedData={setCollectedData}
+                        validationErrors={validationErrors}
+                    />
+                </FormScroll>
             )}
             {/* {currentScreen === 4 && (
                 <VehiclePhoto
@@ -300,8 +308,9 @@ export default function VereficationContent({setPage, signUpInfo}) {
                     {selfieError ? <Text style={styles.selfieNotice}>{selfieError}</Text> : null}
                 </>
             )}
+            </View>
 
-            <View style={{position: 'absolute', bottom: spacing.xxl, left: 0, right: 0, paddingHorizontal: spacing.lg}}>
+            <View style={styles.footer}>
                 <Button_
                     title={selfieUploading ? (currentScreen === 5 ? 'Finishing...' : 'Uploading...') : currentScreen === 5 ? 'Go to Home' : 'Continue'}
                     onPress={handleContinue}
@@ -314,10 +323,17 @@ export default function VereficationContent({setPage, signUpInfo}) {
 
 const styles = StyleSheet.create({
     screen: {
-        width: '100%',
-        height: '100%',
+        flex: 1,
         marginTop: spacing.xl,
         paddingHorizontal: spacing.lg,
+    },
+    body: {
+        flex: 1,
+        minHeight: 0,
+    },
+    footer: {
+        paddingTop: spacing.md,
+        paddingBottom: spacing.lg,
     },
     centered: {
         justifyContent: 'center',

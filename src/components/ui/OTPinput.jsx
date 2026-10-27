@@ -61,8 +61,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     input: {
-        width: 52,
+        flex: 1,
+        maxWidth: 52,
+        minWidth: 0,
         height: 51,
+        marginHorizontal: 2,
         fontSize: typography.sizeXl,
         borderWidth: 1,
         borderColor: colors.border,

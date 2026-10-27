@@ -1,5 +1,6 @@
-import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {ActivityIndicator, ScrollView, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {Button_} from '../ui/buttons';
 import {colors, radius, spacing, typography} from '../../styles/theme';
@@ -78,8 +79,16 @@ export default function LocationPermissionGate({
         [errorMessage, status]
     );
 
+    const insets = useSafeAreaInsets();
+
     return (
-        <View style={styles.screen}>
+        <ScrollView
+            style={styles.root}
+            contentContainerStyle={[
+                styles.screen,
+                {paddingTop: insets.top + spacing.lg, paddingBottom: insets.bottom + spacing.lg},
+            ]}
+        >
             <View style={styles.card}>
                 <Text style={styles.eyebrow}>Continuous location tracking</Text>
                 <Text style={styles.title}>{copy.title}</Text>
@@ -109,17 +118,20 @@ export default function LocationPermissionGate({
                     </View>
                 )}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    screen: {
+    root: {
         flex: 1,
+        backgroundColor: colors.background,
+    },
+    screen: {
+        flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: spacing.lg,
-        backgroundColor: colors.background,
     },
     card: {
         width: '100%',

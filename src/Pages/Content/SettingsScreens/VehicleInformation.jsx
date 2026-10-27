@@ -40,7 +40,7 @@ export default function VehicleInformation ({setPage, setSettingsPage}) {
     }, []);
 
     return (
-        <ScrollView style={{marginBottom: 150}}>
+        <ScrollView contentContainerStyle={{paddingBottom: 16}} showsVerticalScrollIndicator={false}>
             <View style={{marginBottom: 50}}>
                 <TopControl title="Vehicle Information" setLocalPage={() => {setSettingsPage("settings")}} switchTo="settings"/>
             </View>

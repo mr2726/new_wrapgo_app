@@ -12,7 +12,7 @@ export default function Page3() {
                 <LOGO />
             </View>
             <View style={styles.TextContainer}>
-                <Image style={{marginBottom: 20, width: '100%'}} source={require('../../components/ui/imgs/onb_lastchart.png')} resizeMode="contain" />
+                <Image style={styles.chart} source={require('../../components/ui/imgs/onb_lastchart.png')} resizeMode="contain" />
                 <Text style={styles.title}>Track Your Weekly{'\n'}Performance</Text>
                 <Text style={styles.description}>Monitor performance, manage contracts, and optimize your earnings.</Text>
             </View>
@@ -35,10 +35,17 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     TextContainer: {
-        position: 'absolute',
-        bottom: spacing.xl,
-        left: 0,
-        right: 0,
+        flex: 1,
+        justifyContent: 'flex-end',
+        paddingBottom: spacing.xl,
+        minHeight: 0,
+    },
+    chart: {
+        width: '100%',
+        flexShrink: 1,
+        minHeight: 0,
+        maxHeight: 287,
+        marginBottom: 20,
     },
     description: {
         fontSize: typography.sizeLg,

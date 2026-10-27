@@ -1,0 +1,17 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "buildCommand": "node scripts/write-config.mjs",
+  "outputDirectory": ".",
+  "headers": [
+    {
+      "source": "/delete-account",
+      "headers": [
+        {"key": "Referrer-Policy", "value": "no-referrer"},
+        {"key": "X-Content-Type-Options", "value": "nosniff"},
+        {"key": "X-Frame-Options", "value": "DENY"},
+        {"key": "Cache-Control", "value": "no-store"}
+      ]
+    }
+  ]
+}

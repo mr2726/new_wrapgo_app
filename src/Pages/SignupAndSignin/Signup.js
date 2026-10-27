@@ -6,6 +6,7 @@ import {Feather} from '@expo/vector-icons';
 import {TopControl} from '../../components/ui/topControl';
 import {Input_} from '../../components/ui/inputs';
 import {Button_} from '../../components/ui/buttons';
+import {FormScroll} from '../../components/ui/layout';
 // ------------------------------------------------------------------------
 // BACKEND
 import {
@@ -82,6 +83,7 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
             <View style={{position: "relative", height: 50, marginBottom: 20}}>
                 <TopControl setLocalPage={setLocalPage} title="Create Account" switchTo="signin" />
             </View>
+            <FormScroll>
             {signupFields.map((field) => (
                 <Input_
                     key={field.key}
@@ -117,14 +119,14 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
             <Button_ title="Sign Up" onPress={handleSubmit} dispable={false} />
 
             <Text style={styles.signinText}>Already have an account? <Text style={{color: colors.accent}} onPress={() => setLocalPage('signin')}>Sign In</Text></Text>
+            </FormScroll>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     screen: {
-        width: '100%',
-        height: '100%',
+        flex: 1,
         backgroundColor: colors.background,
         paddingHorizontal: spacing.lg,
     },

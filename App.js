@@ -3,6 +3,7 @@ import { AppState, Linking, StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import Content from './src/Pages/Content';
 import LocationPermissionGate from './src/components/screens/LocationPermissionGate';
@@ -14,7 +15,7 @@ import {
   subscribeToLocationQueueSync,
 } from './src/components/service/location/tracking';
 
-export default function App() {
+function AppContent() {
   const [fontsLoaded] = useFonts({
     LufgaThin: require('./src/styles/lufga/LufgaThin.ttf'),
     LufgaExtraLight: require('./src/styles/lufga/LufgaExtraLight.ttf'),
@@ -157,6 +158,14 @@ export default function App() {
       />
       <StatusBar style="light" />
     </View>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppContent />
+    </SafeAreaProvider>
   );
 }
 

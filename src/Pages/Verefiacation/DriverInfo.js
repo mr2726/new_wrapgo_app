@@ -70,8 +70,7 @@ export default function DriverInfo({collectedData, setCollectedData, validationE
 
 const styles = StyleSheet.create({
     screen: {
-        width: '100%',
-        height: '100%',
+        flexGrow: 1,
     },
     title: {
         fontSize: typography.xl,
