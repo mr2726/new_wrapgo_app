@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Pressable} from 'react-native';
+import {View, Text, StyleSheet, Pressable, Linking} from 'react-native';
 import React from 'react';
 import {Feather} from '@expo/vector-icons';
 
@@ -52,6 +52,14 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
     const [inputValues, setInputValues] = React.useState(INITIAL_SIGNUP_VALUES);
 
     const validateCurrentForm = () => validateSignupForm(inputValues, isAgreed);
+    const handleTermsPress = () => Linking.openURL('https://new-wrap-go-jyeh.vercel.app/app?view=terms');
+    const handleAgreementPress = () => {
+        const nextIsAgreed = !isAgreed;
+        setIsAgreed(nextIsAgreed);
+        if (submitAttempted) {
+            setFormErrors(validateSignupForm(inputValues, nextIsAgreed));
+        }
+    };
 
     const handleInputChange = (field, value) => {
         const nextValue = field === 'email' ? value.toLowerCase() : value;
@@ -102,21 +110,20 @@ export default function Signup({setLocalPage, setPage, signUpInfo}) {
                     autoCorrect={field.key === 'email' ? false : true}
                 />
             ))}
-            <Pressable
-                style={styles.termsRow}
-                onPress={() => {
-                    const nextIsAgreed = !isAgreed;
-                    setIsAgreed(nextIsAgreed);
-                    if (submitAttempted) {
-                        setFormErrors(validateSignupForm(inputValues, nextIsAgreed));
-                    }
-                }}
-            >
-                <View style={[styles.checkbox, isAgreed && styles.checkboxActive]}>
-                    {isAgreed && <Feather name="check" size={14} color={colors.background} />}
-                </View>
-                <Text style={styles.termsText}>I have read and agree to the <Text style={{color: colors.accent}}>Terms of Service</Text></Text>
-            </Pressable>
+            <View style={styles.termsRow}>
+                <Pressable
+                    style={styles.agreementPressable}
+                    onPress={handleAgreementPress}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{checked: isAgreed}}
+                >
+                    <View style={[styles.checkbox, isAgreed && styles.checkboxActive]}>
+                        {isAgreed && <Feather name="check" size={14} color={colors.background} />}
+                    </View>
+                    <Text style={styles.termsText}>I have read and agree to the</Text>
+                </Pressable>
+                <Text style={styles.termsLink} onPress={handleTermsPress}>Terms of Service</Text>
+            </View>
             {submitAttempted && formErrors.isAgreed && (
                 <Text style={styles.checkboxError}>{formErrors.isAgreed}</Text>
             )}
@@ -146,6 +153,12 @@ const styles = StyleSheet.create({
         marginBottom: spacing.xl,
         gap: spacing.sm + 2,
     },
+    agreementPressable: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing.sm + 2,
+        flexShrink: 1,
+    },
     checkbox: {
         width: 20,
         height: 20,
@@ -162,9 +175,14 @@ const styles = StyleSheet.create({
     },
     termsText: {
         color: colors.textPrimary,
-        flex: 1,
+        flexShrink: 1,
         fontFamily: typography.familyRegular,
-        fontSize: typography.sizeSm
+        fontSize: typography.sizeSm,
+    },
+    termsLink: {
+        color: colors.accent,
+        fontFamily: typography.familyRegular,
+        fontSize: typography.sizeSm,
     },
     signinText: {
         color: colors.textSecondary,

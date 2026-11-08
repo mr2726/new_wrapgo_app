@@ -53,6 +53,7 @@ Latest patch updates:
 - Camera permission handling was hardened in profile flow:
 	- blocked permission path now offers `Open settings`
 	- camera errors now display the original exception message for faster debugging
+- Camera and photo-library access are requested when a photo is taken or selected. If access is blocked, the photo flows offer a link to app settings; the selfie screen also refreshes permission after returning from settings.
 - `app.json` now includes `expo-image-picker` and `expo-camera` plugins with explicit permission strings for stable native permission prompts.
 
 Current working tree updates:
@@ -132,7 +133,7 @@ GPS and task system updates (July 2026):
 	- `src/components/service/location/task.js`
 	- `src/components/service/location/sync.js`
 	- `src/components/service/location/tracking.js`
-- App boot now gates access with `LocationPermissionGate` until tracking prerequisites are satisfied (permissions, services, task manager availability).
+- In development and standalone builds, app boot uses `LocationPermissionGate` until foreground and background location permissions, device location services, and tracking prerequisites are satisfied. Expo Go bypasses the tracking gate and does not start background tracking.
 - Added a new Supabase location table migration:
 	- `supabase/sql/20260717_driver_location_updates.sql`
 	- stores latest driver location payload keyed by `driver_email`.

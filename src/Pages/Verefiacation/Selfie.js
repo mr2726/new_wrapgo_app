@@ -5,23 +5,54 @@ import {
   Text,
   Image,
   StyleSheet,
+  Alert,
+  AppState,
 } from 'react-native';
 import {CameraView, useCameraPermissions} from 'expo-camera';
 import {colors, spacing, typography} from '../../styles/theme';
+import {showPhotoPermissionDenied} from '../../components/service/photoPermissions';
 
 export default function SelfieScreen({collectedData, setCollectedData, validationErrors}) {
-    const [permission, requestPermission] = useCameraPermissions();
+    const [permission, requestPermission, getPermission] = useCameraPermissions();
     const cameraRef = useRef(null);
+    const autoRequested = useRef(false);
 
     const [photo, setPhoto] = useState(collectedData?.selfieLocalUri || null);
     const [cameraTextState, setCameraTextState] = useState(true);
 
+    const requestCameraAccess = React.useCallback(async () => {
+        try {
+            const result = await requestPermission();
+            if (!result.granted) {
+                showPhotoPermissionDenied(result, 'camera');
+            }
+        } catch (error) {
+            Alert.alert('Camera permission error', error?.message || 'Could not request camera access.');
+        }
+    }, [requestPermission]);
+
     useEffect(() => {
-        if (!permission) return;
-        if (!permission.granted) requestPermission();
+        if (permission?.status === 'undetermined' && !autoRequested.current) {
+            autoRequested.current = true;
+            requestCameraAccess();
+        }
+    }, [permission?.status, requestCameraAccess]);
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                getPermission().catch((error) => {
+                    Alert.alert('Camera permission error', error?.message || 'Could not check camera access.');
+                });
+            }
+        });
+        return () => subscription.remove();
+    }, [getPermission]);
+
+    useEffect(() => {
         const timer = setTimeout(() => setCameraTextState(false), 5000);
         return () => clearTimeout(timer);
-    }, [permission]);
+    }, []);
 
     const takeSelfie = async () => {
         if (!cameraRef.current) return;
@@ -40,7 +71,17 @@ export default function SelfieScreen({collectedData, setCollectedData, validatio
     if (!permission.granted) {
         return (
             <View style={styles.center}>
-                <Text style={{color: colors.textPrimary}}>We don't have access to the camera</Text>
+                <Text style={{color: colors.textPrimary}}>Camera access is required to take a selfie.</Text>
+                <TouchableOpacity
+                    style={styles.permissionButton}
+                    onPress={() => permission.canAskAgain === false
+                        ? showPhotoPermissionDenied(permission, 'camera')
+                        : requestCameraAccess()}
+                >
+                    <Text style={styles.buttonText}>
+                        {permission.canAskAgain === false ? 'Open settings' : 'Allow camera access'}
+                    </Text>
+                </TouchableOpacity>
             </View>
         );
     }
@@ -131,6 +172,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  permissionButton: {
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.xxl,
+    paddingVertical: spacing.md,
+    borderRadius: spacing.md,
+    backgroundColor: colors.surfaceMuted,
   },
   frame: {
     width: SIZE,

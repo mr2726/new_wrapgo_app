@@ -9,6 +9,7 @@ import {UploadDocuments} from '../../components/ui/upload';
 
 // SERVICE
 import {uploadImageToStorage} from '../../components/service/service';
+import {requestPhotoPermission} from '../../components/service/photoPermissions';
 // ------------------------------------------------------------------------
 
 const STORAGE_BUCKET = 'documents';
@@ -30,39 +31,34 @@ export default function VehiclePhoto({collectedData, setCollectedData, validatio
     });
     const [error, setError] = React.useState('');
 
-    const requestLibraryPermission = async () => {
-        const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        return status === 'granted';
-    };
-
     const onPressUpload = async (side) => {
         setError('');
 
-        const hasPermission = await requestLibraryPermission();
-        if (!hasPermission) {
-            setError('Gallery permission is required to upload vehicle photos.');
-            return;
-        }
-
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: false,
-            quality: 0.9,
-        });
-
-        if (pickerResult.canceled || !pickerResult.assets?.length) {
-            return;
-        }
-
-        const asset = pickerResult.assets[0];
-        const extension = getFileExtension(asset.uri);
-        const userKey = collectedData.email || 'driver';
-        const timestamp = Date.now();
-        const fileLabel = side === 'left' ? 'LeftSide' : 'RightSide';
-        const storagePath = `vehicle-documents/${userKey}/${fileLabel}-${timestamp}.${extension}`;
-
-        setUploading((prev) => ({...prev, [side]: true}));
         try {
+            const hasPermission = await requestPhotoPermission('library');
+            if (!hasPermission) {
+                setError('Gallery permission is required to upload vehicle photos.');
+                return;
+            }
+
+            const pickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: false,
+                quality: 0.9,
+            });
+
+            if (pickerResult.canceled || !pickerResult.assets?.length) {
+                return;
+            }
+
+            const asset = pickerResult.assets[0];
+            const extension = getFileExtension(asset.uri);
+            const userKey = collectedData.email || 'driver';
+            const timestamp = Date.now();
+            const fileLabel = side === 'left' ? 'LeftSide' : 'RightSide';
+            const storagePath = `vehicle-documents/${userKey}/${fileLabel}-${timestamp}.${extension}`;
+
+            setUploading((prev) => ({...prev, [side]: true}));
             const uploaded = await uploadImageToStorage({
                 uri: asset.uri,
                 storagePath,

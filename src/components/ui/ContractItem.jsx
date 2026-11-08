@@ -7,7 +7,12 @@ import {Camera} from "../Icons";
 
 // COMPONENTS
 import {Button_} from "../ui/buttons";
-import {uploadImageToStorage, updateVehicleWrapPhotos} from "../service/service";
+import {
+    hasRegisteredServiceVisit,
+    uploadImageToStorage,
+    updateVehicleWrapPhotos,
+} from "../service/service";
+import {requestPhotoPermission} from "../service/photoPermissions";
 // --------------------------------------------------------------
 
 const normalizeStatus = (value) => String(value || '').trim().toLowerCase();
@@ -83,6 +88,7 @@ export const ContractItem = ({data, status, signedAt, contractId, onStatusUpdate
     const [leftSidePhoto, setLeftSidePhoto] = React.useState(null);
     const [rightSidePhoto, setRightSidePhoto] = React.useState(null);
     const [isUploading, setIsUploading] = React.useState(false);
+    const [isServiceVisitRegistered, setIsServiceVisitRegistered] = React.useState(false);
     const [driverContext, setDriverContext] = React.useState({email: null, inviteCode: null, contractId: null});
 
     const normalizedStatus = React.useMemo(() => normalizeStatus(status), [status]);
@@ -120,32 +126,66 @@ export const ContractItem = ({data, status, signedAt, contractId, onStatusUpdate
         loadDriverContext();
     }, []);
 
+    React.useEffect(() => {
+        let isMounted = true;
+
+        const checkServiceVisitRegistration = async () => {
+            if (!driverContext.email || !effectiveContractId) {
+                setIsServiceVisitRegistered(false);
+                return;
+            }
+
+            try {
+                const isRegistered = await hasRegisteredServiceVisit({
+                    email: driverContext.email,
+                    contractId: effectiveContractId,
+                });
+                if (isMounted) {
+                    setIsServiceVisitRegistered(isRegistered);
+                }
+            } catch (error) {
+                console.warn('[ContractItem] failed to check service visit registration:', error?.message || error);
+                if (isMounted) {
+                    setIsServiceVisitRegistered(false);
+                }
+            }
+        };
+
+        checkServiceVisitRegistration();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [driverContext.email, effectiveContractId]);
+
     const openCameraAndUpload = async (side) => {
+        if (!isServiceVisitRegistered) {
+            Alert.alert('Register service visit first', 'Open the Service visit tab and send your visit details before taking wrap photos.');
+            return;
+        }
+
         if (!driverContext.inviteCode) {
             Alert.alert('Missing fleet code', 'Please set Fleet Code in Settings before uploading wrap photos.');
             return;
         }
 
-        const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
-
-        if (!cameraPermission.granted) {
-            Alert.alert('Permission required', 'Camera permission is required to take vehicle photos.');
-            return;
-        }
-
-        const cameraResult = await ImagePicker.launchCameraAsync({
-            mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 0.9,
-        });
-
-        if (cameraResult.canceled || !cameraResult.assets?.[0]?.uri) {
-            return;
-        }
-
         try {
             setIsUploading(true);
+
+            if (!await requestPhotoPermission('camera')) {
+                return;
+            }
+
+            const cameraResult = await ImagePicker.launchCameraAsync({
+                mediaTypes: ['images'],
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 0.9,
+            });
+
+            if (cameraResult.canceled || !cameraResult.assets?.[0]?.uri) {
+                return;
+            }
 
             const timestamp = Date.now();
             const storagePath = `vehicle-documents/${driverContext.inviteCode}/wrap-${side}-${timestamp}.jpg`;
@@ -207,7 +247,19 @@ export const ContractItem = ({data, status, signedAt, contractId, onStatusUpdate
                 {!!signedAt && <Text style={styles.description}>Signed at: {formatDateTimeLabel(signedAt)}</Text>}
             </View>
 
-            {!isUnderReview && (
+            {!isUnderReview && !isServiceVisitRegistered && (
+                <View style={styles.visitRequired}>
+                    <Text style={styles.visitRequiredText}>
+                        Register a service visit first. After sending your visit details in the Service visit tab, you can take the wrap photos here.
+                    </Text>
+                    <Button_
+                        title="Register service visit"
+                        onPress={() => setSelectedTab("service_visit")}
+                    />
+                </View>
+            )}
+
+            {!isUnderReview && isServiceVisitRegistered && (
                 <>
                     <View style={[styles.photoButtons, {display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, marginBottom: 10}]}>
                         <Pressable style={styles.sidePick} onPress={() => openCameraAndUpload('left')} disabled={isUploading}>

@@ -8,6 +8,8 @@ import {Input_} from '../../components/ui/inputs';
 // ------------------------------------------------------------------------
 
 export default function VehicleInfo({collectedData, setCollectedData, validationErrors = {}}) {
+    const readOnly = collectedData.vehicleType === 'other' || collectedData.otherVehicle;
+
     return (
         <View style={styles.screen}>
             <Input_
@@ -17,7 +19,8 @@ export default function VehicleInfo({collectedData, setCollectedData, validation
                     setCollectedData({...collectedData, vehicleMake: text});
                 }}
                 style={{marginBottom: spacing.lg}}
-                disable={false}
+                disable={!readOnly}
+                readOnly={readOnly}
                 error={validationErrors.vehicleMake}
                 errorText={validationErrors.vehicleMake}
             />
@@ -28,7 +31,8 @@ export default function VehicleInfo({collectedData, setCollectedData, validation
                     setCollectedData({...collectedData, vehicleModel: text});
                 }}
                 style={{marginBottom: spacing.lg}}
-                disable={false}
+                disable={!readOnly}
+                readOnly={readOnly}
                 error={validationErrors.vehicleModel}
                 errorText={validationErrors.vehicleModel}
             />
@@ -39,7 +43,8 @@ export default function VehicleInfo({collectedData, setCollectedData, validation
                     setCollectedData({...collectedData, vehicleYear: text});
                 }}
                 style={{marginBottom: spacing.lg}}
-                disable={false}
+                disable={!readOnly}
+                readOnly={readOnly}
                 error={validationErrors.vehicleYear}
                 errorText={validationErrors.vehicleYear}
             />  

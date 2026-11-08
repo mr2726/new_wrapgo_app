@@ -3,12 +3,16 @@ import React, {useEffect} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {colors} from "../../styles/theme";
 
-import {MapMark} from '../Icons';
-import ServiceRouteMap from "../ui/ServiceRouteMap";
+import {Selector_} from "../ui/selectors";
 import {Button_} from "../ui/buttons";
 import {ServiceDateTimePicker} from "../ui/ServiceDateTimePicker";
 
-import {getServiceLocation, getVehicleDataByOTP, sendServiceVisitTelegramMessage} from "../service/service";
+import {
+    getServiceLocation,
+    getVehicleDataByOTP,
+    markServiceVisitRegistered,
+    sendServiceVisitTelegramMessage,
+} from "../service/service";
 
 const formatDateTime = (value) => {
     const safeValue = value instanceof Date ? value : new Date();
@@ -52,6 +56,15 @@ export const ServiceVisit = ({contract}) => {
     const [serviceLocationError, setServiceLocationError] = React.useState(null);
     const [isServiceLocationLoading, setIsServiceLocationLoading] = React.useState(true);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const serviceOptions = React.useMemo(
+        () => serviceLocation.map((service, index) => ({
+            label: String(service?.name || service?.title || service?.city || `Service ${index + 1}`),
+            value: String(service?.id ?? service?.service_id ?? service?.name ?? index),
+            raw: service,
+        })),
+        [serviceLocation]
+    );
+    const selectedServiceOption = serviceOptions.find((option) => option.raw === selectedService) || serviceOptions[0] || null;
 
     useEffect(() => {
         let isMounted = true;
@@ -115,6 +128,10 @@ export const ServiceVisit = ({contract}) => {
             const userDataString = await AsyncStorage.getItem('userData');
             const userData = userDataString ? JSON.parse(userDataString) : null;
 
+            if (!userData?.email || contract?.id == null) {
+                throw new Error('Driver account and contract information are required to register this service visit.');
+            }
+
             let vehicleBrand = pickValue(
                 contract?.vehicle_brand,
                 contract?.vehicleBrand,
@@ -159,6 +176,20 @@ export const ServiceVisit = ({contract}) => {
                 message,
             });
 
+            try {
+                await markServiceVisitRegistered({
+                    email: userData.email,
+                    contractId: contract.id,
+                });
+            } catch (error) {
+                console.warn('Service visit was sent but registration could not be saved:', error);
+                Alert.alert(
+                    'Visit sent, photos still locked',
+                    'Your service visit was sent, but the registration could not be saved. Please try again before taking vehicle photos.'
+                );
+                return;
+            }
+
             Alert.alert('Success', 'Service visit details sent successfully.');
         } catch (error) {
             console.warn('Failed to send service visit details:', error);
@@ -192,11 +223,12 @@ export const ServiceVisit = ({contract}) => {
                     <Text style={styles.secondaryText}>{contract.city}</Text>
                 </View>
             </View>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10}}>
-                <MapMark style={{marginTop: 10}} width={20} height={20} fill={colors.primary} />
-                <Text style={styles.secondaryText}>Service Center Location</Text>
-            </View>
-            <ServiceRouteMap services={serviceLocation} onServiceChange={setSelectedService} />
+            <Selector_
+                label="Select service center"
+                options={serviceOptions}
+                value={selectedServiceOption}
+                onValueChange={(option) => setSelectedService(option.raw)}
+            />
             {isServiceLocationLoading ? (
                 <Text style={styles.secondaryText}>Loading services...</Text>
             ) : null}

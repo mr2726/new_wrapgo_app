@@ -6,6 +6,28 @@ const STORAGE_BUCKET = 'documents';
 const VEHICLE_DOCS_PREFIX = 'vehicle-documents';
 const LOCATION_UPDATES_TABLE = 'driver_location_updates';
 const MIN_TRACKING_SPEED_KMH = 10;
+const SERVICE_VISIT_REGISTRATION_KEY = 'wrapgo-service-visit-registration';
+
+const getServiceVisitRegistrationStorageKey = ({email, contractId}) => {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const normalizedContractId = contractId == null ? '' : String(contractId).trim();
+
+    if (!normalizedEmail || !normalizedContractId) {
+        throw new Error('Driver email and contract ID are required to register a service visit.');
+    }
+
+    return `${SERVICE_VISIT_REGISTRATION_KEY}:${encodeURIComponent(normalizedEmail)}:${encodeURIComponent(normalizedContractId)}`;
+};
+
+export const hasRegisteredServiceVisit = async ({email, contractId}) => {
+    const storageKey = getServiceVisitRegistrationStorageKey({email, contractId});
+    return (await AsyncStorage.getItem(storageKey)) === 'true';
+};
+
+export const markServiceVisitRegistered = async ({email, contractId}) => {
+    const storageKey = getServiceVisitRegistrationStorageKey({email, contractId});
+    await AsyncStorage.setItem(storageKey, 'true');
+};
 
 const normalizeWeeklyStat = (weeklyStat) => {
     if (!weeklyStat) {

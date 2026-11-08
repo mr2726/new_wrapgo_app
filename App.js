@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { AppState, Linking, StyleSheet, View } from 'react-native';
 import { useFonts } from 'expo-font';
+import Constants, { ExecutionEnvironment } from 'expo-constants';
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -13,6 +14,8 @@ import {
   requestLocationTrackingPermissions,
   subscribeToLocationQueueSync,
 } from './src/components/service/location/tracking';
+
+const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -28,12 +31,12 @@ export default function App() {
   });
 
   const [isLogined, setIsLogined] = React.useState(null);
-  const [trackingState, setTrackingState] = React.useState({
-    loading: true,
-    ready: false,
+  const [trackingState, setTrackingState] = React.useState(() => ({
+    loading: !isExpoGo,
+    ready: isExpoGo,
     status: null,
     errorMessage: '',
-  });
+  }));
   const queueSyncSubscriptionRef = React.useRef(null);
   const trackingReadyRef = React.useRef(false);
 
@@ -104,6 +107,10 @@ export default function App() {
   }, []);
 
   React.useEffect(() => {
+    if (isExpoGo) {
+      return undefined;
+    }
+
     refreshLocationTracking();
 
     // Settings changes (e.g. granting "Allow all the time") don't notify the app, so recheck on resume.

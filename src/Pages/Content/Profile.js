@@ -1,4 +1,4 @@
-import {View, Text, Image, StyleSheet, Pressable, ScrollView, Alert, Linking} from 'react-native';
+import {View, Text, Image, StyleSheet, Pressable, ScrollView, Alert} from 'react-native';
 import React from 'react';
 import {colors, radius, spacing, typography} from '../../styles/theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,6 +12,7 @@ import { SegmentedControl_ } from '../../components/ui/segmentedControl';
 import { Chart } from '../../components/ui/Chart';
 import { ProfilePhotoSheet } from '../../components/ui/ProfilePhotoSheet';
 import { getSignedContracts, uploadImageToStorage, updateDriverSelfie } from '../../components/service/service';
+import {requestPhotoPermission} from '../../components/service/photoPermissions';
 // ----------------------------------------------------------
 
 const normalizeWeeklyStat = (weeklyStat) => {
@@ -163,9 +164,7 @@ export default function Profile ({setLocalPage}) {
 
     const handleChooseFromLibrary = React.useCallback(async () => {
         try {
-            const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (!permission.granted) {
-                Alert.alert('Permission required', 'Allow photo library access to choose profile photo.');
+            if (!await requestPhotoPermission('library')) {
                 return;
             }
 
@@ -187,20 +186,7 @@ export default function Profile ({setLocalPage}) {
 
     const handleTakePhoto = React.useCallback(async () => {
         try {
-            const permission = await ImagePicker.requestCameraPermissionsAsync();
-            if (!permission.granted) {
-                if (permission.canAskAgain === false) {
-                    Alert.alert(
-                        'Camera permission blocked',
-                        'Open app settings and allow camera access to take profile photo.',
-                        [
-                            {text: 'Cancel', style: 'cancel'},
-                            {text: 'Open settings', onPress: () => Linking.openSettings()},
-                        ]
-                    );
-                } else {
-                    Alert.alert('Permission required', 'Allow camera access to take profile photo.');
-                }
+            if (!await requestPhotoPermission('camera')) {
                 return;
             }
 

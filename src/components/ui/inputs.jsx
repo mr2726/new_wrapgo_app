@@ -40,6 +40,7 @@ export const Input_ = ({
   errorText,
   icon,
   isPassword,
+  readOnly = false,
   disable = true,
   type = 'text',
   autoCapitalize = 'sentences',
@@ -139,7 +140,7 @@ export const Input_ = ({
             style,
           ]}
           secureTextEntry={Boolean(isPassword) && !isPasswordVisibleState}
-          editable={disableInput}
+          editable={!readOnly && disableInput}
           maxLength={type === 'phone-pad' ? 15 : undefined}
           autoCapitalize={autoCapitalize}
           autoCorrect={autoCorrect}
@@ -164,7 +165,7 @@ export const Input_ = ({
           </Pressable>
         )}
         {
-          !disableInput && (
+          !disableInput && !readOnly && (
             <Pressable onPress={() => setDisableInput(true)}
               style={{
                 position: 'absolute',

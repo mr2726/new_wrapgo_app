@@ -87,7 +87,7 @@ export default function VereficationContent({setPage, signUpInfo}) {
             const frontView = collectedData.vehicleRegistrationDoc?.frontView;
             const backView = collectedData.vehicleRegistrationDoc?.backView;
             if (!frontView || !backView) {
-                nextErrors.vehicleRegistrationDoc = 'Upload front and back vehicle documents';
+                nextErrors.vehicleRegistrationDoc = 'Take photos of the front and back of the vehicle registration';
             }
         }
 

@@ -144,6 +144,15 @@ export default function Contracts({setLocalPage}) {
 
                 {selectedTab === "upcoming" && (
                     <View>
+                        <View style={styles.upcomingGuide}>
+                            <Text style={styles.upcomingGuideTitle}>How to work</Text>
+                            <Text style={styles.upcomingGuideText}>
+                                1. Register your service visit in the Service visit tab.
+                            </Text>
+                            <Text style={styles.upcomingGuideText}>
+                                2. After the service wrap your vehicle take the photo of both sides.
+                            </Text>
+                        </View>
                         {(!loading && selectedSignedContract && campaignData)  ? (
                             <ContractItem
                                 data={campaignData}
@@ -187,5 +196,24 @@ export default function Contracts({setLocalPage}) {
 }
 
 const styles = StyleSheet.create({
-    
+    upcomingGuide: {
+        backgroundColor: colors.surface,
+        borderColor: colors.borderLight,
+        borderRadius: 12,
+        borderWidth: 1,
+        marginBottom: 16,
+        padding: 16,
+    },
+    upcomingGuideTitle: {
+        color: colors.accent,
+        fontFamily: 'LufgaSemiBold',
+        fontSize: 16,
+        marginBottom: 8,
+    },
+    upcomingGuideText: {
+        color: colors.textSecondary,
+        fontSize: 14,
+        lineHeight: 21,
+        marginTop: 4,
+    },
 });

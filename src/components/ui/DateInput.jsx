@@ -2,7 +2,7 @@ import {View, Text, StyleSheet, Pressable, Modal, Platform} from 'react-native';
 import React from 'react';
 import {colors, spacing, typography} from '../../styles/theme';
 import {Feather} from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 
 const formatDate = (date) => {
     const year = date.getFullYear();
@@ -48,7 +48,6 @@ export function DateInput({label, value, onChange, error, style, placeholder, di
 
     const handleDateChange = (event, date) => {
         if (Platform.OS === 'android') {
-            setIsPickerVisible(false);
             if (event?.type === 'set' && date) {
                 setSelectedDate(date);
                 onChange?.(formatDate(date));
@@ -66,6 +65,24 @@ export function DateInput({label, value, onChange, error, style, placeholder, di
         setIsPickerVisible(false);
     };
 
+    const handlePickerOpen = () => {
+        const initialDate = parseDate(value);
+        setSelectedDate(initialDate);
+
+        if (Platform.OS === 'android') {
+            DateTimePickerAndroid.open({
+                value: initialDate,
+                mode: 'date',
+                display: 'default',
+                maximumDate: new Date(),
+                onChange: handleDateChange,
+            });
+            return;
+        }
+
+        setIsPickerVisible(true);
+    };
+
     return (
         <View style={[{width: '100%', marginBottom: spacing.lg}, style]}>
             {label && (
@@ -74,7 +91,7 @@ export function DateInput({label, value, onChange, error, style, placeholder, di
                 </Text>
             )}
             <Pressable
-                onPress={disabled ? undefined : () => setIsPickerVisible(true)}
+                onPress={disabled ? undefined : handlePickerOpen}
                 style={{position: 'relative', width: '100%'}}
             >
                 <Feather
@@ -110,39 +127,54 @@ export function DateInput({label, value, onChange, error, style, placeholder, di
             </Pressable>
             {error && <Text style={{color: colors.error, marginTop: 10, textAlign: 'right'}}>{error}</Text>}
 
-            <Modal
-                visible={isPickerVisible && !disabled}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setIsPickerVisible(false)}
-            >
-
-                <Pressable
-                    style={{backgroundColor: colors.background, borderRadius: 16, padding: spacing.lg}}
-                    onPress={() => {}}
+            {Platform.OS !== 'android' && (
+                <Modal
+                    visible={isPickerVisible && !disabled}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setIsPickerVisible(false)}
                 >
-                    <DateTimePicker
-                        value={selectedDate}
-                        mode="date"
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={handleDateChange}
-                        maximumDate={new Date()}
-                        style={{alignSelf: 'stretch'}}
-                        themeVariant="dark"
-                    />
-                    {Platform.OS === 'ios' && (
-                        <View style={{flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.md}}>
-                            <Pressable onPress={() => setIsPickerVisible(false)} style={{paddingVertical: 10, paddingHorizontal: 14}}>
-                                <Text style={{color: colors.textSecondary, fontSize: typography.sizeMd}}>Cancel</Text>
-                            </Pressable>
-                            <Pressable onPress={handleConfirm} style={{paddingVertical: 10, paddingHorizontal: 14}}>
-                                <Text style={{color: colors.accent, fontSize: typography.sizeMd, fontFamily: typography.familySemiBold}}>Done</Text>
-                            </Pressable>
+                    <View style={styles.modalOverlay}>
+                        <Pressable
+                            style={StyleSheet.absoluteFill}
+                            onPress={() => setIsPickerVisible(false)}
+                        />
+                        <View style={styles.modalContent}>
+                            <DateTimePicker
+                                value={selectedDate}
+                                mode="date"
+                                display="spinner"
+                                onChange={handleDateChange}
+                                maximumDate={new Date()}
+                                style={{alignSelf: 'stretch'}}
+                                themeVariant="dark"
+                            />
+                            <View style={{flexDirection: 'row', justifyContent: 'flex-end', gap: spacing.sm, marginTop: spacing.md}}>
+                                <Pressable onPress={() => setIsPickerVisible(false)} style={{paddingVertical: 10, paddingHorizontal: 14}}>
+                                    <Text style={{color: colors.textSecondary, fontSize: typography.sizeMd}}>Cancel</Text>
+                                </Pressable>
+                                <Pressable onPress={handleConfirm} style={{paddingVertical: 10, paddingHorizontal: 14}}>
+                                    <Text style={{color: colors.accent, fontSize: typography.sizeMd, fontFamily: typography.familySemiBold}}>Done</Text>
+                                </Pressable>
+                            </View>
                         </View>
-                    )}
-                </Pressable>
-                
-            </Modal>
+                    </View>
+                </Modal>
+            )}
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: spacing.lg,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    },
+    modalContent: {
+        backgroundColor: colors.background,
+        borderRadius: 16,
+        padding: spacing.lg,
+    },
+});
